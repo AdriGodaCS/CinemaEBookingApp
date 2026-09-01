@@ -1,7 +1,7 @@
-package com.cinema.cinemaBooking.service;
+package com.cinemaebooking.service;
 
-import com.cinema.cinemaBooking.model.Movie;
-import com.cinema.cinemaBooking.repository.MovieRepository;
+import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

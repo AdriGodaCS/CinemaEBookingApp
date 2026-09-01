@@ -1,6 +1,6 @@
-package com.cinema.cinemaBooking.repository;
+package com.cinemaebooking.repository;
 
-import com.cinema.cinemaBooking.model.Movie;
+import com.cinemaebooking.model.Movie;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

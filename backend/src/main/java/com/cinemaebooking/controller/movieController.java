@@ -1,7 +1,7 @@
-package com.cinema.cinemaBooking.controller;
+package com.cinemaebooking.controller;
 
-import com.cinema.cinemaBooking.model.Movie;
-import com.cinema.cinemaBooking.service.MovieService;
+import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.service.MovieService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
