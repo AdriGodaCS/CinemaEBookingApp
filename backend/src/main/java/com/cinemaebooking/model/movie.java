@@ -6,9 +6,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
+// Movie document stored in the movies collection
 @Document(collection = "movies")
 public class Movie {
 
+    // Movie properties
     @Id
     private Integer id;
 
@@ -31,6 +33,7 @@ public class Movie {
 
     private String status;
 
+    // Getters and setters for movie properties
     public Integer getId() {
         return id;
     }

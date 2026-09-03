@@ -6,13 +6,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// REST controller for movie-related requests
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin(origins = "*")
 public class MovieController {
 
+    // Service used to retrieve movie data
     private final MovieService movieService;
 
+    // Constructor for injecting the movie service
     public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
