@@ -6,16 +6,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// REST controller for movie-related requests
 @RestController
 @RequestMapping("/movies")
 @CrossOrigin(origins = "*")
 public class MovieController {
 
-    // Service used to retrieve movie data
     private final MovieService movieService;
 
-    // Constructor for injecting the movie service
     public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
@@ -26,7 +23,19 @@ public class MovieController {
         return movieService.getAllMovies();
     }
 
-    // Get a movie by title
+    // Get movie by ID
+    @GetMapping("/{id}")
+    public Movie getMovieById(@PathVariable Integer id) {
+        return movieService.getMovieById(id);
+    }
+
+    // Search movies by title
+    @GetMapping("/search")
+    public List<Movie> searchMovies(@RequestParam String title) {
+        return movieService.findByTitleContainingIgnoreCase(title);
+    }
+
+    // Get a movie by exact title
     @GetMapping("/title/{title}")
     public Movie getMovieByTitle(@PathVariable String title) {
         return movieService.getMovieByTitle(title);
