@@ -1,25 +1,45 @@
 package com.cinemaebooking.backend;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
-// Main Spring Boot application class
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@EnableMongoRepositories(basePackages = "com.cinemaebooking.repository")
+@SpringBootApplication(scanBasePackages = "com.cinemaebooking")
 public class BackendApplication {
 
-    // Load environment settings and start the application
-	public static void main(String[] args) {
+    private static String mongoUri;
 
-		 // Load .env and copy to System properties so Spring can see them
-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        dotenv.entries().forEach(entry -> 
-            System.setProperty(entry.getKey(), entry.getValue())
-        );
-		
-		SpringApplication.run(BackendApplication.class, args);
-	}
+    public static void main(String[] args) {
 
+        Dotenv dotenv = Dotenv.configure()
+                .directory("./")
+                .ignoreIfMissing()
+                .load();
+
+        mongoUri = dotenv.get("MONGODB_URI");
+
+        if (mongoUri == null || mongoUri.isBlank()) {
+            throw new RuntimeException("MONGODB_URI was not found in .env");
+        }
+
+        System.out.println("MONGODB_URI loaded: true");
+
+        SpringApplication.run(BackendApplication.class, args);
+    }
+
+    @Bean
+    public MongoClient mongoClient() {
+        return MongoClients.create(mongoUri);
+    }
+
+    @Bean
+    public MongoTemplate mongoTemplate(MongoClient mongoClient) {
+        return new MongoTemplate(mongoClient, "cinemaSystem");
+    }
 }
