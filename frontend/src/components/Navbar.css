@@ -14,6 +14,11 @@
   text-decoration: none;
 }
 
+.links {
+  display: flex;
+  gap: 20px;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -39,6 +44,9 @@
   color: var(--muted);
   font-size: 0.92rem;
   transition: color 160ms ease;
+  border: 1px solid white;
+  padding: 5px 10px;
+  border-radius: 5px;;
 }
 
 .nav-link:hover,
