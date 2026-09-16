@@ -65,15 +65,19 @@ function MovieList({ input, genre }: MovieListProps) {
                     <h2 id="currently-running-title">Currently Running</h2>
                 </div>
                 <div className="movie-grid">
-                    {currentlyRunningMovies.map((movie) => (
-                        <MovieCard
-                            key={movie.id}
-                            poster_url={movie.posterUrl}
-                            title={movie.title}
-                            genre={movie.genre}
-                            rating={movie.rating}
-                        />
-                    ))}
+                    {currentlyRunningMovies.length === 0 ? (
+                        <p className="no-matching-movies">No matching movies found.</p>
+                    ) : (
+                        currentlyRunningMovies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                poster_url={movie.posterUrl}
+                                title={movie.title}
+                                genre={movie.genre}
+                                rating={movie.rating}
+                            />
+                        ))
+                    )}
                 </div>
             </section>
 
@@ -82,15 +86,19 @@ function MovieList({ input, genre }: MovieListProps) {
                     <h2 id="coming-soon-title">Coming Soon</h2>
                 </div>
                 <div className="movie-grid">
-                    {comingSoonMovies.map((movie) => (
-                        <MovieCard
-                            key={movie.id}
-                            poster_url={movie.posterUrl}
-                            title={movie.title}
-                            genre={movie.genre}
-                            rating={movie.rating}
-                        />
-                    ))}
+                    {comingSoonMovies.length === 0 ? (
+                        <p className="no-matching-movies">No matching movies found.</p>
+                    ) : (
+                        comingSoonMovies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                poster_url={movie.posterUrl}
+                                title={movie.title}
+                                genre={movie.genre}
+                                rating={movie.rating}
+                            />
+                        ))
+                    )}
                 </div>
             </section>
         </div>
