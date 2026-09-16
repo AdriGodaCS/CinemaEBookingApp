@@ -2,6 +2,7 @@
   min-width: 0;
   overflow: hidden;
   background: #20252a;
+  font-family: 'Space Grotesk', sans-serif;
   border: 1px solid var(--line);
 }
 
