@@ -44,34 +44,48 @@ function Home() {
 
     return (
         <section className="home-page" aria-labelledby="home-title">
-            <div style={{display: 'flex', gap: '10px', justifyContent: 'end', alignItems: 'center', marginTop: '10px'}}>
-                <div className="movie-search">
-                <label htmlFor="movie-search-input">Search movies</label>
-                <input
-                    id="movie-search-input"
-                    type="search"
-                    value={inputTitle}
-                    onChange={(event) => setInputTitle(event.target.value)}
-                    placeholder="Search by title"
-                />
+            <div className="movie-filters">
+                <div className="movie-date-filter">
+                    <p className="movie-date-filter-title">Filter by show date</p>
+                    <div className="movie-date-fields">
+                        <div>
+                            <label htmlFor="movie-show-date-from">From</label>
+                            <input id="movie-show-date-from" type="date" />
+                        </div>
+                        <div>
+                            <label htmlFor="movie-show-date-to">To</label>
+                            <input id="movie-show-date-to" type="date" />
+                        </div>
+                    </div>
+                </div>
+                <div className="movie-filter-main">
+                    <div className="movie-search">
+                        <label htmlFor="movie-search-input">Search movies</label>
+                        <input
+                            id="movie-search-input"
+                            type="search"
+                            value={inputTitle}
+                            onChange={(event) => setInputTitle(event.target.value)}
+                            placeholder="Search by title"
+                        />
+                    </div>
+                    <div className="movie-genre-filter">
+                        <label htmlFor="movie-genre-select">Filter by genre</label>
+                        <select
+                            id="movie-genre-select"
+                            value={genre}
+                            onChange={(event) => setGenre(event.target.value)}
+                        >
+                            <option value="">All genres</option>
+                            {genreOptions.map((movieGenre) => (
+                                <option key={movieGenre} value={movieGenre}>
+                                    {movieGenre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div className="movie-genre-filter">
-                <label htmlFor="movie-genre-select">Filter by genre</label>
-                <select
-                    id="movie-genre-select"
-                    value={genre}
-                    onChange={(event) => setGenre(event.target.value)}
-                >
-                    <option value="">All genres</option>
-                    {genreOptions.map((movieGenre) => (
-                        <option key={movieGenre} value={movieGenre}>
-                            {movieGenre}
-                        </option>
-                    ))}
-                </select>
-            </div>                
-            </div>
-
             <MovieList input={inputTitle} genre={genre} />
         </section>
     )
