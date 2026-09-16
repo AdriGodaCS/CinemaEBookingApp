@@ -1,5 +1,5 @@
 .home-page {
-  padding: clamp(72px, 12vw, 148px) 0 100px;
+  padding: clamp(32px, 5vw, 64px) 0 100px;
 }
 
 .movie-search {
@@ -34,6 +34,6 @@
 
 @media (max-width: 700px) {
   .home-page {
-    padding-top: 72px;
+    padding-top: 32px;
   }
 }

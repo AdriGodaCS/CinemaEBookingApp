@@ -1,4 +1,6 @@
 .movie-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-width: 0;
   overflow: hidden;
   background: #20252a;
@@ -13,4 +15,18 @@
   object-fit: cover;
   object-position: center;
   background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06));
+}
+
+.movie-details {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.movie-details h3,
+.movie-details p {
+  margin: 0;
 }
