@@ -1,13 +1,17 @@
-function MovieCard() {
+type MovieCardProps = {
+  poster_url?: string
+  title?: string
+  genre?: string
+  rating?: number | string
+}
+
+function MovieCard({ poster_url, title, genre, rating }: MovieCardProps) {
   return (
-    <article className="movie-card" aria-label="Movie card placeholder">
-      <div className="movie-poster" aria-hidden="true">
-        <span>Poster</span>
-      </div>
-      <div className="movie-card-details">
-        <div className="movie-card-line" />
-        <div className="movie-card-line short" />
-      </div>
+    <article className="movie-card">
+      {poster_url && <img className="movie-poster" src={poster_url} alt={`${title ?? 'Movie'} poster`} />}
+      <h3>{title}</h3>
+      <p>{genre}</p>
+      <p>{rating}</p>
     </article>
   )
 }
