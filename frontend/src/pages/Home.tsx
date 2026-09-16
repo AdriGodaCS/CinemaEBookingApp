@@ -9,9 +9,19 @@ function Home() {
 
     return (
         <section className="home-page" aria-labelledby="home-title">
-        <MovieList input={inputTitle} genre={genre}/>
+            <div className="movie-search">
+                <label htmlFor="movie-search-input">Search movies</label>
+                <input
+                    id="movie-search-input"
+                    type="search"
+                    value={inputTitle}
+                    onChange={(event) => setInputTitle(event.target.value)}
+                    placeholder="Search by title"
+                />
+            </div>
+            <MovieList input={inputTitle} genre={genre} />
         </section>
-  )
+    )
 }
 
 export default Home

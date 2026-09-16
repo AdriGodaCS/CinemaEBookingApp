@@ -2,6 +2,36 @@
   padding: clamp(72px, 12vw, 148px) 0 100px;
 }
 
+.movie-search {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin-bottom: 48px;
+}
+
+.movie-search label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.movie-search input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);
+  background: rgba(32, 37, 42, 0.86);
+  font: inherit;
+}
+
+.movie-search input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 @media (max-width: 700px) {
   .home-page {
     padding-top: 72px;
