@@ -71,6 +71,7 @@ function MovieList({ input, genre }: MovieListProps) {
                         currentlyRunningMovies.map((movie) => (
                             <MovieCard
                                 key={movie.id}
+                                id={movie.id}
                                 poster_url={movie.posterUrl}
                                 title={movie.title}
                                 genre={movie.genre}
@@ -92,6 +93,7 @@ function MovieList({ input, genre }: MovieListProps) {
                         comingSoonMovies.map((movie) => (
                             <MovieCard
                                 key={movie.id}
+                                id={movie.id}
                                 poster_url={movie.posterUrl}
                                 title={movie.title}
                                 genre={movie.genre}
