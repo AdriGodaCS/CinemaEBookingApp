@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MovieList from '../components/MovieList'
+import './Home.css'
 
 function Home() {
 

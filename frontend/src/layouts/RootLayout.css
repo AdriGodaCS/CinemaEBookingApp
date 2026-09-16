@@ -1,0 +1,10 @@
+.app-shell {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  background: radial-gradient(circle at 82% 18%, rgba(238, 117, 94, 0.11), transparent 25rem), var(--night);
+}
+
+.site-main {
+  flex: 1;
+}

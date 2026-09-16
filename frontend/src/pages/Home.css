@@ -1,0 +1,9 @@
+.home-page {
+  padding: clamp(72px, 12vw, 148px) 0 100px;
+}
+
+@media (max-width: 700px) {
+  .home-page {
+    padding-top: 72px;
+  }
+}

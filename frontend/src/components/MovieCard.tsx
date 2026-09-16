@@ -1,3 +1,5 @@
+import './MovieCard.css'
+
 type MovieCardProps = {
   poster_url?: string
   title?: string

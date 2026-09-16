@@ -20,38 +20,8 @@ body { margin: 0; min-width: 320px; }
 a { color: inherit; }
 #root { min-height: 100svh; }
 
-.app-shell {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  background: radial-gradient(circle at 82% 18%, rgba(238, 117, 94, 0.11), transparent 25rem), var(--night);
-}
-
-.site-header { border-bottom: 1px solid var(--line); }
 .site-nav, .site-main, .site-footer { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
-.site-nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; }
-.brand, .nav-link { text-decoration: none; }
-.brand { display: inline-flex; align-items: center; gap: 11px; font-family: 'Space Grotesk', sans-serif; font-size: 1.08rem; font-weight: 600; letter-spacing: 0.02em; }
-.brand-mark { display: grid; width: 34px; height: 34px; place-items: center; color: var(--night); background: var(--gold); font-size: 0.72rem; font-weight: 700; }
-.nav-link { color: var(--muted); font-size: 0.92rem; transition: color 160ms ease; }
-.nav-link:hover, .nav-link.active { color: var(--ink); }
-.site-main { flex: 1; }
-
-.home-page { padding: clamp(72px, 12vw, 148px) 0 100px; }
-.movie-section-heading h2 { margin: 0; font-family: 'Space Grotesk', sans-serif; line-height: 0.98; }
-.movie-section { margin-top: 110px; }
-.movie-section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-.movie-section-heading h2 { font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: -0.05em; }
-.movie-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-.movie-card { min-width: 0; overflow: hidden; background: #20252a; border: 1px solid var(--line); }
-.movie-poster { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; object-position: center; background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06)); }
-.site-footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.78rem; }
-.site-footer p { margin: 0; }
 
 @media (max-width: 700px) {
   .site-nav, .site-main, .site-footer { width: min(100% - 32px, 1120px); }
-  .home-page { padding-top: 72px; }
-  .movie-section { margin-top: 76px; }
-  .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-  .site-footer { flex-direction: column; gap: 8px; }
 }

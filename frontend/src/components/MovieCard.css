@@ -1,0 +1,15 @@
+.movie-card {
+  min-width: 0;
+  overflow: hidden;
+  background: #20252a;
+  border: 1px solid var(--line);
+}
+
+.movie-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: center;
+  background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06));
+}
