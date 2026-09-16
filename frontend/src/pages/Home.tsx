@@ -44,7 +44,8 @@ function Home() {
 
     return (
         <section className="home-page" aria-labelledby="home-title">
-            <div className="movie-search">
+            <div style={{display: 'flex', gap: '10px', justifyContent: 'end', alignItems: 'center', marginTop: '10px'}}>
+                <div className="movie-search">
                 <label htmlFor="movie-search-input">Search movies</label>
                 <input
                     id="movie-search-input"
@@ -68,7 +69,9 @@ function Home() {
                         </option>
                     ))}
                 </select>
+            </div>                
             </div>
+
             <MovieList input={inputTitle} genre={genre} />
         </section>
     )
