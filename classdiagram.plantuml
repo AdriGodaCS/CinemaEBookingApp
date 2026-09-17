@@ -1,0 +1,262 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+' ==========================================
+' USERS
+' ==========================================
+
+abstract class User {
+    userId : String
+    phoneNumber : String
+    password : String
+
+    + authenticate(password : String) : boolean
+}
+
+class Customer {
+    firstName : String
+    lastName : String
+    email : String
+    status : CustomerStatus
+
+    + addFavorite(movie : Movie) : void
+    + removeFavorite(movie : Movie) : void
+    + editProfile() : void
+    + viewOrderHistory() : void
+    + getRecommendations() : List<Movie>
+    + createBooking(show : Show) : Booking    
+}
+
+class Admin {
+    name : String
+    email : String
+
+    + manageMovies() : void
+    + managePromotions() : void
+    + manageTicketPrices() : void
+    + manageOnlineBookingFees() : void    
+    + manageUsers() : void    
+    + viewSystemStatistics() : void    
+}
+
+User <|-- Customer
+User <|-- Admin
+
+
+' ==========================================
+' ENUMERATIONS
+' ==========================================
+
+enum CustomerStatus {
+    Active
+    Inactive
+    Suspended
+}
+
+enum TicketType {
+    Adult
+    Senior
+    Child
+}
+
+enum MPAARating {
+    G
+    PG
+    PG_13
+    R
+    NC_17
+}
+
+enum RecReason {
+    Preferences
+    BookingActivity
+}
+
+
+' ==========================================
+' MOVIE
+' ==========================================
+
+class Movie {
+    movieId : String
+    title : String
+    category : String
+    cast : String
+    director : String
+    producer : String
+    synopsis : String
+    reviews : String
+    trailerImage : String
+    trailerVideo : String
+    mpaaRating : MPAARating
+    
+    + getShowtimes() : List<Show>
+}
+
+Customer "0..*" -- "0..*" Movie : favorites
+
+
+' ==========================================
+' RECOMMENDATION
+' ==========================================
+
+class Recommendation {
+    recommendationId : String
+    generatedDate : DateTime
+    reason : RecReason
+
+    + generate() : void
+}
+
+Customer "1" -- "0..*" Recommendation : receives
+Recommendation "0..*" -- "1" Movie : recommends
+
+
+' ==========================================
+' CINEMA / THEATRE / SHOWROOM
+' ==========================================
+
+class Cinema {
+    cinemaId : String
+    name : String
+
+    + getShowrooms() : List<Showroom>
+}
+
+class Theatre {
+    theatreId : String
+}
+
+class Showroom {
+    showroomId : String
+    seatCount : int
+
+    + getAvailableSeats(show : Show) : List<Seat>
+}
+
+class Seat {
+    seatId : String
+    seatNumber : String
+
+    + isAvailable(show : Show) : boolean
+}
+
+Cinema "1" *-- "1" Theatre
+Theatre "1" *-- "1..*" Showroom
+Showroom "1" *-- "1..*" Seat
+
+
+' ==========================================
+' SHOW
+' ==========================================
+
+class Show {
+    showId : String
+    date : Date
+    time : Time
+    duration : int
+
+    + getAvailableSeats() : List<Seat>
+}
+
+Movie "1" -- "0..*" Show : scheduled for
+Showroom "1" -- "0..*" Show : hosts
+
+
+' ==========================================
+' BOOKING
+' ==========================================
+
+class Booking {
+    bookingId : String
+    bookingDate : DateTime
+    totalAmount : Decimal
+
+    + addTicket(ticket : Ticket) : void
+    + removeTicket(ticket : Ticket) : void
+    + applyPromotion(promotion : Promotion) : boolean
+    + calculateTotal() : Decimal    
+    + removeTicket(ticket : Ticket) : void
+    + confirm() : void
+    + cancel() : void
+}
+
+Customer "1" -- "0..*" Booking : makes
+
+Booking "1" *-- "1..*" Ticket : contains
+
+Booking "1" -- "1" Show : for showtime
+
+
+' ==========================================
+' TICKET
+' ==========================================
+
+class Ticket {
+    ticketId : String
+    price : Decimal
+    ticketType : TicketType
+
+    + calculatePrice() : Decimal
+}
+
+Ticket "1" -- "1" Seat : assigned to
+Ticket "1" -- "1" Show : for
+
+
+' ==========================================
+' PAYMENT CARD / ADDRESS
+' ==========================================
+
+class PaymentCard {
+    cardNumber : String
+    expirationDate : Date
+
+    + isExpired() : boolean
+    + validate() : boolean
+}
+
+class Address {
+    street : String
+    city : String
+    state : String
+    postalCode : String
+    country : String
+
+    + validate() : boolean
+}
+
+Customer "1" *-- "0..3" PaymentCard : stores
+
+PaymentCard "1" *-- "1" Address : billing address
+
+Customer "1" *-- "0..1" Address : mailing address
+
+
+' ==========================================
+' PROMOTION
+' ==========================================
+
+class Promotion {
+    promotionId : String
+    name : String
+    description : String
+    discount : Decimal
+    validFrom : Date
+    validTo : Date
+
+    + isValid() : boolean
+    + calculateDiscount(amount : Decimal) : Decimal
+}
+
+Booking "0..*" -- "0..1" Promotion : applies
+
+
+' ==========================================
+' CONSTRAINTS
+' ==========================================
+
+
+
+@enduml
