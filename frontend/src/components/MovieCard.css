@@ -1,18 +1,34 @@
+.movie-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .movie-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-width: 0;
+  min-height: 0;  
   overflow: hidden;
   background: #20252a;
   font-family: 'Space Grotesk', sans-serif;
   border: 1px solid var(--line);
+
+  /* For hovering */
+  transition: transform 100ms ease-in-out;  
+  will-change: transform; 
+}
+
+.movie-card:hover {
+  /* 1.05 scales the element up by exactly 5% */
+  transform: scale(1.05); 
 }
 
 .movie-poster {
   display: block;
   width: 100%;
+  height: 100%;
   aspect-ratio: 2 / 3;
-  object-fit: cover;
+  object-fit: fill;
   object-position: center;
   background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06));
 }

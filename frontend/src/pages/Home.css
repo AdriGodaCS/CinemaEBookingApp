@@ -2,11 +2,26 @@
   padding: clamp(32px, 5vw, 64px) 0 100px;
 }
 
+.movie-filters {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.movie-filter-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  justify-content: end;
+}
+
 .movie-search {
   display: grid;
   gap: 8px;
-  max-width: 520px;
-  margin-bottom: 48px;
+  max-width: 520px;  
 }
 
 .movie-search label {
@@ -35,9 +50,7 @@
 .movie-genre-filter {
   display: grid;
   gap: 8px;
-  max-width: 520px;
-  margin-top: -32px;
-  margin-bottom: 48px;
+  max-width: 520px;    
 }
 
 .movie-genre-filter label {
@@ -63,8 +76,57 @@
   outline-offset: 2px;
 }
 
+.movie-date-filter {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+}
+
+.movie-date-filter-title,
+.movie-date-filter label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.movie-date-filter-title {
+  margin: 0;
+}
+
+.movie-date-fields {
+  display: flex;    
+  gap: 10px;
+}
+
+.movie-date-fields > div {  
+  display: grid;
+  gap: 8px;
+}
+
+.movie-date-fields input {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);  
+  color-scheme: dark;
+  background: rgba(32, 37, 42, 0.86);
+  font: inherit;
+}
+
+.movie-date-fields input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 @media (max-width: 700px) {
   .home-page {
     padding-top: 32px;
+  }
+
+  .movie-date-fields {
+    flex-wrap: wrap;
   }
 }
