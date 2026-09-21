@@ -11,7 +11,7 @@ type MovieCardProps = {
 
 function MovieCard({ id, poster_url, title, genre, rating }: MovieCardProps) {
   return (
-    <Link to={`/movies/${id}`} className="movie-card-link">
+    <Link to={`/movie/${id}`} className="movie-card-link">
       <article className="movie-card">
         {poster_url && <img className="movie-poster" src={poster_url} alt={`${title ?? 'Movie'} poster`} />}
         <div className="movie-details">

@@ -94,7 +94,8 @@ class Movie {
     + getShowtimes() : List<Show>
 }
 
-Customer "0..*" -- "0..*" Movie : favorites
+Customer "1" -- "0..*" Favorite : has
+Favorite "0..*" --> "1" Movie : favorites
 
 
 ' ==========================================
@@ -109,8 +110,13 @@ class Recommendation {
     + generate() : void
 }
 
+class Favorite {
+    favoriteId : String        
+}
+
+
 Customer "1" -- "0..*" Recommendation : receives
-Recommendation "0..*" -- "1" Movie : recommends
+Recommendation "0..*" --> "1" Movie : recommends
 
 
 ' ==========================================
@@ -177,7 +183,7 @@ class Booking {
     + removeTicket(ticket : Ticket) : void
     + applyPromotion(promotion : Promotion) : boolean
     + calculateTotal() : Decimal    
-    + removeTicket(ticket : Ticket) : void
+    + ) : void
     + confirm() : void
     + cancel() : void
 }
@@ -186,7 +192,7 @@ Customer "1" -- "0..*" Booking : makes
 
 Booking "1" *-- "1..*" Ticket : contains
 
-Booking "1" -- "1" Show : for showtime
+Booking "0..*" -- "1" Show : for showtime
 
 
 ' ==========================================
@@ -201,8 +207,8 @@ class Ticket {
     + calculatePrice() : Decimal
 }
 
-Ticket "1" -- "1" Seat : assigned to
-Ticket "1" -- "1" Show : for
+Ticket "0..*" -- "1" Seat : assigned to
+Ticket "0..*" -- "1" Show : for
 
 
 ' ==========================================
@@ -227,11 +233,11 @@ class Address {
     + validate() : boolean
 }
 
-Customer "1" *-- "0..3" PaymentCard : stores
+Customer "1" o-- "0..3" PaymentCard : stores
 
 PaymentCard "1" *-- "1" Address : billing address
 
-Customer "1" *-- "0..1" Address : mailing address
+Customer "1" o-- "0..1" Address : mailing address
 
 
 ' ==========================================
