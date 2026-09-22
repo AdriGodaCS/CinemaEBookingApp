@@ -3,13 +3,13 @@ import { useParams } from 'react-router-dom'
 import type { Movie } from '@/types/movie'
 
 type MovieRoutParam = {
-    movie_id: string
+    id: string
 }
 
 export const MovieDetails = () => {
-    const { movie_id } = useParams<MovieRoutParam>();
+    const { id } = useParams<MovieRoutParam>();
     // Convert movie_id to a number or NaN if movie_id is empty or undefined
-    const movieId = movie_id ? Number(movie_id) : NaN;
+    const movieId = id ? Number(id) : NaN;
     
     const [movie, setMovie] = useState<Movie | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -32,7 +32,7 @@ export const MovieDetails = () => {
             setError(null);
             
             try {
-                const response = await fetch(`http://localhost:8080/movies${movie_id}`);
+                const response = await fetch(`http://localhost:8080/movies/${id}`);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch movie details (Status: ${response.status})`);
                 }
@@ -60,8 +60,14 @@ export const MovieDetails = () => {
     
     // Return details page
     return (
-        <section>
-            <h1>Movie Details</h1>
-        </section>
+        <div>
+            <section>
+                <img src={movie.posterUrl} alt="Movie poster"/>
+            </section>
+
+            <section>
+                <h1>{movie.title}</h1>
+            </section>
+        </div>
     )
 }
