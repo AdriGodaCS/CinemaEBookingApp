@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import type { Movie } from '@/types/movie'
+import type { Show } from '@/types/show'
 
 type MovieRoutParam = {
     id: string
@@ -8,13 +9,14 @@ type MovieRoutParam = {
 
 export const MovieDetails = () => {
     const { id } = useParams<MovieRoutParam>();
-    // Convert movie_id to a number or NaN if movie_id is empty or undefined
+    // Convert movie_id from a string to a number or NaN if movie_id is empty or undefined
     const movieId = id ? Number(id) : NaN;
     
     const [movie, setMovie] = useState<Movie | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    
+
+    const [showtimes, setShowtimes] = useState<Show[]>([{id:1, time:'2:00PM', date:'1/02/2027', room:1}]);
     
     // Load Movie info dynamically from the DB
     useEffect(() => {
@@ -62,11 +64,36 @@ export const MovieDetails = () => {
     return (
         <div>
             <section>
+                <iframe
+                    src={movie.trailerUrl}
+                    title={movie.title}
+                />
+            </section>
+            <section>
                 <img src={movie.posterUrl} alt="Movie poster"/>
+                <div>
+                    <h1>{movie.title}</h1>
+                    <ul>
+                        <li>{movie.rating}</li>
+                        <li>{movie.genre}</li>
+                    </ul>
+                    <p>{movie.description}</p>
+                    <ul>
+                        <li>{movie.movieCast}</li>
+                        <li>{movie.director}</li>
+                        <li>{movie.producer}</li>
+                    </ul>
+                </div>
+                <button>\heart</button>
             </section>
 
             <section>
-                <h1>{movie.title}</h1>
+                <h3>Showtimes</h3>
+                <div>
+                    <button> showtime 1</button>
+                    <button> showtime 2</button>
+                    <button> showtime 3</button>
+                </div>
             </section>
         </div>
     )
