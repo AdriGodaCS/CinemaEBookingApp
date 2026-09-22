@@ -4,3 +4,7 @@ export interface Show {
     date: string
     room: number
 }
+
+export const ShowTimes: Show[] {
+
+}
