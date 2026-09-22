@@ -1,0 +1,15 @@
+.trailer {
+    display: flex;
+    justify-content: center;
+}
+iframe {
+    width: 700px;
+}
+
+/* ---- Details section ---- */
+.movie-details-main {
+    
+}
+img {
+    width: 300px;
+}

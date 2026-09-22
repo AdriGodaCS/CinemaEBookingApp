@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import type { Movie } from '@/types/movie'
 import type { Show } from '@/types/show'
+import type { mockShowtimes } from '@/types/show'
+import './MovieDetails.css'
 
 type MovieRoutParam = {
     id: string
@@ -16,7 +18,10 @@ export const MovieDetails = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [showtimes, setShowtimes] = useState<Show[]>([{id:1, time:'2:00PM', date:'1/02/2027', room:1}]);
+    const [showtimes, setShowtimes] = useState<Show[]>([
+        {id:1, time:'2:00PM', date:'1/02/2027', room:1}, 
+        {id:2, time:'5:00PM', date:'1/02/2027', room:2}, 
+        {id:3, time:'8:00PM', date:'1/02/2027', room:3}]);
     
     // Load Movie info dynamically from the DB
     useEffect(() => {
@@ -63,7 +68,7 @@ export const MovieDetails = () => {
     // Return details page
     return (
         <div>
-            <section>
+            <section className='trailer'>
                 <iframe
                     src={movie.trailerUrl}
                     title={movie.title}
@@ -90,9 +95,9 @@ export const MovieDetails = () => {
             <section>
                 <h3>Showtimes</h3>
                 <div>
-                    <button> showtime 1</button>
-                    <button> showtime 2</button>
-                    <button> showtime 3</button>
+                    <button> {showtimes[0].time}</button>
+                    <button> {showtimes[1].time}</button>
+                    <button> {showtimes[2].time}</button>
                 </div>
             </section>
         </div>
