@@ -182,8 +182,7 @@ class Booking {
     + addTicket(ticket : Ticket) : void
     + removeTicket(ticket : Ticket) : void
     + applyPromotion(promotion : Promotion) : boolean
-    + calculateTotal() : Decimal    
-    + ) : void
+    + calculateTotal() : Decimal        
     + confirm() : void
     + cancel() : void
 }
@@ -256,7 +255,7 @@ class Promotion {
     + calculateDiscount(amount : Decimal) : Decimal
 }
 
-Booking "0..*" -- "0..1" Promotion : applies
+Booking "1" -- "0..1" Promotion : applies
 
 
 ' ==========================================
