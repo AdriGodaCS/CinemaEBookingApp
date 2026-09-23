@@ -136,21 +136,17 @@ class Theatre {
 
 class Showroom {
     showroomId : String
-    seatCount : int
-
-    + getAvailableSeats(show : Show) : List<Seat>
+    seatCount : int    
 }
 
 class Seat {
     seatId : String
-    seatNumber : String
-
-    + isAvailable(show : Show) : boolean
+    seatNumber : String    
+    + isAvailable() : boolean
 }
 
 Cinema "1" *-- "1" Theatre
 Theatre "1" *-- "1..*" Showroom
-Showroom "1" *-- "1..*" Seat
 
 
 ' ==========================================
@@ -167,7 +163,8 @@ class Show {
 }
 
 Movie "1" -- "0..*" Show : scheduled for
-Showroom "1" -- "0..*" Show : hosts
+Showroom "1" <-- "0..*" Show : is inside
+Seat "0..*" --* "1" Showroom : is inside
 
 
 ' ==========================================
@@ -182,8 +179,7 @@ class Booking {
     + addTicket(ticket : Ticket) : void
     + removeTicket(ticket : Ticket) : void
     + applyPromotion(promotion : Promotion) : boolean
-    + calculateTotal() : Decimal    
-    + ) : void
+    + calculateTotal() : Decimal        
     + confirm() : void
     + cancel() : void
 }
@@ -207,8 +203,8 @@ class Ticket {
     + calculatePrice() : Decimal
 }
 
-Ticket "0..*" -- "1" Seat : assigned to
 Ticket "0..*" -- "1" Show : for
+(Ticket, Show) .. Seat
 
 
 ' ==========================================
@@ -233,11 +229,11 @@ class Address {
     + validate() : boolean
 }
 
-Customer "1" o-- "0..3" PaymentCard : stores
+Customer "1" *-- "0..3" PaymentCard : stores
 
 PaymentCard "1" *-- "1" Address : billing address
 
-Customer "1" o-- "0..1" Address : mailing address
+Customer "1" *-- "0..1" Address : mailing address
 
 
 ' ==========================================
@@ -256,7 +252,7 @@ class Promotion {
     + calculateDiscount(amount : Decimal) : Decimal
 }
 
-Booking "0..*" -- "0..1" Promotion : applies
+Booking "1" --> "0..1" Promotion : applies
 
 
 ' ==========================================

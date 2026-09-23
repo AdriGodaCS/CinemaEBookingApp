@@ -8,10 +8,10 @@ type MovieRoutParam = {
 
 type ShowtimeProps = {
     show: Show
-    
+
 }
 
-function Showtime(show:Show) {
+const Showtime: React.FC<ShowtimeProps> = ({show}) => {
     const { id } = useParams<MovieRoutParam>();
 
     return (

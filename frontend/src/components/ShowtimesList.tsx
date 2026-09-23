@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Show } from '@/types/show'
 import Showtime from '@/components/Showtime'
 
@@ -6,7 +7,7 @@ type ShowtimesListProps = {
     showtimes: Show[]
 }
 
-function ShowtimesList({showtimes}:ShowtimesListProps): ShowtimesListProps {
+function ShowtimesList({showtimes}:ShowtimesListProps): JSX.Element {
     
     return (
         <div>
