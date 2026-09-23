@@ -3,11 +3,10 @@ import type { Show } from '@/types/show'
 import Showtime from '@/components/Showtime'
 
 type ShowtimesListProps = {
-    id: number
     showtimes: Show[]
 }
 
-function ShowtimesList({showtimes}:ShowtimesListProps): JSX.Element {
+function ShowtimesList({showtimes}:ShowtimesListProps) {
     
     return (
         <div>
