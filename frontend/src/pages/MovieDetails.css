@@ -4,12 +4,56 @@
 }
 iframe {
     width: 700px;
+    height: 300px;
+    border: none;
 }
 
 /* ---- Details section ---- */
-.movie-details-main {
-    
+.movie-details-info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(189, 187, 187, 0.084);
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between
 }
 img {
     width: 300px;
+    margin: 10px;
+}
+.movie-details-info div {
+    margin-inline: 10px;
+}
+.rating-genre {
+    margin-block: 5px;
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+.rating-genre li {
+    padding: 5px;
+
+    color: rgba(255, 255, 255, 0.742);
+    background-color: rgba(103, 102, 102, 0.436);
+    border-radius: 5px;
+}
+.miniTitle {
+    font-weight: bold;
+    margin-top: 10px;
+}
+.cast {
+    margin-block: 10px;
+}
+.fav-button {
+    font-size: 20px;
+    height: 40px;
+    padding-inline: 10px;
+}
+
+/* ---- Showtimes ---- */
+h3 {
+    text-align: center;
+    font-size: 25px;
 }

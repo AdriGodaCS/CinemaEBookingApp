@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Show } from '@/types/show'
 import Showtime from '@/components/Showtime'
+import './ShowtimesList.css'
 
 type ShowtimesListProps = {
     showtimes: Show[]
@@ -9,9 +10,9 @@ type ShowtimesListProps = {
 function ShowtimesList({showtimes}:ShowtimesListProps) {
     
     return (
-        <div>
+        <div className='showtimes-list'>
             {showtimes.length === 0 ? (
-                <p>No matching movies found.</p>
+                <p>No matching showtimes found.</p>
             ) : (
                 showtimes.map((show) => (
                     <Showtime

@@ -50,6 +50,7 @@ export const MovieDetails = () => {
             }
         }
         fetchMovie();
+
     }, [movieId])
     
     // Guard rendering
@@ -72,22 +73,29 @@ export const MovieDetails = () => {
                     title={movie.title}
                 />
             </section>
-            <section>
+            <section className='movie-details-info'>
                 <img src={movie.posterUrl} alt="Movie poster"/>
                 <div>
                     <h1>{movie.title}</h1>
-                    <ul>
+                    <ul className='rating-genre'>
                         <li>{movie.rating}</li>
                         <li>{movie.genre}</li>
                     </ul>
                     <p>{movie.description}</p>
-                    <ul>
-                        <li>{movie.movieCast}</li>
-                        <li>{movie.director}</li>
-                        <li>{movie.producer}</li>
-                    </ul>
+                    <dl>
+                        <dt className='miniTitle'>Movie Cast</dt>
+                        <dd>
+                            {movie.movieCast.map((cast) => {
+                                return <p className='cast'>{cast}</p>
+                            })}
+                        </dd>
+                        <dt className='miniTitle'>Director</dt>
+                        <dd>{movie.director}</dd>
+                        <dt className='miniTitle'>Producer</dt>
+                        <dd>{movie.producer}</dd>
+                    </dl>
                 </div>
-                <button>\heart</button>
+                <button className='fav-button'>♡</button>
             </section>
 
             <section>

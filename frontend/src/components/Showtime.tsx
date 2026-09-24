@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import type { Show } from '@/types/show'
 import { Link } from 'react-router-dom'
+import './Showtime.css'
 
 type MovieRoutParam = {
     id: string

@@ -1,0 +1,13 @@
+article {
+    padding: 20px;
+    margin-block: 5px;
+    margin-inline: 10%;
+    background-color: rgba(142, 142, 142, 0.578);
+    border-radius: 10px;
+    text-align: center;
+
+    transition: .1s;
+}
+article:hover {
+    background-color: rgba(142, 142, 142, 0.376);
+}
