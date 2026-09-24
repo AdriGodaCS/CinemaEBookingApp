@@ -17,7 +17,7 @@ const Showtime: React.FC<ShowtimeProps> = ({show}) => {
 
     return (
         <Link to={`/movie/${id}/booking/${String(show.id)}`}>
-            <article>
+            <article className="showtime-card">
                 {show.time}
             </article>
         </Link>

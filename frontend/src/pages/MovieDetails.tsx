@@ -66,7 +66,7 @@ export const MovieDetails = () => {
     
     // Return details page
     return (
-        <div>
+        <div className="movie-details-page">
             <section className='trailer'>
                 <iframe
                     src={movie.trailerUrl}
