@@ -1,20 +1,72 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import type { Movie } from "@/types/movie";
+import { mockShowtimes } from "@/types/show";
 import "./BookingPage.css";
 
-function BookingPage() {
-    const location = useLocation();
+type BookingRouteParams = {
+  movie_id: string;
+  show_id: string;
+};
 
-    const { movieTitle, showtime } = location.state || {
-        movieTitle: "Unknown Movie",
-        showtime: "Unknown Showtime",
-    };
-    
+function BookingPage() {
+  // Retrieve movie_id, show_id from the route in App.tsx
+  const { movie_id, show_id } = useParams<BookingRouteParams>();
+  const [movie, setMovie] = useState<Movie | null>(null);
+
+  // For HTTP errors
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [adultTickets, setAdultTickets] = useState<number>(0);
   const [childTickets, setChildTickets] = useState<number>(0);
   const [seniorTickets, setSeniorTickets] = useState<number>(0);
-
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+
+  // Find the mock showtime matching the show_id
+  const show = mockShowtimes.find((candidate) => candidate.id === Number(show_id));
+
+  // Set movieTitle and showtime. If the title or time are null set to unknown
+  const movieTitle = movie?.title ?? "Unknown Movie";
+  const showtime = show?.time ?? "Unknown Showtime";
+  const showDate = show?.date.toDateString() ?? "Unknown Show Date";
+
+  // Retrieve movie details for movie title
+  useEffect(() => {
+    const movieId = Number(movie_id);
+
+    if (!movie_id || Number.isNaN(movieId)) {
+      setError("Invalid movie ID provided in URL.");
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchMovie = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/movies/${movie_id}`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch movie details (Status: ${response.status})`);
+        }
+
+        setMovie(await response.json() as Movie);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load movie details.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMovie();
+  }, [movie_id]);
+
+  if (isLoading) {
+    return <div>Loading booking details...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   const adultPrice: number = 12.00;
   const childPrice: number = 8.00;
@@ -46,7 +98,7 @@ function BookingPage() {
 
         <div className="booking-movie-info">
           <strong>{movieTitle}</strong>
-          <span> — {showtime}</span>
+          <span> — {showtime} : {showDate}</span>
         </div>
       </div>
 
