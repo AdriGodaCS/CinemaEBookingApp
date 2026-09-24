@@ -50,7 +50,6 @@ export const MovieDetails = () => {
             }
         }
         fetchMovie();
-
     }, [movieId])
     
     // Guard rendering
@@ -100,11 +99,11 @@ export const MovieDetails = () => {
 
             <section>
                 <h3>Showtimes</h3>
-                <div>
-                    <ShowtimesList
-                        showtimes={showtimes}
-                    />
-                </div>
+                    <div>
+                        <ShowtimesList
+                            showtimes={showtimes}
+                        />
+                    </div>
             </section>
         </div>
     )
