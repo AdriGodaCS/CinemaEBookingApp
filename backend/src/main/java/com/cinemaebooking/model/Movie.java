@@ -33,6 +33,8 @@ public class Movie {
 
     private String status;
 
+    private List<String> reviews;
+
     // Getters and setters for movie properties
     public Integer getId() {
         return id;
@@ -121,4 +123,14 @@ public class Movie {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public List<String> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<String> reviews) {
+        this.reviews = reviews;
+    }
+
+    
 }
