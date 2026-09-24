@@ -4,7 +4,7 @@ import type { Movie } from '@/types/movie'
 import type { Show } from '@/types/show'
 import { mockShowtimes } from '@/types/show'
 import ShowtimesList from '@/components/ShowtimesList'
-import './MovieDetails.css'
+import styles from './MovieDetails.module.css'
 
 type MovieRoutParam = {
     id: string
@@ -66,36 +66,36 @@ export const MovieDetails = () => {
     
     // Return details page
     return (
-        <div className="movie-details-page">
-            <section className='trailer'>
+        <div className={styles['movie-details-page']}>
+            <section className={styles.trailer}>
                 <iframe
                     src={movie.trailerUrl}
                     title={movie.title}
                 />
             </section>
-            <section className='movie-details-info'>
+            <section className={styles['movie-details-info']}>
                 <img src={movie.posterUrl} alt="Movie poster"/>
                 <div>
                     <h1>{movie.title}</h1>
-                    <ul className='rating-genre'>
+                    <ul className={styles['rating-genre']}>
                         <li>{movie.rating}</li>
                         <li>{movie.genre}</li>
                     </ul>
                     <p>{movie.description}</p>
                     <dl>
-                        <dt className='miniTitle'>Movie Cast</dt>
+                        <dt className={styles.miniTitle}>Movie Cast</dt>
                         <dd>
                             {movie.movieCast.map((cast) => {
-                                return <p className='cast'>{cast}</p>
+                                return <p className={styles.cast}>{cast}</p>
                             })}
                         </dd>
-                        <dt className='miniTitle'>Director</dt>
+                        <dt className={styles.miniTitle}>Director</dt>
                         <dd>{movie.director}</dd>
-                        <dt className='miniTitle'>Producer</dt>
+                        <dt className={styles.miniTitle}>Producer</dt>
                         <dd>{movie.producer}</dd>
                     </dl>
                 </div>
-                <button className='fav-button'>♡</button>
+                <button className={styles['fav-button']}>♡</button>
             </section>
 
             <section>
