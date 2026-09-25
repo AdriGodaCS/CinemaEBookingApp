@@ -2,25 +2,30 @@ import React from 'react';
 import type { Show } from '@/types/show'
 import Showtime from '@/components/Showtime'
 
-import './ShowtimesList.css'
+import styles from './ShowtimesList.module.css'
 
 type ShowtimesListProps = {
     showtimes: Show[]
+    movieStatus: string
 }
 
-function ShowtimesList({showtimes}:ShowtimesListProps) {
+function ShowtimesList({showtimes, movieStatus}:ShowtimesListProps) {
     
     return (
-        <div className='showtimes-list'>
-            {showtimes.length === 0 ? (
-                <p>No matching showtimes found.</p>
+        <div>
+            {(showtimes.length === 0) || movieStatus != 'Currently Running' ? (
+                <div>
+                    <p className={styles['coming-soon-message']}>No showtimes yet.</p>
+                </div>
             ) : (
-                showtimes.map((show) => (
-                    <Showtime
-                        key={show.id}
-                        show={show}
-                    />
-                ))
+                <div className={styles['showtimes-list']}>
+                    {showtimes.map((show) => (
+                        <Showtime
+                            key={show.id}
+                            show={show}
+                        />
+                    ))}
+                </div>
             )}
         </div>
     )

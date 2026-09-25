@@ -102,6 +102,7 @@ export const MovieDetails = () => {
                     <div>
                         <ShowtimesList
                             showtimes={showtimes}
+                            movieStatus={movie.status}
                         />
                     </div>
             </section>
