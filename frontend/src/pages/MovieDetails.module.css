@@ -51,6 +51,23 @@
     height: 40px;
     padding-inline: 10px;
 }
+.movie-details-page .reviews {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: rgba(189, 187, 187, 0.084);
+    border-radius: 5px;
+}
+.movie-details-page .reviews h2 {
+    margin-top: 0;
+}
+.movie-details-page .reviews ul {
+    display: grid;
+    gap: 12px;
+    padding-left: 20px;
+}
+.movie-details-page .reviews li {
+    padding-left: 4px;
+}
 
 /* ---- Showtimes ---- */
 .movie-details-page h3 {

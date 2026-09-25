@@ -7,6 +7,7 @@ export interface Movie {
     posterUrl: string
     producer: string
     rating: string
+    reviews: string[]
     status: string
     title: string
     trailerUrl: string

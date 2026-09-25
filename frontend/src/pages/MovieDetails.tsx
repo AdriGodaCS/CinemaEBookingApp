@@ -71,31 +71,40 @@ export const MovieDetails = () => {
                     src={movie.trailerUrl}
                     title={movie.title}
                 />
-            </section>
-            <section className={styles['movie-details-info']}>
-                <img src={movie.posterUrl} alt="Movie poster"/>
-                <div>
-                    <h1>{movie.title}</h1>
-                    <ul className={styles['rating-genre']}>
-                        <li>{movie.rating}</li>
-                        <li>{movie.genre}</li>
-                    </ul>
-                    <p>{movie.description}</p>
-                    <dl>
-                        <dt className={styles.miniTitle}>Movie Cast</dt>
-                        <dd>
-                            {movie.movieCast.map((cast) => {
-                                return <p className={styles.cast}>{cast}</p>
-                            })}
-                        </dd>
-                        <dt className={styles.miniTitle}>Director</dt>
-                        <dd>{movie.director}</dd>
-                        <dt className={styles.miniTitle}>Producer</dt>
-                        <dd>{movie.producer}</dd>
-                    </dl>
-                </div>
-                <button className={styles['fav-button']}>♡</button>
-            </section>
+            </section>            
+                <section className={styles['movie-details-info']}>
+                    <img src={movie.posterUrl} alt="Movie poster"/>
+                    <div>
+                        <h1>{movie.title}</h1>
+                        <ul className={styles['rating-genre']}>
+                            <li>{movie.rating}</li>
+                            <li>{movie.genre}</li>
+                        </ul>
+                        <p>{movie.description}</p>
+                        <dl>
+                            <dt className={styles.miniTitle}>Movie Cast</dt>
+                            <dd>
+                                {movie.movieCast.map((cast) => {
+                                    return <p className={styles.cast}>{cast}</p>
+                                })}
+                            </dd>
+                            <dt className={styles.miniTitle}>Director</dt>
+                            <dd>{movie.director}</dd>
+                            <dt className={styles.miniTitle}>Producer</dt>
+                            <dd>{movie.producer}</dd>
+                        </dl>
+                          <section className={styles.reviews}>
+                        {/*Render the reviews under the rest of the details */}
+                        <h2>Reviews</h2>
+                        <ul>
+                            {movie.reviews.map((review) => (
+                                <li key={review}>"{review}"</li>
+                            ))}
+                        </ul>
+                    </section>
+                    </div>
+                    <button className={styles['fav-button']}>♡</button>                        
+                </section>                        
 
             <section>
                 <h3>Showtimes</h3>
