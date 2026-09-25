@@ -33,6 +33,7 @@ public class Movie {
 
     private String status;
 
+    @Field("reviews")
     private List<String> reviews;
 
     // Getters and setters for movie properties
