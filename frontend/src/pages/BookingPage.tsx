@@ -239,7 +239,7 @@ function BookingPage() {
 
         <div className="booking-summary-row">
           <span>Showtime</span>
-          <span>{showtime}</span>
+          <span>{showtime} : {showDate}</span>
         </div>
 
         <div className="booking-summary-row">
