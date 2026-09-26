@@ -6,11 +6,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
-// Movie document stored in the movies collection
 @Document(collection = "movies")
 public class Movie {
 
-    // Movie properties
     @Id
     private Integer id;
 
@@ -26,17 +24,25 @@ public class Movie {
     private String trailerUrl;
 
     private String director;
+
+    @Field("director_image_url")
+    private String directorImageUrl;
+
     private String producer;
+
+    @Field("producer_image_url")
+    private String producerImageUrl;
 
     @Field("movie_cast")
     private List<String> movieCast;
 
-    private String status;
+    @Field("movie_cast_image_urls")
+    private List<String> movieCastImageUrls;
 
-    @Field("reviews")
     private List<String> reviews;
 
-    // Getters and setters for movie properties
+    private String status;
+
     public Integer getId() {
         return id;
     }
@@ -101,12 +107,28 @@ public class Movie {
         this.director = director;
     }
 
+    public String getDirectorImageUrl() {
+        return directorImageUrl;
+    }
+
+    public void setDirectorImageUrl(String directorImageUrl) {
+        this.directorImageUrl = directorImageUrl;
+    }
+
     public String getProducer() {
         return producer;
     }
 
     public void setProducer(String producer) {
         this.producer = producer;
+    }
+
+    public String getProducerImageUrl() {
+        return producerImageUrl;
+    }
+
+    public void setProducerImageUrl(String producerImageUrl) {
+        this.producerImageUrl = producerImageUrl;
     }
 
     public List<String> getMovieCast() {
@@ -117,12 +139,12 @@ public class Movie {
         this.movieCast = movieCast;
     }
 
-    public String getStatus() {
-        return status;
+    public List<String> getMovieCastImageUrls() {
+        return movieCastImageUrls;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setMovieCastImageUrls(List<String> movieCastImageUrls) {
+        this.movieCastImageUrls = movieCastImageUrls;
     }
 
     public List<String> getReviews() {
@@ -133,5 +155,11 @@ public class Movie {
         this.reviews = reviews;
     }
 
-    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
