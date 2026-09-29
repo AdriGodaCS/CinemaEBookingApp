@@ -19,6 +19,7 @@ class Customer {
     lastName : String
     email : String
     status : CustomerStatus
+    receivePromotions: boolean
 
     + addFavorite(movie : Movie) : void
     + removeFavorite(movie : Movie) : void
@@ -82,11 +83,11 @@ class Movie {
     movieId : String
     title : String
     category : String
-    cast : String
+    cast : String[]
     director : String
     producer : String
     synopsis : String
-    reviews : String
+    reviews : String[]
     trailerImage : String
     trailerVideo : String
     mpaaRating : MPAARating
@@ -96,6 +97,11 @@ class Movie {
 
 Customer "1" -- "0..*" Favorite : has
 Favorite "0..*" --> "1" Movie : favorites
+
+Customer ..> CustomerStatus : state
+Ticket ..> TicketType : type
+Recommendation ..> RecReason: reason
+Movie ..> MPAARating : rating
 
 
 ' ==========================================
@@ -139,10 +145,15 @@ class Showroom {
     seatCount : int    
 }
 
-class Seat {
-    seatId : String
+class ShowSeat {
+    showSeatId : String
     seatNumber : String    
     + isAvailable() : boolean
+}
+
+class Seat {
+    seatId : String
+    seatNumber : String        
 }
 
 Cinema "1" *-- "1" Theatre
@@ -204,7 +215,7 @@ class Ticket {
 }
 
 Ticket "0..*" -- "1" Show : for
-(Ticket, Show) .. Seat
+(Ticket, Show) .. ShowSeat
 
 
 ' ==========================================
