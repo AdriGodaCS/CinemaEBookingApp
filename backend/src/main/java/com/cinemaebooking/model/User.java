@@ -37,6 +37,15 @@ public class User {
 
     //private ... preferences;
 
+    // Constructors
+    public User() {}
+
+    public User(String firstName, String email, String passwordHash) {
+        this.firstName = firstName;
+        this.email = email;
+        this.passwordHash = passwordHash;
+    }
+
     // getter/setter methods
     public Integer getId() {
         return id;
