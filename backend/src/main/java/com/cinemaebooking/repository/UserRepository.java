@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserRepository extends MongoRepository<User, Integer> {
 
-    List<User> findAllUsers();
+//    List<User> findAllUsers();
 
     User findByEmail(String email);
 
