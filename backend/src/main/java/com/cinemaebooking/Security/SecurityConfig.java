@@ -1,11 +1,12 @@
-package com.cinemaebooking.Security;
+package com.cinemaebooking.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configuration 
+//@Configuration // This is only needed if more methods othere than passwordEncoder are needed
+        //if using @Configuration, must implement SecurityFilterChain
 public class SecurityConfig {
 
     @Bean 

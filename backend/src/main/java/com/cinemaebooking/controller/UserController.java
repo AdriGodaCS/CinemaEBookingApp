@@ -1,6 +1,7 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
+import com.cinemaebooking.model.UserRequest;
 import com.cinemaebooking.service.UserService;
 
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class UserController {
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
     public ResponseEntity<User> createUser(
-        @RequestBody User user
+        @RequestBody UserRequest user
     ) {
         User createdUser = userService.createUser(user);
         return ResponseEntity
@@ -36,8 +37,8 @@ public class UserController {
     }
 
     // Retrieve a user using an email and passwordHash
-    public User getUserByEmailAndPasswordHash(String email, String passwordHash) {
-        return userService.getUserByEmailAndPasswordHash(email, passwordHash);
+    public User getUserByEmailAndPassword(String email, String password) {
+        return userService.getUserByEmailAndPassword(email, password);
     }
 
     // Add payment card
