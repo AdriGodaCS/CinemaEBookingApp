@@ -70,6 +70,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User getByVerificationToken(String token) {
+        return userRepository.findByVerificationToken(token);
+    }
+
     // Private methods
 
     private User getUserByEmail(String email) {

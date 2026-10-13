@@ -16,4 +16,5 @@ public interface UserRepository extends MongoRepository<User, Integer> {
 
     Boolean existsByEmailIgnoreCase(String email);
     
+    User findByVerificationToken(String token);
 }

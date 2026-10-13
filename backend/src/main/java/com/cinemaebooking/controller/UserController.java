@@ -3,6 +3,7 @@ package com.cinemaebooking.controller;
 import com.cinemaebooking.model.User;
 import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.service.UserService;
+import com.cinemaebooking.service.EmailService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -18,9 +19,11 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final EmailService emailService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EmailService emailService) {
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
@@ -50,11 +53,25 @@ public class UserController {
         return userService.getUserByEmailAndPassword(email, password);
     }
 
-    // Add payment card
-
     // edit user
     @PutMapping
     public User editUser(User user) {
         return userService.editUser(user);
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
+        User user = userService.getByVerificationToken(token);
+    
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
+        }
+    
+        user.setStatus("ACTIVE");
+        user.setVerificationToken(null); // Clear the token after verification
+        userService.saveUser(user);
+    
+        return ResponseEntity
+            .ok("Account verified successfully!");
     }
 }
