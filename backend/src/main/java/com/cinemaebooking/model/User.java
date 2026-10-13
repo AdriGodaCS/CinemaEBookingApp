@@ -40,6 +40,9 @@ public class User {
 
     private String verificationToken;
 
+    @Field("recieve_promotions")
+    private Boolean recievePromotions;
+
     //private ... preferences;
 
     // Constructors
@@ -159,5 +162,14 @@ public class User {
     
     public void setVerificationToken(String verificationToken) {
         this.verificationToken = verificationToken;
+    }
+
+    // homeAddress
+    public Boolean getRecievePromotions() {
+        return recievePromotions;
+    }
+
+    public void setRecievePromotions(Boolean recievePromotions) {
+        this.recievePromotions = recievePromotions;
     }
 }

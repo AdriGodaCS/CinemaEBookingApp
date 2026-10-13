@@ -1,5 +1,10 @@
 package com.cinemaebooking.model;
 
+import com.cinemaebooking.model.Address;
+import com.cinemaebooking.model.PaymentCard;
+
+import java.util.List;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -17,6 +22,8 @@ public record CreateUserRequest(
 
     @NotBlank String lastName,
 
-    String phone
+    String phone,
+    Address homAddress,
+    List<PaymentCard> paymentCards
 ) {
 }

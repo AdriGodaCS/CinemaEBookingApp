@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-//@Configuration // This is only needed if more methods othere than passwordEncoder are needed
+@Configuration // This is only needed if more methods othere than passwordEncoder are needed
         //if using @Configuration, must implement SecurityFilterChain
 public class SecurityConfig {
 
