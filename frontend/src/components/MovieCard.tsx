@@ -7,6 +7,7 @@ type MovieCardProps = {
   title?: string
   genre?: string
   rating?: number | string
+  
 }
 
 function MovieCard({ id, poster_url, title, genre, rating }: MovieCardProps) {
