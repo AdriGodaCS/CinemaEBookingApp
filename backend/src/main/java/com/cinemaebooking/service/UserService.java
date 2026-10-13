@@ -33,4 +33,5 @@ public class UserService {
     public User editUser(User user) {
         return userRepository.save(user);
     }
+
 }

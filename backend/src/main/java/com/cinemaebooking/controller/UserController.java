@@ -3,17 +3,15 @@ package com.cinemaebooking.controller;
 import com.cinemaebooking.model.User;
 import com.cinemaebooking.service.UserService;
 
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-
-@RestController 
+@RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*")
 public class UserController {
@@ -27,12 +25,11 @@ public class UserController {
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
     public ResponseEntity<User> createUser(
-        @RequestBody User user
-    ) {
+            @RequestBody User user) {
         User createdUser = userService.createUser(user);
         return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(createdUser);
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
     }
 
     // Retrieve a user using an email and passwordHash
