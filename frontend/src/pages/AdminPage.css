@@ -1,0 +1,50 @@
+.admin-page {
+  padding: 3rem 0;
+}
+
+.admin-title {
+  margin-bottom: 2rem;
+  text-align: center;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--ink);
+}
+
+.admin-menu {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.admin-card {
+  height: 80px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.admin-card:hover {
+  border-color: var(--gold);
+  background-color: rgba(233, 189, 100, 0.08);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 900px) {
+  .admin-menu {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-menu {
+    grid-template-columns: 1fr;
+  }
+}
