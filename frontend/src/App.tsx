@@ -31,8 +31,7 @@ function App() {
                 <AdminPage />
               </AdminRoute>
             }
-          />
-          />
+          />          
         </Route>
       </Routes>
     </BrowserRouter>

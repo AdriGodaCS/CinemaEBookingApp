@@ -1,357 +1,726 @@
-import { useEffect, useState, type ChangeEvent } from "react";
-import { useAuth } from "../context/AuthContext";
-import MovieCard from "../components/MovieCard";
+import { useEffect, useState, type ChangeEvent } from 'react'
+import { useAuth } from '../context/AuthContext'
+import MovieCard from '../components/MovieCard'
 import type { Movie } from '@/types/movie'
-import "./ProfilePage.css";
+import './ProfilePage.css'
 
 type Address = {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-};
+    street: string
+    city: string
+    state: string
+    zipCode: string
+}
+
+type PaymentCard = {
+    cardId: string
+    expirationMonth: number
+    expirationYear: number
+    billingAddress: Address
+}
 
 type UserProfile = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  recievePromotions: boolean;
-  homeAddress: Address | null;
-};
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    recievePromotions: boolean
+    homeAddress: Address | null
+    paymentCards: PaymentCard[]
+}
 
 function ProfilePage() {
-  const { user } = useAuth();
+    const { user } = useAuth()
 
-  const [profile, setProfile] =
-    useState<UserProfile | null>(null);
+    const [profile, setProfile] =
+        useState<UserProfile | null>(null)
 
-  const [favorites, setFavorites] =
-    useState<Movie[]>([]);
+    const [favorites, setFavorites] =
+        useState<Movie[]>([])
 
-  const [loading, setLoading] =
-    useState(true);
+    const [paymentCards, setPaymentCards] =
+        useState<PaymentCard[]>([])
 
-  useEffect(() => {
-    if (!user) return;
+    const [loading, setLoading] =
+        useState(true)
 
-    loadProfile();
-    loadFavorites();
-  }, [user]);
+    const [currentPassword, setCurrentPassword] =
+        useState('')
 
-  const loadProfile = async () => {
-    if (!user) return;
+    const [newPassword, setNewPassword] =
+        useState('')
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/users/${user.id}`
-      );
+    const [confirmPassword, setConfirmPassword] =
+        useState('')
 
-      if (!response.ok) {
-        throw new Error("Failed to load profile");
-      }
+    const [cardNumber, setCardNumber] =
+        useState('')
 
-      const data = await response.json();
+    const [expirationMonth, setExpirationMonth] =
+        useState('')
 
-      if (!data.homeAddress) {
-        data.homeAddress = {
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-        };
-      }
+    const [expirationYear, setExpirationYear] =
+        useState('')
 
-      setProfile(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const [billingStreet, setBillingStreet] =
+        useState('')
 
-  const loadFavorites = async () => {
-    if (!user) return;
+    const [billingCity, setBillingCity] =
+        useState('')
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/users/${user.id}/favorites`
-      );
+    const [billingState, setBillingState] =
+        useState('')
 
-      if (!response.ok) {
-        throw new Error(
-          "Failed to load favorites"
-        );
-      }
+    const [billingZipCode, setBillingZipCode] =
+        useState('')
 
-      const data = await response.json();
+    useEffect(() => {
+        if (!user) return
 
-      setFavorites(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        loadProfile()
+        loadFavorites()
+    }, [user])
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!profile) return;
+    const loadProfile = async () => {
+        if (!user) return
 
-    const { name, value, type, checked } =
-      event.target;
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}`
+            )
 
-    setProfile({
-      ...profile,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : value,
-    });
-  };
-
-  const handleAddressChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!profile) return;
-
-    setProfile({
-      ...profile,
-      homeAddress: {
-        ...(profile.homeAddress ?? {
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-        }),
-        [event.target.name]:
-          event.target.value,
-      },
-    });
-  };
-
-  const saveProfile = async () => {
-    if (!profile || !user) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/users/${user.id}/profile`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            phone: profile.phone,
-            homeAddress:
-              profile.homeAddress,
-            recievePromotions:
-              profile.recievePromotions,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to save profile"
-        );
-      }      
-    } catch (error) {
-      console.error(error);
-      alert(
-        "Unable to save profile."
-      );
-    }
-  };
-
-  const removeFavorite = async (
-    movieId: number
-  ) => {
-    if (!user) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/users/${user.id}/favorites/${movieId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to remove favorite"
-        );
-      }
-
-      setFavorites((prev) =>
-        prev.filter(
-          (movie) =>
-            movie.id !== movieId
-        )
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  if (loading) {
-    return <h2>Loading...</h2>;
-  }
-
-  if (!profile) {
-    return <h2>Profile not found.</h2>;
-  }
-
-  return (
-    <div className="profile-page">
-      <h1>My Profile</h1>
-
-      <section className="profile-section">
-        <h2>Account Information</h2>
-
-        <label>First Name</label>
-        <input
-          type="text"
-          name="firstName"
-          value={profile.firstName}
-          onChange={handleChange}
-        />
-
-        <label>Last Name</label>
-        <input
-          type="text"
-          name="lastName"
-          value={profile.lastName}
-          onChange={handleChange}
-        />
-
-        <label>Email</label>
-        <input
-          type="text"
-          value={profile.email}
-          disabled
-        />
-
-        <label>Phone Number</label>
-        <input
-          type="text"
-          name="phone"
-          value={profile.phone}
-          onChange={handleChange}
-        />
-
-        <label>
-          <input
-            type="checkbox"
-            name="recievePromotions"
-            checked={
-              profile.recievePromotions
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to load profile'
+                )
             }
-            onChange={handleChange}
-          />
-          Receive Promotions
-        </label>
-      </section>
 
-      <section className="profile-section">
-        <h2>Home Address</h2>
+            const data = await response.json()
 
-        <label>Street</label>
-        <input
-          type="text"
-          name="street"
-          value={
-            profile.homeAddress?.zipCode ?? ""
-          }
-          onChange={handleAddressChange}
-        />
+            if (!data.homeAddress) {
+                data.homeAddress = {
+                    street: '',
+                    city: '',
+                    state: '',
+                    zipCode: '',
+                }
+            }
 
-        <label>City</label>
-        <input
-          type="text"
-          name="city"
-          value={
-            profile.homeAddress?.city ??
-            ""
-          }
-          onChange={handleAddressChange}
-        />
+            setProfile(data)
 
-        <label>State</label>
-        <input
-          type="text"
-          name="state"
-          value={
-            profile.homeAddress?.state ??
-            ""
-          }
-          onChange={handleAddressChange}
-        />
+            setPaymentCards(
+                data.paymentCards ?? []
+            )
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
-        <label>Zip Code</label>
-        <input
-          type="text"
-          name="zipCode"
-          value={
-            profile.homeAddress?.zipCode ??
-            ""
-          }
-          onChange={handleAddressChange}
-        />
-      </section>
+    const loadFavorites = async () => {
+        if (!user) return
 
-      <button
-        className="save-profile-btn"
-        onClick={saveProfile}
-      >
-        Save Changes
-      </button>
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/favorites`
+            )
 
-      <section className="favorites-section">
-        <h2>Favorite Movies</h2>
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to load favorites'
+                )
+            }
 
-        {favorites.length === 0 ? (
-          <p>
-            You have no favorite movies.
-          </p>
-        ) : (
-          <div className="favorites-grid">
-            {favorites.map((movie) => (
-              <div
-                key={movie.id}
-                className="favorite-movie"
-              >
-                <MovieCard
-                  id={movie.id}
-                  poster_url={
-                    movie.posterUrl
-                  }
-                  title={movie.title}
-                  genre={movie.genre}
-                  rating={movie.rating}
-                  showFavoriteButton={false}
+            const data = await response.json()
+
+            setFavorites(data)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        if (!profile) return
+
+        const { name, value, type, checked } =
+            event.target
+
+        setProfile({
+            ...profile,
+            [name]:
+                type === 'checkbox'
+                    ? checked
+                    : value,
+        })
+    }
+
+    const handleAddressChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        if (!profile) return
+
+        setProfile({
+            ...profile,
+            homeAddress: {
+                ...(profile.homeAddress ?? {
+                    street: '',
+                    city: '',
+                    state: '',
+                    zipCode: '',
+                }),
+                [event.target.name]:
+                    event.target.value,
+            },
+        })
+    }
+
+    const saveProfile = async () => {
+        if (!profile || !user) return
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/profile`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+                    },
+                    body: JSON.stringify({
+                        firstName: profile.firstName,
+                        lastName: profile.lastName,
+                        phone: profile.phone,
+                        homeAddress:
+                            profile.homeAddress,
+                        recievePromotions:
+                            profile.recievePromotions,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to save profile'
+                )
+            }
+
+            alert(
+                'Profile updated successfully.'
+            )
+        } catch (error) {
+            console.error(error)
+
+            alert(
+                'Unable to save profile.'
+            )
+        }
+    }
+
+    const changePassword = async () => {
+        if (!user) return
+
+        if (newPassword !== confirmPassword) {
+            alert(
+                'New passwords do not match.'
+            )
+            return
+        }
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/password`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to update password'
+                )
+            }
+
+            alert(
+                'Password updated successfully.'
+            )
+
+            setCurrentPassword('')
+            setNewPassword('')
+            setConfirmPassword('')
+        } catch (error) {
+            console.error(error)
+
+            alert(
+                'Current password is incorrect.'
+            )
+        }
+    }
+
+    const addCard = async () => {
+        if (!user) return
+
+        if (paymentCards.length >= 3) {
+            alert(
+                'Maximum 3 payment cards allowed.'
+            )
+            return
+        }
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/cards`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+                    },
+                    body: JSON.stringify({
+                        cardNumber,
+                        expirationMonth:
+                            Number(
+                                expirationMonth
+                            ),
+                        expirationYear:
+                            Number(
+                                expirationYear
+                            ),
+                        billingAddress: {
+                            street: billingStreet,
+                            city: billingCity,
+                            state: billingState,
+                            zipCode:
+                                billingZipCode,
+                        },
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to add card'
+                )
+            }
+
+            await loadProfile()
+
+            setCardNumber('')
+            setExpirationMonth('')
+            setExpirationYear('')
+            setBillingStreet('')
+            setBillingCity('')
+            setBillingState('')
+            setBillingZipCode('')
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const removeCard = async (
+        cardId: string
+    ) => {
+        if (!user) return
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/cards/${cardId}`,
+                {
+                    method: 'DELETE',
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to remove card'
+                )
+            }
+
+            setPaymentCards((prev) =>
+                prev.filter(
+                    (card) =>
+                        card.cardId !== cardId
+                )
+            )
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const removeFavorite = async (
+        movieId: number
+    ) => {
+        if (!user) return
+
+        try {
+            const response = await fetch(
+                `http://localhost:8080/users/${user.id}/favorites/${movieId}`,
+                {
+                    method: 'DELETE',
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    'Failed to remove favorite'
+                )
+            }
+
+            setFavorites((prev) =>
+                prev.filter(
+                    (movie) =>
+                        movie.id !== movieId
+                )
+            )
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    if (loading) {
+        return <h2>Loading...</h2>
+    }
+
+    if (!profile) {
+        return <h2>Profile not found.</h2>
+    }
+
+    return (
+        <div className="profile-page">
+            <h1>My Profile</h1>
+
+            <section className="profile-section">
+                <h2>Account Information</h2>
+
+                <label>First Name</label>
+                <input
+                    type="text"
+                    name="firstName"
+                    value={profile.firstName}
+                    onChange={handleChange}
+                />
+
+                <label>Last Name</label>
+                <input
+                    type="text"
+                    name="lastName"
+                    value={profile.lastName}
+                    onChange={handleChange}
+                />
+
+                <label>Email</label>
+                <input
+                    type="text"
+                    value={profile.email}
+                    disabled
+                />
+
+                <label>Phone Number</label>
+                <input
+                    type="text"
+                    name="phone"
+                    value={profile.phone}
+                    onChange={handleChange}
+                />
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="recievePromotions"
+                        checked={
+                            profile.recievePromotions
+                        }
+                        onChange={handleChange}
+                    />
+                    Receive Promotions
+                </label>
+            </section>
+
+            <section className="profile-section">
+                <h2>Change Password</h2>
+
+                <label>Current Password</label>
+                <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) =>
+                        setCurrentPassword(
+                            e.target.value
+                        )
+                    }
+                />
+
+                <label>New Password</label>
+                <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) =>
+                        setNewPassword(
+                            e.target.value
+                        )
+                    }
+                />
+
+                <label>
+                    Confirm New Password
+                </label>
+                <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) =>
+                        setConfirmPassword(
+                            e.target.value
+                        )
+                    }
                 />
 
                 <button
-                  className="remove-favorite-btn"
-                  onClick={() =>
-                    removeFavorite(
-                      movie.id
-                    )
-                  }
+                    type="button"
+                    onClick={changePassword}
                 >
-                  Remove Favorite
+                    Change Password
                 </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  );
+            </section>
+
+            <section className="profile-section">
+                <h2>Home Address</h2>
+
+                <label>Street</label>
+                <input
+                    type="text"
+                    name="street"
+                    value={
+                        profile.homeAddress
+                            ?.street ?? ''
+                    }
+                    onChange={
+                        handleAddressChange
+                    }
+                />
+
+                <label>City</label>
+                <input
+                    type="text"
+                    name="city"
+                    value={
+                        profile.homeAddress?.city ??
+                        ''
+                    }
+                    onChange={
+                        handleAddressChange
+                    }
+                />
+
+                <label>State</label>
+                <input
+                    type="text"
+                    name="state"
+                    value={
+                        profile.homeAddress?.state ??
+                        ''
+                    }
+                    onChange={
+                        handleAddressChange
+                    }
+                />
+
+                <label>Zip Code</label>
+                <input
+                    type="text"
+                    name="zipCode"
+                    value={
+                        profile.homeAddress
+                            ?.zipCode ?? ''
+                    }
+                    onChange={
+                        handleAddressChange
+                    }
+                />
+            </section>
+
+            <button
+                className="save-profile-btn"
+                onClick={saveProfile}
+            >
+                Save Changes
+            </button>
+
+            <section className="profile-section">
+                <h2>Payment Cards</h2>
+
+                {paymentCards.length === 0 ? (
+                    <p>No payment cards saved.</p>
+                ) : (
+                    <div className="payment-cards-list">
+                        {paymentCards.map((card) => (
+                            <div
+                                key={card.cardId}
+                                className="payment-card"
+                            >
+                                <p>Payment Card</p>
+
+                                <p>
+                                    Expires:{' '}
+                                    {card.expirationMonth}/
+                                    {card.expirationYear}
+                                </p>
+
+                                <p>{card.billingAddress.street}</p>
+
+                                <p>
+                                    {card.billingAddress.city},{' '}
+                                    {card.billingAddress.state}{' '}
+                                    {card.billingAddress.zipCode}
+                                </p>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        removeCard(card.cardId)
+                                    }
+                                >
+                                    Remove Card
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {paymentCards.length < 3 && (
+                    <>
+                        <h3>Add Payment Card</h3>
+
+                        <input
+                            type="text"
+                            placeholder="Card Number"
+                            value={cardNumber}
+                            onChange={(e) =>
+                                setCardNumber(e.target.value)
+                            }
+                        />
+
+                        <input
+                            type="number"
+                            placeholder="Expiration Month"
+                            value={expirationMonth}
+                            onChange={(e) =>
+                                setExpirationMonth(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <input
+                            type="number"
+                            placeholder="Expiration Year"
+                            value={expirationYear}
+                            onChange={(e) =>
+                                setExpirationYear(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Billing Street"
+                            value={billingStreet}
+                            onChange={(e) =>
+                                setBillingStreet(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Billing City"
+                            value={billingCity}
+                            onChange={(e) =>
+                                setBillingCity(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Billing State"
+                            value={billingState}
+                            onChange={(e) =>
+                                setBillingState(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Billing Zip Code"
+                            value={billingZipCode}
+                            onChange={(e) =>
+                                setBillingZipCode(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+                        <button
+                            type="button"
+                            onClick={addCard}
+                        >
+                            Add Card
+                        </button>
+                    </>
+                )}
+            </section>
+
+            <section className="favorites-section">
+                <h2>Favorite Movies</h2>
+
+                {favorites.length === 0 ? (
+                    <p>You have no favorite movies.</p>
+                ) : (
+                    <div className="favorites-grid">
+                        {favorites.map((movie) => (
+                            <div
+                                key={movie.id}
+                                className="favorite-movie"
+                            >
+                                <MovieCard
+                                    id={movie.id}
+                                    poster_url={movie.posterUrl}
+                                    title={movie.title}
+                                    genre={movie.genre}
+                                    rating={movie.rating}
+                                    showFavoriteButton={false}
+                                />
+
+                                <button
+                                    className="remove-favorite-btn"
+                                    onClick={() =>
+                                        removeFavorite(movie.id)
+                                    }
+                                >
+                                    Remove Favorite
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+        </div>
+    )
 }
 
-export default ProfilePage;
+export default ProfilePage
