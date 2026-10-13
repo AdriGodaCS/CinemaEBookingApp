@@ -1,6 +1,8 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
+import com.cinemaebooking.model.AddPaymentCardRequest;
+import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.model.Movie;
 import com.cinemaebooking.model.UpdateProfileRequest;
@@ -31,9 +33,8 @@ public class UserController {
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
-    public ResponseEntity<String> createUser(
-        @RequestBody CreateUserRequest user
-    ) {
+    public ResponseEntity<User> createUser(
+            @RequestBody CreateUserRequest user) {
         User createdUser = userService.createUser(user);
 
         // Generate a verification token
@@ -48,7 +49,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("Check your email to verify your account");
+                .body(createdUser);
     }
 
     // Retrieve a user using an email and passwordHash
@@ -69,6 +70,39 @@ public class UserController {
         return userService.updateProfile(
                 id,
                 request);
+    }
+
+    @PostMapping("/{id}/cards")
+    public ResponseEntity<Void> addCard(
+            @PathVariable Integer id,
+            @RequestBody AddPaymentCardRequest request) {
+
+        userService.addPaymentCard(
+                id,
+                request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/cards/{cardId}")
+    public ResponseEntity<Void> removeCard(
+            @PathVariable Integer id,
+            @PathVariable String cardId) {
+
+        userService.removePaymentCard(
+                id,
+                cardId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Integer id,
+            @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/favorites")

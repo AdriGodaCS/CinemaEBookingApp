@@ -1,8 +1,11 @@
 package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.User;
+import com.cinemaebooking.model.AddPaymentCardRequest;
+import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.model.PaymentCard;
 import com.cinemaebooking.repository.UserRepository;
 import com.cinemaebooking.security.SecurityConfig;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,6 +56,27 @@ public class UserService {
                 request.recievePromotions());
 
         return userRepository.save(user);
+    }
+
+    public void changePassword(
+            Integer userId,
+            ChangePasswordRequest request) {
+        User user = getUserById(userId);
+
+        boolean matches = passwordEncoder.matches(
+                request.currentPassword(),
+                user.getPasswordHash());
+
+        if (!matches) {
+            throw new IllegalArgumentException(
+                    "Current password is incorrect.");
+        }
+
+        user.setPasswordHash(
+                passwordEncoder.encode(
+                        request.newPassword()));
+
+        userRepository.save(user);
     }
 
     public User getUserByEmailAndPassword(String email, String password) {
@@ -122,6 +146,52 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    public void removePaymentCard(
+            Integer userId,
+            String cardId) {
+
+        User user = getUserById(userId);
+
+        user.getPaymentCards()
+                .removeIf(card -> card.getCardId()
+                        .equals(cardId));
+
+        userRepository.save(user);
+    }
+
+    public PaymentCard addPaymentCard(
+            Integer userId,
+            AddPaymentCardRequest request) {
+
+        User user = getUserById(userId);
+
+        if (user.getPaymentCards().size() >= 3) {
+            throw new IllegalArgumentException(
+                    "Maximum 3 payment cards allowed.");
+        }
+
+        PaymentCard card = new PaymentCard();
+
+        card.setCardNumberHash(
+                passwordEncoder.encode(
+                        request.cardNumber()));
+
+        card.setExpirationMonth(
+                request.expirationMonth());
+
+        card.setExpirationYear(
+                request.expirationYear());
+
+        card.setBillingAddress(
+                request.billingAddress());
+
+        user.getPaymentCards().add(card);
+
+        userRepository.save(user);
+
+        return card;
     }
 
     public void addFavorite(
