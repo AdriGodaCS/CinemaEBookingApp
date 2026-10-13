@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record CurrentUserResponse(
+public record LoggedInUserData(
     @NotBlank 
     @Email
     String email,
@@ -22,6 +22,8 @@ public record CurrentUserResponse(
     Address homAddress,
     List<PaymentCard> paymentCards,
     String status,
-    String role
+    String role,
+    Boolean recievePromotions,
+    int[] favoriteMovieIds
 ) {
 }

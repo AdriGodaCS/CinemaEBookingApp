@@ -29,7 +29,7 @@ public class UserController {
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
-    public ResponseEntity<User> createUser(
+    public ResponseEntity<String> createUser(
         @RequestBody CreateUserRequest user
     ) {
         User createdUser = userService.createUser(user);
@@ -46,7 +46,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdUser);
+                .body("Check your email to verify your account");
     }
 
     // Retrieve a user using an email and passwordHash
