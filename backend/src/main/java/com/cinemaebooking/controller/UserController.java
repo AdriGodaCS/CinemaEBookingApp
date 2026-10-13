@@ -5,6 +5,7 @@ import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.service.UserService;
 import com.cinemaebooking.service.EmailService;
 
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController 
+@RestController
 @RequestMapping("/users")
 @CrossOrigin(origins = "*")
 public class UserController {
@@ -44,8 +45,8 @@ public class UserController {
         emailService.sendVerificationEmail(createdUser.getEmail(), verificationToken);
 
         return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(createdUser);
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
     }
 
     // Retrieve a user using an email and passwordHash

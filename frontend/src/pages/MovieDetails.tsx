@@ -102,8 +102,7 @@ export const MovieDetails = () => {
                             ))}
                         </ul>
                     </section>
-                    </div>
-                    <button className={styles['fav-button']}>♡</button>                        
+                    </div>                    
                 </section>                        
 
             <section>

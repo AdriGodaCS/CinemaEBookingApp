@@ -121,6 +121,12 @@
   outline-offset: 2px;
 }
 
+.fav-button {
+    font-size: 20px;
+    height: 40px;
+    padding-inline: 10px;
+}
+
 @media (max-width: 700px) {
   .home-page {
     padding-top: 32px;

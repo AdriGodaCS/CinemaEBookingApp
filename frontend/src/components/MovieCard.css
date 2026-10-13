@@ -33,6 +33,14 @@
   background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06));
 }
 
+.fav-button {
+    font-size: 1px;
+    height: 40px;
+    width: 100%;
+    padding-inline: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
 .movie-details {
   display: flex;
   min-width: 0;
