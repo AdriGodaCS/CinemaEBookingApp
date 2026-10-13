@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 //@Configuration // This is only needed if more methods othere than passwordEncoder are needed
         //if using @Configuration, must
+@Configuration 
 public class SecurityConfig {
 
     @Bean 
