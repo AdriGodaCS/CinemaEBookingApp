@@ -1,7 +1,7 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
-import com.cinemaebooking.model.UserRequest;
+import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.service.UserService;
 
 import org.springframework.http.HttpStatus;
@@ -10,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import java.util.UUID;
 
 @RestController 
 @RequestMapping("/users")
@@ -28,9 +26,20 @@ public class UserController {
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
     public ResponseEntity<User> createUser(
-        @RequestBody UserRequest user
+        @RequestBody CreateUserRequest user
     ) {
         User createdUser = userService.createUser(user);
+
+        // Generate a verification token
+        String verificationToken = UUID.randomUUID().toString();
+        createdUser.setVerificationToken(verificationToken);
+            
+        // Save the user with the token
+        userService.saveUser(createdUser);
+    
+        // Send verification email
+        emailService.sendVerificationEmail(createdUser.getEmail(), verificationToken);
+
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(createdUser);

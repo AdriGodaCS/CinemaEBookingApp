@@ -10,10 +10,10 @@ public interface UserRepository extends MongoRepository<User, Integer> {
 
 //    List<User> findAllUsers();
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailIgnoreCase(String email);
 
     User findByEmailAndPasswordHash(String email, String passwordHash);
 
-    Boolean existsByEmail(String email);
+    Boolean existsByEmailIgnoreCase(String email);
     
 }

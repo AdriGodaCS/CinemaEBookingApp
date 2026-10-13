@@ -1,7 +1,7 @@
 package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.User;
-import com.cinemaebooking.model.UserRequest;
+import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.repository.UserRepository;
 import com.cinemaebooking.security.SecurityConfig;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +31,7 @@ public class UserService {
         return user;
     }
 
-    public User createUser(UserRequest userRequest) {
+    public User createUser(CreateUserRequest userRequest) {
         User user = new User();
         
         // Transfer data from request DTO to the new user object
@@ -55,11 +55,15 @@ public class UserService {
         }
 
         // Check if the email is in use
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new IllegalArgumentException("A user with that email already exists");
         }
 
         return userRepository.save(user);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
 
     public User editUser(User user) {
@@ -69,7 +73,7 @@ public class UserService {
     // Private methods
 
     private User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> 
                 new IllegalArgumentException("No user found with email: " + email)
         );

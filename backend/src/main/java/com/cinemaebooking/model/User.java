@@ -1,6 +1,7 @@
 package com.cinemaebooking.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -19,7 +20,9 @@ public class User {
     @Field("last_name")
     private String lastName;
 
+    @Indexed(unique = true)
     private String email;
+
     private String phone;
 
     @Field("password_hash")
@@ -35,6 +38,8 @@ public class User {
     @Field("favorite_movie_ids")
     private int[] favoriteMovieIds;
 
+    private String verificationToken;
+
     //private ... preferences;
 
     // Constructors
@@ -47,6 +52,8 @@ public class User {
     }
 
     // getter/setter methods
+
+    // id
     public Integer getId() {
         return id;
     }
@@ -55,6 +62,7 @@ public class User {
         this.id = id;
     }
 
+    // role
     public String getRole() {
         return role;
     }
@@ -63,6 +71,7 @@ public class User {
         this.role = role;
     }
 
+    // firstName
     public String getFirstName() {
         return firstName;
     }
@@ -71,6 +80,7 @@ public class User {
         this.firstName = firstName;
     }
 
+    // lastName
     public String getLastName() {
         return lastName;
     }
@@ -78,7 +88,8 @@ public class User {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
+    
+    // email
     public String getEmail() {
         return email;
     }
@@ -91,10 +102,12 @@ public class User {
         return phone;
     }
 
+    // phone
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    // passwordHash
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -103,6 +116,7 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    // status
     public String getStatus() {
         return status;
     }
@@ -111,6 +125,7 @@ public class User {
         this.status = status;
     }
 
+    // paymentCards
     public List<PaymentCard> getPaymentCards() {
         return paymentCards;
     }
@@ -119,6 +134,7 @@ public class User {
         this.paymentCards = paymentCards;
     }
 
+    // homeAddress
     public Address getHomeAddress() {
         return homeAddress;
     }
@@ -127,13 +143,21 @@ public class User {
         this.homeAddress = homeAddress;
     }
 
-    //public setPaymentCards
-
+    // favoriteMovieIds
     public int[] getFavoriteMovieIds() {
         return favoriteMovieIds;
     }
 
     public void setFavoriteMovieIds(int[] favoriteMovieIds) {
         this.favoriteMovieIds = favoriteMovieIds;
+    }
+
+    // verificationToken
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+    
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 }
