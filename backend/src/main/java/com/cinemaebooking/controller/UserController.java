@@ -2,6 +2,8 @@ package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
 import com.cinemaebooking.model.CreateUserRequest;
+import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.model.UpdateProfileRequest;
 import com.cinemaebooking.service.UserService;
 import com.cinemaebooking.service.EmailService;
 
@@ -30,17 +32,16 @@ public class UserController {
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
     public ResponseEntity<User> createUser(
-        @RequestBody CreateUserRequest user
-    ) {
+            @RequestBody CreateUserRequest user) {
         User createdUser = userService.createUser(user);
 
         // Generate a verification token
         String verificationToken = UUID.randomUUID().toString();
         createdUser.setVerificationToken(verificationToken);
-            
+
         // Save the user with the token
         userService.saveUser(createdUser);
-    
+
         // Send verification email
         emailService.sendVerificationEmail(createdUser.getEmail(), verificationToken);
 
@@ -54,25 +55,62 @@ public class UserController {
         return userService.getUserByEmailAndPassword(email, password);
     }
 
-    // edit user
-    @PutMapping
-    public User editUser(User user) {
-        return userService.editUser(user);
+    @GetMapping("/{id}")
+    public User getUser(
+            @PathVariable Integer id) {
+        return userService.getUserById(id);
+    }
+
+    @PutMapping("/{id}/profile")
+    public User updateProfile(
+            @PathVariable Integer id,
+            @RequestBody UpdateProfileRequest request) {
+        return userService.updateProfile(
+                id,
+                request);
+    }
+
+    @GetMapping("/{id}/favorites")
+    public List<Movie> getFavorites(
+            @PathVariable Integer id) {
+        return userService.getFavoriteMovies(id);
+    }
+
+    @DeleteMapping("/{userId}/favorites/{movieId}")
+    public ResponseEntity<Void> removeFavorite(
+            @PathVariable Integer userId,
+            @PathVariable Integer movieId) {
+        userService.removeFavorite(
+                userId,
+                movieId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/favorites/{movieId}")
+    public ResponseEntity<Void> addFavorite(
+            @PathVariable Integer userId,
+            @PathVariable Integer movieId) {
+        userService.addFavorite(
+                userId,
+                movieId);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/verify")
     public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
         User user = userService.getByVerificationToken(token);
-    
+
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
         }
-    
+
         user.setStatus("ACTIVE");
         user.setVerificationToken(null); // Clear the token after verification
         userService.saveUser(user);
-    
+
         return ResponseEntity
-            .ok("Account verified successfully!");
+                .ok("Account verified successfully!");
     }
 }

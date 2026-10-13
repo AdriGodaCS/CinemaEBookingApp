@@ -1,0 +1,42 @@
+.profile-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.profile-section input[type="text"] {
+  padding: 0.75rem;
+}
+
+.save-profile-btn {
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 2rem;
+  cursor: pointer;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(250px, 1fr)
+  );
+  gap: 1rem;
+}
+
+.favorite-movie {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.remove-favorite-btn {
+  padding: 0.75rem;
+  cursor: pointer;
+}
