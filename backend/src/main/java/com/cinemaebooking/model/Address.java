@@ -37,7 +37,7 @@ public class Address {
         return city;
     }
 
-    public void setCity(String vity) {
+    public void setCity(String city) {
         this.city = city;
     }
 
