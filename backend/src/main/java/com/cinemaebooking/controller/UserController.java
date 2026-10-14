@@ -2,13 +2,17 @@ package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
 import com.cinemaebooking.model.CreateUserRequest;
+import com.cinemaebooking.model.LoggedInUserData;
+import com.cinemaebooking.model.LoginRequest;
+import com.cinemaebooking.model.LoginResponse;
 import com.cinemaebooking.service.UserService;
 import com.cinemaebooking.service.EmailService;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,9 +53,22 @@ public class UserController {
                 .body("Check your email to verify your account");
     }
 
-    // Retrieve a user using an email and passwordHash
-    public User getUserByEmailAndPassword(String email, String password) {
-        return userService.getUserByEmailAndPassword(email, password);
+    // Login the user
+    public LoginResponse loginUser(LoginRequest loginRequest) {
+        return userService.loginUser(loginRequest);
+    }
+
+    // Retrieve data from the logged in user
+    @GetMapping("/me")
+    public ResponseEntity<LoggedInUserData> getCurrentUser(
+            Authentication authentication) {
+    
+        LoggedInUserData userData =
+            userService.getLoggedInUserData(
+                authentication.getName()
+            );
+    
+        return ResponseEntity.ok(userData);
     }
 
     // edit user
