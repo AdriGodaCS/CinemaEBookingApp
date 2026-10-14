@@ -54,3 +54,8 @@
 .nav-link.active {
   color: var(--ink);
 }
+
+.logout-button {
+  background: none;
+  cursor: pointer;
+}

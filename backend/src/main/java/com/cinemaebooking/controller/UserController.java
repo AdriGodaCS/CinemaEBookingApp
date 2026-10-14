@@ -1,7 +1,11 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.User;
+import com.cinemaebooking.model.AddPaymentCardRequest;
+import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
+import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.model.UpdateProfileRequest;
 import com.cinemaebooking.model.LoggedInUserData;
 import com.cinemaebooking.model.LoginRequest;
 import com.cinemaebooking.model.LoginResponse;
@@ -33,24 +37,23 @@ public class UserController {
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
-    public ResponseEntity<String> createUser(
-        @RequestBody CreateUserRequest user
-    ) {
+    public ResponseEntity<User> createUser(
+            @RequestBody CreateUserRequest user) {
         User createdUser = userService.createUser(user);
 
         // Generate a verification token
         String verificationToken = UUID.randomUUID().toString();
         createdUser.setVerificationToken(verificationToken);
-            
+
         // Save the user with the token
         userService.saveUser(createdUser);
-    
+
         // Send verification email
         emailService.sendVerificationEmail(createdUser.getEmail(), verificationToken);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("Check your email to verify your account");
+                .body(createdUser);
     }
 
     // Login the user
@@ -71,25 +74,95 @@ public class UserController {
         return ResponseEntity.ok(userData);
     }
 
-    // edit user
-    @PutMapping
-    public User editUser(User user) {
-        return userService.editUser(user);
+    @GetMapping("/{id}")
+    public User getUser(
+            @PathVariable Integer id) {
+        return userService.getUserById(id);
+    }
+
+    @PutMapping("/{id}/profile")
+    public User updateProfile(
+            @PathVariable Integer id,
+            @RequestBody UpdateProfileRequest request) {
+        return userService.updateProfile(
+                id,
+                request);
+    }
+
+    @PostMapping("/{id}/cards")
+    public ResponseEntity<Void> addCard(
+            @PathVariable Integer id,
+            @RequestBody AddPaymentCardRequest request) {
+
+        userService.addPaymentCard(
+                id,
+                request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/cards/{cardId}")
+    public ResponseEntity<Void> removeCard(
+            @PathVariable Integer id,
+            @PathVariable String cardId) {
+
+        userService.removePaymentCard(
+                id,
+                cardId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Integer id,
+            @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/favorites")
+    public List<Movie> getFavorites(
+            @PathVariable Integer id) {
+        return userService.getFavoriteMovies(id);
+    }
+
+    @DeleteMapping("/{userId}/favorites/{movieId}")
+    public ResponseEntity<Void> removeFavorite(
+            @PathVariable Integer userId,
+            @PathVariable Integer movieId) {
+        userService.removeFavorite(
+                userId,
+                movieId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/favorites/{movieId}")
+    public ResponseEntity<Void> addFavorite(
+            @PathVariable Integer userId,
+            @PathVariable Integer movieId) {
+        userService.addFavorite(
+                userId,
+                movieId);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/verify")
     public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
         User user = userService.getByVerificationToken(token);
-    
+
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
         }
-    
+
         user.setStatus("ACTIVE");
         user.setVerificationToken(null); // Clear the token after verification
         userService.saveUser(user);
-    
+
         return ResponseEntity
-            .ok("Account verified successfully!");
+                .ok("Account verified successfully!");
     }
 }
