@@ -82,8 +82,11 @@ public class UserController {
 
     @PutMapping("/{id}/profile")
     public User updateProfile(
-            @PathVariable Integer id,
-            @RequestBody UpdateProfileRequest request) {
+        @PathVariable Integer id,
+        @RequestBody UpdateProfileRequest request
+    ) {
+        User user = userService.getUserById(id);
+        emailService.sendEmailForUpdataProfile(user.getEmail());
         return userService.updateProfile(
                 id,
                 request);
