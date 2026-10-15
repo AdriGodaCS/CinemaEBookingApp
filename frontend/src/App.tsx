@@ -2,6 +2,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import BookingPage from './pages/BookingPage'
 import ProfilePage from './pages/ProfilePage'
+import VerifyAccountPage from './pages/VerifyAccountPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import AdminPage from './pages/AdminPage'
 import RootLayout from './layouts/RootLayout'
 import { MovieDetails } from './pages/MovieDetails'
@@ -31,8 +33,17 @@ function App() {
                 <AdminPage />
               </AdminRoute>
             }
-          />          
+          />
         </Route>
+        <Route
+          path="/verify-account"
+          element={<VerifyAccountPage />}
+        />
+
+        <Route
+          path="/reset-password"
+          element={<ResetPasswordPage />}
+        />
       </Routes>
     </BrowserRouter>
   )
