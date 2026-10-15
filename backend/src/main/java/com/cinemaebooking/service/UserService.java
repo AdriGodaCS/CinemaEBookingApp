@@ -143,6 +143,12 @@ public class UserService {
             "Invalid email or password"
             );
         }
+
+        if (user.getStatus().equals("INACTIVE")) {
+            throw new IllegalStateException(
+                "Account must be verified to log in."
+            );
+        }
         
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
         
