@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import FormField from '../components/FormField.tsx'
+import FormField from '../components/FormField'
 import './AuthPages.css'
 
 const API_URL = 'http://localhost:8080'
@@ -79,7 +79,7 @@ function validate(values: Values, showAddress: boolean, cards: CardEntry[]): Err
     return errors
 }
 
-function RegisterPage() {
+function RegistrationPage() {
     const [values, setValues] = useState<Values>(initialValues)
     const [promotions, setPromotions] = useState(false)
     const [showAddress, setShowAddress] = useState(false)
@@ -133,38 +133,58 @@ function RegisterPage() {
         setErrors(validationErrors)
         if (Object.keys(validationErrors).length > 0) return
 
-        // TODO: confirm field names with Jean-Pierre / Jacob (the DB uses snake_case, e.g. first_name)
+        // Field names follow the backend models (Address has zipCode; promotions flag is spelled "recievePromotions").
+        // TODO (backend): CreateUserRequest must accept homeAddress (currently "homAddress"), recievePromotions,
+        // and a list of AddPaymentCardRequest-style cards, and createUser must save them.
+        const homeAddress = showAddress
+            ? {
+                  street: values.street.trim(),
+                  city: values.city.trim(),
+                  state: values.state.trim().toUpperCase(),
+                  zipCode: values.zip.trim(),
+              }
+            : undefined
+
         const payload = {
             firstName: values.firstName.trim(),
             lastName: values.lastName.trim(),
             email: values.email.trim().toLowerCase(),
             phone: values.phone.replace(/\D/g, ''),
             password: values.password,
-            subscribedToPromotions: promotions,
-            ...(showAddress && {
-                address: {
-                    street: values.street.trim(),
-                    city: values.city.trim(),
-                    state: values.state.trim().toUpperCase(),
-                    zip: values.zip.trim(),
-                },
+            recievePromotions: promotions,
+            ...(homeAddress && { homeAddress }),
+            ...(cards.length > 0 && {
+                paymentCards: cards.map((card) => {
+                    const [month, year] = card.expiration.split('/')
+                    return {
+                        cardNumber: card.cardNumber,
+                        expirationMonth: Number(month),
+                        expirationYear: 2000 + Number(year),
+                        // Reuses the home address as the billing address when one was entered
+                        ...(homeAddress && { billingAddress: homeAddress }),
+                    }
+                }),
             }),
-            ...(cards.length > 0 && { paymentCards: cards }),
         }
 
         setSubmitting(true)
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
+            // Backend route is POST /users (permitted in SecurityConfig)
+            const response = await fetch(`${API_URL}/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             })
 
-            if (response.status === 409) {
-                setErrors({ email: 'An account with this email already exists. Log in or use a different email.' })
-            } else if (!response.ok) {
+            if (!response.ok) {
                 const data = await response.json().catch(() => null)
-                setServerError(data?.message ?? 'We could not create your account. Please try again.')
+                const message: string = data?.message ?? ''
+                // Backend throws "A user with that email already exists"; the status code depends on the controller
+                if (response.status === 409 || message.toLowerCase().includes('already exists')) {
+                    setErrors({ email: 'An account with this email already exists. Log in or use a different email.' })
+                } else {
+                    setServerError(message || 'We could not create your account. Please try again.')
+                }
             } else {
                 // Account is created as INACTIVE and the user is NOT logged in
                 setRegisteredEmail(payload.email)
@@ -297,4 +317,4 @@ function RegisterPage() {
     )
 }
 
-export default RegisterPage
+export default RegistrationPage

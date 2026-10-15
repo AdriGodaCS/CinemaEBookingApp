@@ -43,8 +43,9 @@ function LoginPage() {
 
         setSubmitting(true)
         try {
-            // TODO: confirm with Jacob that login returns { token } (assumed here)
-            const response = await fetch(`${API_URL}/api/auth/login`, {
+            // TODO: confirm the login path and error status codes with Jacob (controller not seen yet)
+            // UserController is mapped to /users, so login belongs at /users/login (endpoint still needs to be added)
+            const response = await fetch(`${API_URL}/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
@@ -66,21 +67,20 @@ function LoginPage() {
                 return
             }
 
-            const { token }: { token: string } = await response.json()
-            localStorage.setItem('token', token)
+            // Backend LoginResponse: { token, tokenType, user: LoggedInUserData }
+            const data: { token: string; user: User & { status?: string } } = await response.json()
 
-            // Reuse the endpoint AuthContext already calls so the user shape is identical
-            const meResponse = await fetch(`${API_URL}/api/users/me`, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-            if (!meResponse.ok) {
-                localStorage.removeItem('token')
-                setFormError('Logged in, but we could not load your profile. Please try again.')
+            // The backend currently issues a token even for INACTIVE accounts, so block them here too.
+            // Check this BEFORE saving the token so an unverified user is never "logged in".
+            if (data.user.status === 'INACTIVE') {
+                setFormError(UNVERIFIED_MESSAGE)
                 return
             }
 
+            localStorage.setItem('token', data.token)
+
             // Setting the user triggers the <Navigate> above, which picks the page by role
-            setUser((await meResponse.json()) as User)
+            setUser(data.user)
         } catch {
             setFormError('Unable to reach the server. Check your connection and try again.')
         } finally {
