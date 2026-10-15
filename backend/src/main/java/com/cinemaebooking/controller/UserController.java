@@ -127,6 +127,9 @@ public class UserController {
         @RequestBody String request
     ) {
         User user = userService.getUserById(id);
+
+        // Create resetPasswordToken to pass to the email
+
         emailService.sendEmailToChangePassword(user.getEmail(), user.getId());
         
         return ResponseEntity.ok().build();
