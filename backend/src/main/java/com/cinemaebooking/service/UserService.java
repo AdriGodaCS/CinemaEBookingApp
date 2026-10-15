@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.cinemaebooking.model.UpdateProfileRequest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -137,6 +138,10 @@ public class UserService {
             Integer movieId) {
         User user = getUserById(userId);
 
+        if (user.getFavoriteMovieIds() == null) {
+            return;
+        }
+
         int[] updatedFavorites = Arrays.stream(user.getFavoriteMovieIds())
                 .filter(id -> id != movieId)
                 .toArray();
@@ -248,6 +253,11 @@ public class UserService {
             AddPaymentCardRequest request) {
 
         User user = getUserById(userId);
+
+        if (user.getPaymentCards() == null) {
+            user.setPaymentCards(
+                    new ArrayList<>());
+        }
 
         if (user.getPaymentCards().size() >= 3) {
             throw new IllegalArgumentException(
