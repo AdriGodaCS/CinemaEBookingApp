@@ -149,6 +149,12 @@ public class UserService {
                 "Account must be verified to log in."
             );
         }
+
+        if (user.getStatus().equals("SUSPENDED")) {
+            throw new IllegalStateException(
+                "Account must be verified to log in."
+            );
+        }
         
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
         
