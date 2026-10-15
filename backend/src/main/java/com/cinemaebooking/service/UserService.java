@@ -130,7 +130,7 @@ public class UserService {
             .orElseThrow(() ->
                 new BadCredentialsException(
                     "Invalid email or password"
-            )
+                )
         );
     
         boolean passwordMatches = passwordEncoder.matches(
@@ -140,7 +140,7 @@ public class UserService {
         
         if (!passwordMatches) {
             throw new BadCredentialsException(
-    "Invalid email or password"
+            "Invalid email or password"
             );
         }
         

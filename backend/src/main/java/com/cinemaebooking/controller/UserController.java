@@ -61,6 +61,7 @@ public class UserController {
     }
 
     // Login the user
+    @GetMapping("/login")
     public LoginResponse loginUser(LoginRequest loginRequest) {
         return userService.loginUser(loginRequest);
     }
