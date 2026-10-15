@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/users")
@@ -113,6 +117,17 @@ public class UserController {
                 id,
                 cardId);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("{id}/passwordChangeRequest")
+    public ResponseEntity<Void> requestPasswordChange(
+        @PathVariable Integer id, 
+        @RequestBody String request
+    ) {
+        User user = userService.getUserById(id);
+        emailService.sendEmailToChangePassword(user.getEmail(), user.getId());
+        
         return ResponseEntity.ok().build();
     }
 

@@ -50,4 +50,22 @@ public class EmailService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
+    public void sendEmailToChangePassword(String toEmail, int userId) {
+        String linkToChagnePassword = "http://localhost:8080/users/%d/resetPassword".formatted(userId);
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(toEmail);
+            helper.setSubject("Password Change Request");
+            helper.setText("<p>Follow this link to change your password.</p>"
+                    + "<a href=\"" + linkToChagnePassword + "\">Change Password</a>", true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
 }
