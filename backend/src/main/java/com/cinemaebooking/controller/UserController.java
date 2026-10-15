@@ -5,13 +5,13 @@ import com.cinemaebooking.model.AddPaymentCardRequest;
 import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.model.ResetPasswordRequest;
 import com.cinemaebooking.model.UpdateProfileRequest;
 import com.cinemaebooking.model.LoggedInUserData;
 import com.cinemaebooking.model.LoginRequest;
 import com.cinemaebooking.model.LoginResponse;
 import com.cinemaebooking.service.UserService;
 import com.cinemaebooking.service.EmailService;
-
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,10 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-
 
 @RestController
 @RequestMapping("/users")
@@ -60,6 +56,48 @@ public class UserController {
                 .body(createdUser);
     }
 
+    @GetMapping("/{id}/checkResetPasswordToken")
+    public ResponseEntity<Boolean> checkResetPasswordToken(
+            @PathVariable Integer id,
+            @RequestParam String token) {
+
+        boolean valid = userService.checkResetPasswordToken(
+                id,
+                token);
+
+        return ResponseEntity.ok(valid);
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody ResetPasswordRequest request) {
+
+        userService.resetPassword(
+                request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/passwordChangeRequest")
+    public ResponseEntity<Void> requestPasswordChange(
+            @PathVariable Integer id) {
+
+        User user = userService.getUserById(id);
+
+        String token = UUID.randomUUID().toString();
+
+        user.setPasswordResetToken(token);
+
+        userService.saveUser(user);
+
+        emailService.sendEmailToChangePassword(
+                user.getEmail(),
+                user.getId(),
+                token);
+
+        return ResponseEntity.ok().build();
+    }
+
     // Login the user
     @GetMapping("/login")
     public LoginResponse loginUser(LoginRequest loginRequest) {
@@ -70,12 +108,10 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<LoggedInUserData> getCurrentUser(
             Authentication authentication) {
-    
-        LoggedInUserData userData =
-            userService.getLoggedInUserData(
-                authentication.getName()
-            );
-    
+
+        LoggedInUserData userData = userService.getLoggedInUserData(
+                authentication.getName());
+
         return ResponseEntity.ok(userData);
     }
 
@@ -87,9 +123,8 @@ public class UserController {
 
     @PutMapping("/{id}/profile")
     public User updateProfile(
-        @PathVariable Integer id,
-        @RequestBody UpdateProfileRequest request
-    ) {
+            @PathVariable Integer id,
+            @RequestBody UpdateProfileRequest request) {
         User user = userService.getUserById(id);
         emailService.sendEmailForUpdataProfile(user.getEmail());
         return userService.updateProfile(
@@ -118,20 +153,6 @@ public class UserController {
                 id,
                 cardId);
 
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("{id}/passwordChangeRequest")
-    public ResponseEntity<Void> requestPasswordChange(
-        @PathVariable Integer id, 
-        @RequestBody String request
-    ) {
-        User user = userService.getUserById(id);
-
-        // Create resetPasswordToken to pass to the email
-
-        emailService.sendEmailToChangePassword(user.getEmail(), user.getId());
-        
         return ResponseEntity.ok().build();
     }
 
