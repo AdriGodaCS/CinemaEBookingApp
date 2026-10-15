@@ -8,16 +8,18 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository 
+@Repository
 public interface UserRepository extends MongoRepository<User, Integer> {
 
-//    List<User> findAllUsers();
+    // List<User> findAllUsers();
 
     Optional<User> findByEmailIgnoreCase(String email);
 
     User findByEmailAndPasswordHash(String email, String passwordHash);
 
     Boolean existsByEmailIgnoreCase(String email);
-    
+
     User findByVerificationToken(String token);
+
+    Optional<User> findByPasswordResetToken(String passwordResetToken);
 }

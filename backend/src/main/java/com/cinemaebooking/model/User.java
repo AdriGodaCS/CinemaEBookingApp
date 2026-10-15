@@ -10,7 +10,7 @@ import java.util.List;
 
 @Document(collection = "users")
 public class User {
-    @Id 
+    @Id
     private Integer id;
 
     private String role;
@@ -23,6 +23,9 @@ public class User {
 
     @Indexed(unique = true)
     private String email;
+
+    @Field("password_reset_token")
+    private String passwordResetToken;
 
     private String phone;
 
@@ -44,10 +47,11 @@ public class User {
     @Field("recieve_promotions")
     private Boolean recievePromotions;
 
-    //private ... preferences;
+    // private ... preferences;
 
     // Constructors
-    public User() {}
+    public User() {
+    }
 
     public User(String firstName, String email, String passwordHash) {
         this.firstName = firstName;
@@ -92,7 +96,7 @@ public class User {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    
+
     // email
     public String getEmail() {
         return email;
@@ -134,7 +138,7 @@ public class User {
         return paymentCards;
     }
 
-    public void setPaymentCards(List<PaymentCard> paymentCards)  {
+    public void setPaymentCards(List<PaymentCard> paymentCards) {
         this.paymentCards = paymentCards;
     }
 
@@ -160,9 +164,18 @@ public class User {
     public String getVerificationToken() {
         return verificationToken;
     }
-    
+
     public void setVerificationToken(String verificationToken) {
         this.verificationToken = verificationToken;
+    }
+
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(
+            String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
     }
 
     // homeAddress
