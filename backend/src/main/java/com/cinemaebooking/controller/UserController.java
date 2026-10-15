@@ -49,7 +49,7 @@ public class UserController {
         userService.saveUser(createdUser);
 
         // Send verification email
-        emailService.sendVerificationEmail(createdUser.getEmail(), verificationToken);
+        emailService.sendVerificationEmail(createdUser.getEmail(), createdUser.getId(), verificationToken);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

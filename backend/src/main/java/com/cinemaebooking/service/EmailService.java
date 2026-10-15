@@ -16,8 +16,11 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String toEmail, String token) {
-        String verificationLink = "http://localhost:8080/users/verify?token=" + token;
+    public void sendVerificationEmail(String toEmail, Integer userId, String token) {
+        String verificationLink = "http://localhost:5173/verifyaccount?" 
+            + userId
+            + "&token=" 
+            + token;
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
