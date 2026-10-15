@@ -7,6 +7,8 @@ import RootLayout from './layouts/RootLayout'
 import { MovieDetails } from './pages/MovieDetails'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
+import RegistrationPage from './pages/RegistrationPage'
+import LoginPage from './pages/LoginPage'
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
             }
           />          
         </Route>
+        <Route path="/signup" element={<RegistrationPage />} />
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
     </BrowserRouter>
   )
