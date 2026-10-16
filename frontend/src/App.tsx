@@ -37,10 +37,8 @@ function App() {
             }
           />
         </Route>
-<<<<<<< HEAD
         <Route path="/signup" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
-=======
         <Route
           path="/verify-account"
           element={<VerifyAccountPage />}
@@ -50,7 +48,6 @@ function App() {
           path="/reset-password"
           element={<ResetPasswordPage />}
         />
->>>>>>> 2de9efb9355bbfa8555f0e1ee3ea9c971ef263c1
       </Routes>
     </BrowserRouter>
   )
