@@ -16,8 +16,11 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String toEmail, String token) {
-        String verificationLink = "http://localhost:8080/users/verify?token=" + token;
+    public void sendVerificationEmail(String toEmail, Integer userId, String token) {
+        String verificationLink = "http://localhost:5173/verifyaccount?" 
+            + userId
+            + "&token=" 
+            + token;
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -42,12 +45,54 @@ public class EmailService {
 
             helper.setTo(toEmail);
             helper.setSubject("Profile Updated");
-            helper.setText("<p>Your profile has just been updated.</p>"
-                    , true);
+            helper.setText("<p>Your profile has just been updated.</p>", true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
+        }
+    }
+
+    public void sendEmailToChangePassword(
+            String toEmail,
+            Integer userId,
+            String token) {
+
+        String resetPasswordLink = "http://localhost:5173/reset-password"
+                + "?userId="
+                + userId
+                + "&token="
+                + token;
+
+        try {
+
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    true);
+
+            helper.setTo(toEmail);
+
+            helper.setSubject(
+                    "Password Change Request");
+
+            helper.setText(
+                    "<p>Follow the link below to reset your password.</p>"
+                            + "<p>"
+                            + "<a href=\""
+                            + resetPasswordLink
+                            + "\">Reset Password</a>"
+                            + "</p>",
+                    true);
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+
+            throw new RuntimeException(
+                    "Failed to send password reset email",
+                    e);
         }
     }
 }
