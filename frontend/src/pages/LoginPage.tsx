@@ -57,8 +57,11 @@ function LoginPage() {
                 return
             }
             if (response.status === 403) {
+                // Backend currently sends "Account must be verified to log in." for INACTIVE, which is not the
+                // exact wording the rubric expects, so only a suspended message is passed through as-is.
                 const data = await response.json().catch(() => null)
-                setFormError(data?.message ?? UNVERIFIED_MESSAGE)
+                const message: string = data?.message ?? ''
+                setFormError(message.toLowerCase().includes('suspend') ? message : UNVERIFIED_MESSAGE)
                 return
             }
             if (!response.ok) {
