@@ -215,7 +215,11 @@ public class UserService {
         User user = new User();
 
         // Transfer data from request DTO to the new user object
-        user.setId(null);
+        Integer nextId = userRepository.findTopByOrderByIdDesc()
+                .map(existingUser -> existingUser.getId() + 1)
+                .orElse(1);
+
+        user.setId(nextId);
         user.setRole("CUSTOMER");
         user.setStatus("INACTIVE");
         user.setEmail(userRequest.email());
