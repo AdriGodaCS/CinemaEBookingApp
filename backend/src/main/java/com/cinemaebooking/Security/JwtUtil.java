@@ -1,4 +1,4 @@
-package com.cinemaebooking.Security;
+package com.cinemaebooking.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

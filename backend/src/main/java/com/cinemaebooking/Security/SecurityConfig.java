@@ -1,4 +1,4 @@
-package com.cinemaebooking.Security;
+package com.cinemaebooking.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
