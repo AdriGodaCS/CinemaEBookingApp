@@ -25,6 +25,21 @@ const initialValues = {
 type Values = typeof initialValues
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Letters (including accented), spaces, hyphens, apostrophes, and periods; must start with a letter
+const NAME_PATTERN = /^\p{L}[\p{L}\s'.-]*$/u
+// Only digits and common phone punctuation; the digit count is checked separately
+const PHONE_CHARS_PATTERN = /^[\d\s().+-]+$/
+const US_STATES = new Set([
+    'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN',
+    'MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA',
+    'WV','WI','WY',
+])
+
+// Strips formatting and a leading US country code so the backend always gets 10 digits
+function normalizePhone(value: string) {
+    const digits = value.replace(/\D/g, '')
+    return digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits
+}
 // At least 8 characters with a lowercase, uppercase, number, and special character
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
 
@@ -47,13 +62,18 @@ function validate(values: Values, showAddress: boolean, cards: CardEntry[]): Err
     const errors: Errors = {}
 
     if (!values.firstName.trim()) errors.firstName = 'Enter your first name.'
+    else if (!NAME_PATTERN.test(values.firstName.trim()))
+        errors.firstName = 'First name can only contain letters, spaces, hyphens, and apostrophes.'
     if (!values.lastName.trim()) errors.lastName = 'Enter your last name.'
+    else if (!NAME_PATTERN.test(values.lastName.trim()))
+        errors.lastName = 'Last name can only contain letters, spaces, hyphens, and apostrophes.'
 
     if (!values.email.trim()) errors.email = 'Enter your email address.'
     else if (!EMAIL_PATTERN.test(values.email.trim())) errors.email = 'Enter a valid email address, like name@example.com.'
 
     if (!values.phone.trim()) errors.phone = 'Enter your phone number.'
-    else if (values.phone.replace(/\D/g, '').length !== 10) errors.phone = 'Enter a 10-digit phone number.'
+    else if (!PHONE_CHARS_PATTERN.test(values.phone.trim()) || normalizePhone(values.phone).length !== 10)
+        errors.phone = 'Enter a 10-digit phone number, like 404-555-0123.'
 
     if (!values.password) errors.password = 'Create a password.'
     else if (!PASSWORD_PATTERN.test(values.password))
@@ -66,13 +86,16 @@ function validate(values: Values, showAddress: boolean, cards: CardEntry[]): Err
     if (showAddress) {
         if (!values.street.trim()) errors.street = 'Enter your street address.'
         if (!values.city.trim()) errors.city = 'Enter your city.'
-        if (!/^[A-Za-z]{2}$/.test(values.state.trim())) errors.state = 'Enter a 2-letter state code.'
+        if (!US_STATES.has(values.state.trim().toUpperCase())) errors.state = 'Enter a valid 2-letter state code, like GA.'
         if (!/^\d{5}$/.test(values.zip.trim())) errors.zip = 'Enter a 5-digit ZIP code.'
     }
 
     // Cards are optional, but any card that was added must be complete
+    const seenNumbers = new Set<string>()
     cards.forEach((card, index) => {
         if (!/^\d{13,19}$/.test(card.cardNumber)) errors[`cardNumber${index}`] = 'Enter a card number with 13 to 19 digits.'
+        else if (seenNumbers.has(card.cardNumber)) errors[`cardNumber${index}`] = 'This card number was already entered.'
+        else seenNumbers.add(card.cardNumber)
         if (!isValidExpiration(card.expiration)) errors[`expiration${index}`] = 'Enter a valid, unexpired date as MM/YY.'
     })
 
@@ -131,11 +154,14 @@ function RegistrationPage() {
 
         const validationErrors = validate(values, showAddress, cards)
         setErrors(validationErrors)
-        if (Object.keys(validationErrors).length > 0) return
+        const firstInvalidId = Object.keys(validationErrors)[0]
+        if (firstInvalidId) {
+            // Error keys match the input ids, and keys are added in page order
+            setTimeout(() => document.getElementById(firstInvalidId)?.focus(), 0)
+            return
+        }
 
-        // Field names follow the backend models (Address has zipCode; promotions flag is spelled "recievePromotions").
-        // TODO (backend): CreateUserRequest must accept homeAddress (currently "homAddress"), recievePromotions,
-        // and a list of AddPaymentCardRequest-style cards, and createUser must save them.
+        // Field names follow the backend registration request models.
         const homeAddress = showAddress
             ? {
                   street: values.street.trim(),
@@ -149,7 +175,7 @@ function RegistrationPage() {
             firstName: values.firstName.trim(),
             lastName: values.lastName.trim(),
             email: values.email.trim().toLowerCase(),
-            phone: values.phone.replace(/\D/g, ''),
+            phone: normalizePhone(values.phone),
             password: values.password,
             recievePromotions: promotions,
             ...(homeAddress && { homeAddress }),
@@ -229,19 +255,19 @@ function RegistrationPage() {
                     <fieldset>
                         <legend>Personal information</legend>
                         <div className="form-row">
-                            <FormField id="firstName" name="firstName" label="First name" required autoComplete="given-name"
+                            <FormField id="firstName" name="firstName" label="First name" required maxLength={50} autoComplete="given-name"
                                 value={values.firstName} onChange={handleChange} error={errors.firstName} />
-                            <FormField id="lastName" name="lastName" label="Last name" required autoComplete="family-name"
+                            <FormField id="lastName" name="lastName" label="Last name" required maxLength={50} autoComplete="family-name"
                                 value={values.lastName} onChange={handleChange} error={errors.lastName} />
                         </div>
-                        <FormField id="email" name="email" type="email" label="Email" required autoComplete="email"
+                        <FormField id="email" name="email" type="email" label="Email" required maxLength={254} autoComplete="email"
                             value={values.email} onChange={handleChange} error={errors.email} />
-                        <FormField id="phone" name="phone" type="tel" label="Phone number" required autoComplete="tel"
+                        <FormField id="phone" name="phone" type="tel" label="Phone number" required maxLength={20} autoComplete="tel"
                             placeholder="404-555-0123" value={values.phone} onChange={handleChange} error={errors.phone} />
-                        <FormField id="password" name="password" type="password" label="Password" required autoComplete="new-password"
+                        <FormField id="password" name="password" type="password" label="Password" required maxLength={64} autoComplete="new-password"
                             hint="At least 8 characters with uppercase, lowercase, a number, and a special character."
                             value={values.password} onChange={handleChange} error={errors.password} />
-                        <FormField id="confirmPassword" name="confirmPassword" type="password" label="Confirm password" required
+                        <FormField id="confirmPassword" name="confirmPassword" type="password" label="Confirm password" required maxLength={64}
                             autoComplete="new-password" value={values.confirmPassword} onChange={handleChange}
                             error={errors.confirmPassword} />
                         <label className="checkbox-field">
@@ -258,10 +284,10 @@ function RegistrationPage() {
                             </button>
                         ) : (
                             <>
-                                <FormField id="street" name="street" label="Street address" required autoComplete="street-address"
+                                <FormField id="street" name="street" label="Street address" required maxLength={100} autoComplete="street-address"
                                     value={values.street} onChange={handleChange} error={errors.street} />
                                 <div className="form-row">
-                                    <FormField id="city" name="city" label="City" required autoComplete="address-level2"
+                                    <FormField id="city" name="city" label="City" required maxLength={60} autoComplete="address-level2"
                                         value={values.city} onChange={handleChange} error={errors.city} />
                                     <FormField id="state" name="state" label="State" required maxLength={2} autoComplete="address-level1"
                                         placeholder="GA" value={values.state} onChange={handleChange} error={errors.state} />

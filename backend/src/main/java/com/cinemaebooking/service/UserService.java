@@ -215,7 +215,11 @@ public class UserService {
         User user = new User();
 
         // Transfer data from request DTO to the new user object
-        user.setId(null);
+        Integer nextId = userRepository.findTopByOrderByIdDesc()
+                .map(existingUser -> existingUser.getId() + 1)
+                .orElse(1);
+
+        user.setId(nextId);
         user.setRole("CUSTOMER");
         user.setStatus("INACTIVE");
         user.setEmail(userRequest.email());
@@ -223,6 +227,21 @@ public class UserService {
         user.setLastName(userRequest.lastName());
         user.setPhone(userRequest.phone());
         user.setPasswordHash(passwordEncoder.encode(userRequest.password()));
+        user.setHomeAddress(userRequest.homeAddress());
+        user.setRecievePromotions(userRequest.recievePromotions());
+
+        if (userRequest.paymentCards() != null) {
+            if (userRequest.paymentCards().size() > 3) {
+                throw new IllegalArgumentException(
+                        "Users may have a maximum of 3 payment cards.");
+            }
+
+            List<PaymentCard> paymentCards = userRequest.paymentCards()
+                    .stream()
+                    .map(this::createPaymentCard)
+                    .toList();
+            user.setPaymentCards(paymentCards);
+        }
 
         // Check if email, password, firstName, lastName, or phone are null --- Later
         // this should varify the email (maybe a frontend thing)
@@ -240,6 +259,15 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    private PaymentCard createPaymentCard(AddPaymentCardRequest request) {
+        PaymentCard card = new PaymentCard();
+        card.setCardNumberHash(passwordEncoder.encode(request.cardNumber()));
+        card.setExpirationMonth(request.expirationMonth());
+        card.setExpirationYear(request.expirationYear());
+        card.setBillingAddress(request.billingAddress());
+        return card;
     }
 
     public void removePaymentCard(
