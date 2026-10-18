@@ -1,7 +1,6 @@
 package com.cinemaebooking.model;
 
 import com.cinemaebooking.model.Address;
-import com.cinemaebooking.model.PaymentCard;
 
 import java.util.List;
 
@@ -23,7 +22,8 @@ public record CreateUserRequest(
     @NotBlank String lastName,
 
     String phone,
-    Address homAddress,
-    List<PaymentCard> paymentCards
+    Address homeAddress,
+    Boolean recievePromotions,
+    List<AddPaymentCardRequest> paymentCards
 ) {
 }

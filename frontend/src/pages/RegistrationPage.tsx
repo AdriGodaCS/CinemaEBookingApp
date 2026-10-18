@@ -161,9 +161,7 @@ function RegistrationPage() {
             return
         }
 
-        // Field names follow the backend models (Address has zipCode; promotions flag is spelled "recievePromotions").
-        // TODO (backend): CreateUserRequest must accept homeAddress (currently "homAddress"), recievePromotions,
-        // and a list of AddPaymentCardRequest-style cards, and createUser must save them.
+        // Field names follow the backend registration request models.
         const homeAddress = showAddress
             ? {
                   street: values.street.trim(),

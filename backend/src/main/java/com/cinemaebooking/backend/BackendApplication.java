@@ -35,6 +35,18 @@ public class BackendApplication {
 
     @Bean
     public MongoClient mongoClient() {
+        if (mongoUri == null || mongoUri.isBlank()) {
+            Dotenv dotenv = Dotenv.configure()
+                    .directory("./")
+                    .ignoreIfMissing()
+                    .load();
+            mongoUri = dotenv.get("MONGODB_URI");
+        }
+
+        if (mongoUri == null || mongoUri.isBlank()) {
+            throw new IllegalStateException("MONGODB_URI was not found in .env");
+        }
+
         return MongoClients.create(mongoUri);
     }
 
