@@ -36,9 +36,9 @@ function App() {
               </AdminRoute>
             }
           />
-        </Route>
         <Route path="/signup" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
+        </Route>
         <Route
           path="/verify-account"
           element={<VerifyAccountPage />}
