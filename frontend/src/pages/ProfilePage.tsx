@@ -31,6 +31,9 @@ type UserProfile = {
 
 function ProfilePage() {
     const { user } = useAuth()
+    const authHeaders = {
+        Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+    }
 
     const [profile, setProfile] =
         useState<UserProfile | null>(null)
@@ -86,7 +89,8 @@ function ProfilePage() {
 
         try {
             const response = await fetch(
-                `http://localhost:8080/users/${user.id}`
+                `http://localhost:8080/users/${user.id}`,
+                { headers: authHeaders }
             )
 
             if (!response.ok) {
@@ -121,7 +125,8 @@ function ProfilePage() {
 
         try {
             const response = await fetch(
-                `http://localhost:8080/users/${user.id}/favorites`
+                `http://localhost:8080/users/${user.id}/favorites`,
+                { headers: authHeaders }
             )
 
             if (!response.ok) {
@@ -186,6 +191,7 @@ function ProfilePage() {
                 {
                     method: 'PUT',
                     headers: {
+                        ...authHeaders,
                         'Content-Type':
                             'application/json',
                     },
@@ -235,6 +241,7 @@ function ProfilePage() {
                 {
                     method: 'PUT',
                     headers: {
+                        ...authHeaders,
                         'Content-Type':
                             'application/json',
                     },
@@ -283,6 +290,7 @@ function ProfilePage() {
                 {
                     method: 'POST',
                     headers: {
+                        ...authHeaders,
                         'Content-Type':
                             'application/json',
                     },
@@ -337,6 +345,7 @@ function ProfilePage() {
                 `http://localhost:8080/users/${user.id}/cards/${cardId}`,
                 {
                     method: 'DELETE',
+                    headers: authHeaders,
                 }
             )
 
@@ -367,6 +376,7 @@ function ProfilePage() {
                 `http://localhost:8080/users/${user.id}/favorites/${movieId}`,
                 {
                     method: 'DELETE',
+                    headers: authHeaders,
                 }
             )
 

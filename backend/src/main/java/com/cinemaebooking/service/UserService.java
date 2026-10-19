@@ -181,6 +181,7 @@ public class UserService {
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
 
         LoggedInUserData userData = new LoggedInUserData(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -201,6 +202,7 @@ public class UserService {
                 .orElseThrow(() -> new BadCredentialsException("User not found."));
 
         return new LoggedInUserData(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
