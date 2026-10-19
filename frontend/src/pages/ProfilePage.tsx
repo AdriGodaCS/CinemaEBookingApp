@@ -1045,7 +1045,7 @@ function ProfilePage() {
                         paymentCards.map((card) => (
                             <div
                                 key={card.cardId}
-                                className="form-field"
+                                className="saved-payment-card"
                             >
                                 <div className="card-entry-header">
                                     <h3>
@@ -1337,7 +1337,7 @@ function ProfilePage() {
                                     />
 
                                     <button
-                                        className="remove-favorite-btn"
+                                        className="auth-button secondary"
                                         onClick={() =>
                                             removeFavorite(movie.id)
                                         }
