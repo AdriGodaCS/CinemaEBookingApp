@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.authentication.BadCredentialsException;
 
@@ -265,6 +266,7 @@ public class UserService {
 
     private PaymentCard createPaymentCard(AddPaymentCardRequest request) {
         PaymentCard card = new PaymentCard();
+        card.setCardId(UUID.randomUUID().toString());
         card.setCardNumberHash(passwordEncoder.encode(request.cardNumber()));
         card.setExpirationMonth(request.expirationMonth());
         card.setExpirationYear(request.expirationYear());
@@ -302,6 +304,7 @@ public class UserService {
         }
 
         PaymentCard card = new PaymentCard();
+        card.setCardId(UUID.randomUUID().toString());
 
         card.setCardNumberHash(
                 passwordEncoder.encode(

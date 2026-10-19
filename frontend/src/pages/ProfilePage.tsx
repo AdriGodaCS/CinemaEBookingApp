@@ -338,7 +338,7 @@ function ProfilePage() {
     const removeCard = async (
         cardId: string
     ) => {
-        if (!user) return
+        if (!user || !cardId) return
 
         try {
             const response = await fetch(
