@@ -166,13 +166,13 @@ public class UserService {
                     "Invalid email or password");
         }
 
-        if (user.getStatus().equals("INACTIVE")) {
+        if ("INACTIVE".equalsIgnoreCase(user.getStatus())) {
             throw new IllegalStateException(
                     "Account must be verified to log in.");
         }
 
 
-        if (user.getStatus().equals("SUSPENDED")) {
+        if ("SUSPENDED".equalsIgnoreCase(user.getStatus())) {
             throw new IllegalStateException(
                 "Account must be verified to log in."
             );
