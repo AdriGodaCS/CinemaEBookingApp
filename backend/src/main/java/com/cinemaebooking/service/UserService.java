@@ -60,8 +60,7 @@ public class UserService {
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPhone(request.phone());
-        user.setHomeAddress(request.homeAddress());
-        user.setPaymentCards(request.paymentCards());
+        user.setHomeAddress(request.homeAddress());        
         user.setRecievePromotions(
                 request.recievePromotions());
 
