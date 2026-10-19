@@ -57,12 +57,6 @@ public class UserService {
             UpdateProfileRequest request) {
         User user = getUserById(id);
 
-        if (request.paymentCards() != null
-                && request.paymentCards().size() > 3) {
-            throw new IllegalArgumentException(
-                    "Users may have a maximum of 3 payment cards.");
-        }
-
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPhone(request.phone());
