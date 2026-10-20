@@ -38,23 +38,38 @@ public class UserController {
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
-    public ResponseEntity<User> createUser(
+    public ResponseEntity<?> createUser(
             @RequestBody CreateUserRequest user) {
-        User createdUser = userService.createUser(user);
 
-        // Generate a verification token
-        String verificationToken = UUID.randomUUID().toString();
-        createdUser.setVerificationToken(verificationToken);
+        try {
 
-        // Save the user with the token
-        userService.saveUser(createdUser);
+            User createdUser = userService.createUser(user);
 
-        // Send verification email
-        emailService.sendVerificationEmail(createdUser.getEmail(), createdUser.getId(), verificationToken);
+            String verificationToken = UUID.randomUUID().toString();
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdUser);
+            createdUser.setVerificationToken(
+                    verificationToken);
+
+            userService.saveUser(createdUser);
+
+            emailService.sendVerificationEmail(
+                    createdUser.getEmail(),
+                    createdUser.getId(),
+                    verificationToken);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(createdUser);
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}/checkResetPasswordToken")
@@ -116,8 +131,7 @@ public class UserController {
     public User updateProfile(
             @PathVariable Integer id,
             @RequestBody UpdateProfileRequest request,
-            Authentication authentication
-        ) {
+            Authentication authentication) {
         if (id != getCurrentUser(authentication).getBody().id()) {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
