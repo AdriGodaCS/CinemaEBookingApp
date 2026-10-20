@@ -157,7 +157,7 @@ public class UserService {
 
         public List<Movie> getFavoriteMovies(
                         Integer userId) {
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 if (user.getFavoriteMovieIds() == null) {
                         return Collections.emptyList();
@@ -487,7 +487,7 @@ public class UserService {
                 return userRepository.findByVerificationToken(token);
         }
 
-        private User getStoredUserById(
+        public User getStoredUserById(
                         Integer id) {
 
                 return userRepository.findById(id)

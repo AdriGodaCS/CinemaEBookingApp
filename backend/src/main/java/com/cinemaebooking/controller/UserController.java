@@ -162,7 +162,7 @@ public class UserController {
         if (id != getCurrentUser(authentication).getBody().id()) {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
-        User user = userService.getUserById(id);
+        User user = userService.getStoredUserById(id);
         emailService.sendEmailForUpdataProfile(user.getEmail());
         return userService.updateProfile(
                 id,
