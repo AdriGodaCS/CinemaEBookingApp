@@ -88,6 +88,18 @@ function ProfilePage() {
         setSuccessMessage] =
         useState('')
 
+    const [profileSuccess,
+        setProfileSuccess] =
+        useState('')
+
+    const [passwordSuccess,
+        setPasswordSuccess] =
+        useState('')
+
+    const [cardSuccess,
+        setCardSuccess] =
+        useState('')
+
     const NAME_PATTERN =
         /^\p{L}[\p{L}\s'.-]*$/u
 
@@ -209,15 +221,7 @@ function ProfilePage() {
         }
 
         // Address validation if nonempty
-        const hasAddressData =
-            showAddress &&
-            profile?.homeAddress &&
-            (
-                profile.homeAddress.street.trim() ||
-                profile.homeAddress.city.trim() ||
-                profile.homeAddress.state.trim() ||
-                profile.homeAddress.zipCode.trim()
-            )
+        const hasAddressData = showAddress && profile?.homeAddress 
 
         if (hasAddressData) {
 
@@ -338,7 +342,7 @@ function ProfilePage() {
         if (!profile || !user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setProfileSuccess('')
 
         const validationErrors =
             validateProfile()
@@ -379,7 +383,7 @@ function ProfilePage() {
                 )
             }
 
-            setSuccessMessage(
+            setProfileSuccess(
                 'Profile updated successfully.'
             )
         } catch (error) {
@@ -396,7 +400,7 @@ function ProfilePage() {
         if (!user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setPasswordSuccess('')
 
         const validationErrors: Errors =
             {}
@@ -463,7 +467,7 @@ function ProfilePage() {
                 )
             }
 
-            setSuccessMessage(
+            setPasswordSuccess(
                 'Password updated successfully.'
             )
 
@@ -601,7 +605,7 @@ function ProfilePage() {
         if (!user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setCardSuccess('')
 
         const validationErrors =
             validateCard()
@@ -671,6 +675,9 @@ function ProfilePage() {
 
             await loadProfile()
 
+            setCardSuccess(
+                'Payment card added successfully.'
+            )
             setCardNumber('')
             setExpiration('')
             setBillingStreet('')
@@ -708,6 +715,11 @@ function ProfilePage() {
                         card.cardId !== cardId
                 )
             )
+
+            setCardSuccess(
+                'Payment card removed successfully.'
+            )
+
         } catch (error) {
             console.error(error)
         }
@@ -1010,12 +1022,12 @@ function ProfilePage() {
                     )}
 
 
-                    {successMessage && (
+                    {profileSuccess && (
                         <p
                             className="form-message success"
                             role="status"
                         >
-                            {successMessage}
+                            {profileSuccess}
                         </p>
                     )}
                     <button
@@ -1115,6 +1127,14 @@ function ProfilePage() {
                         )}
                     </div>
 
+                     {passwordSuccess && (
+                        <p
+                            className="form-message success"
+                            role="status"
+                        >
+                            {passwordSuccess}
+                        </p>
+                    )}
                     <button
                         type="button"
                         className="auth-button"
@@ -1183,6 +1203,14 @@ function ProfilePage() {
                                 </p>
                             </div>
                         ))
+                    )}
+                    {cardSuccess && (
+                        <p
+                            className="form-message success"
+                            role="status"
+                        >
+                            {cardSuccess}
+                        </p>
                     )}
                     {paymentCards.length < 3 && (
                         <>
