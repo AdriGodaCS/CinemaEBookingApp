@@ -4,6 +4,7 @@ import com.cinemaebooking.model.User;
 import com.cinemaebooking.model.AddPaymentCardRequest;
 import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
+import com.cinemaebooking.model.ForgotPasswordRequest;
 import com.cinemaebooking.model.Movie;
 import com.cinemaebooking.model.ResetPasswordRequest;
 import com.cinemaebooking.model.UpdateProfileRequest;
@@ -78,22 +79,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{id}/passwordChangeRequest")
-    public ResponseEntity<Void> requestPasswordChange(
-            @PathVariable Integer id) {
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
 
-        User user = userService.getUserById(id);
-
-        String token = UUID.randomUUID().toString();
-
-        user.setPasswordResetToken(token);
-
-        userService.saveUser(user);
-
-        emailService.sendEmailToChangePassword(
-                user.getEmail(),
-                user.getId(),
-                token);
+        userService.sendPasswordResetEmail(
+                request.email());
 
         return ResponseEntity.ok().build();
     }
@@ -135,8 +126,7 @@ public class UserController {
     @PostMapping("/{id}/cards")
     public ResponseEntity<Void> addCard(
             @PathVariable Integer id,
-            @RequestBody AddPaymentCardRequest request
-        ) {
+            @RequestBody AddPaymentCardRequest request) {
 
         userService.addPaymentCard(
                 id,
