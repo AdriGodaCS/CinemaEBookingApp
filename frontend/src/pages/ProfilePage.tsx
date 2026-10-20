@@ -746,92 +746,199 @@ function ProfilePage() {
                 )}
 
                 <fieldset>
-                    <legend>Account Information</legend>
+                    <legend>
+                        Personal Information
+                    </legend>
+                    <fieldset>
+                        <legend>Account Information</legend>
 
-                    <div className="form-row">
+                        <div className="form-row">
+                            <div className="form-field">
+                                <label>First Name</label>
+
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={profile.firstName}
+                                    onChange={handleChange}
+                                    aria-invalid={
+                                        !!errors.firstName
+                                    }
+                                />
+
+                                {errors.firstName && (
+                                    <p className="field-error">
+                                        {errors.firstName}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="form-field">
+                                <label>Last Name</label>
+
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={profile.lastName}
+                                    onChange={handleChange}
+                                    aria-invalid={
+                                        !!errors.lastName
+                                    }
+                                />
+
+                                {errors.lastName && (
+                                    <p className="field-error">
+                                        {errors.lastName}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="form-field">
-                            <label>First Name</label>
+                            <label>Email</label>
 
                             <input
                                 type="text"
-                                name="firstName"
-                                value={profile.firstName}
+                                value={profile.email}
+                                disabled
+                            />
+                        </div>
+
+                        <div className="form-field">
+                            <label>Phone Number</label>
+
+                            <input
+                                type="text"
+                                name="phone"
+                                value={profile.phone}
                                 onChange={handleChange}
                                 aria-invalid={
-                                    !!errors.firstName
+                                    !!errors.phone
                                 }
                             />
 
-                            {errors.firstName && (
+                            {errors.phone && (
                                 <p className="field-error">
-                                    {errors.firstName}
+                                    {errors.phone}
                                 </p>
                             )}
                         </div>
 
+                        <label className="checkbox-field">
+                            <input
+                                type="checkbox"
+                                name="recievePromotions"
+                                checked={
+                                    profile.recievePromotions
+                                }
+                                onChange={handleChange}
+                            />
+                            Receive Promotions
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Home Address</legend>
+
                         <div className="form-field">
-                            <label>Last Name</label>
+                            <label>Street</label>
 
                             <input
                                 type="text"
-                                name="lastName"
-                                value={profile.lastName}
-                                onChange={handleChange}
+                                name="street"
+                                value={
+                                    profile.homeAddress?.street ?? ''
+                                }
+                                onChange={handleAddressChange}
                                 aria-invalid={
-                                    !!errors.lastName
+                                    !!errors.street
                                 }
                             />
 
-                            {errors.lastName && (
+                            {errors.street && (
                                 <p className="field-error">
-                                    {errors.lastName}
+                                    {errors.street}
                                 </p>
                             )}
                         </div>
-                    </div>
 
-                    <div className="form-field">
-                        <label>Email</label>
+                        <div className="form-row">
+                            <div className="form-field">
+                                <label>City</label>
 
-                        <input
-                            type="text"
-                            value={profile.email}
-                            disabled
-                        />
-                    </div>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={
+                                        profile.homeAddress?.city ?? ''
+                                    }
+                                    onChange={handleAddressChange}
+                                    aria-invalid={
+                                        !!errors.city
+                                    }
+                                />
 
-                    <div className="form-field">
-                        <label>Phone Number</label>
+                                {errors.city && (
+                                    <p className="field-error">
+                                        {errors.city}
+                                    </p>
+                                )}
+                            </div>
 
-                        <input
-                            type="text"
-                            name="phone"
-                            value={profile.phone}
-                            onChange={handleChange}
-                            aria-invalid={
-                                !!errors.phone
-                            }
-                        />
+                            <div className="form-field">
+                                <label>State</label>
 
-                        {errors.phone && (
-                            <p className="field-error">
-                                {errors.phone}
-                            </p>
-                        )}
-                    </div>
+                                <input
+                                    type="text"
+                                    name="state"
+                                    value={
+                                        profile.homeAddress?.state ?? ''
+                                    }
+                                    onChange={handleAddressChange}
+                                    aria-invalid={
+                                        !!errors.state
+                                    }
+                                />
 
-                    <label className="checkbox-field">
-                        <input
-                            type="checkbox"
-                            name="recievePromotions"
-                            checked={
-                                profile.recievePromotions
-                            }
-                            onChange={handleChange}
-                        />
-                        Receive Promotions
-                    </label>
+                                {errors.state && (
+                                    <p className="field-error">
+                                        {errors.state}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="form-field">
+                            <label>ZIP Code</label>
+
+                            <input
+                                type="text"
+                                name="zipCode"
+                                value={
+                                    profile.homeAddress?.zipCode ?? ''
+                                }
+                                onChange={handleAddressChange}
+                                aria-invalid={
+                                    !!errors.zipCode
+                                }
+                            />
+
+                            {errors.zipCode && (
+                                <p className="field-error">
+                                    {errors.zipCode}
+                                </p>
+                            )}
+                        </div>
+                    </fieldset>
                 </fieldset>
+
+                <button
+                    className="auth-button"
+                    onClick={saveProfile}
+                >
+                    Save Changes
+                </button>
+
 
                 <fieldset>
                     <legend>
@@ -928,107 +1035,6 @@ function ProfilePage() {
                         Change Password
                     </button>
                 </fieldset>
-
-                <fieldset>
-                    <legend>Home Address</legend>
-
-                    <div className="form-field">
-                        <label>Street</label>
-
-                        <input
-                            type="text"
-                            name="street"
-                            value={
-                                profile.homeAddress?.street ?? ''
-                            }
-                            onChange={handleAddressChange}
-                            aria-invalid={
-                                !!errors.street
-                            }
-                        />
-
-                        {errors.street && (
-                            <p className="field-error">
-                                {errors.street}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-field">
-                            <label>City</label>
-
-                            <input
-                                type="text"
-                                name="city"
-                                value={
-                                    profile.homeAddress?.city ?? ''
-                                }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.city
-                                }
-                            />
-
-                            {errors.city && (
-                                <p className="field-error">
-                                    {errors.city}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="form-field">
-                            <label>State</label>
-
-                            <input
-                                type="text"
-                                name="state"
-                                value={
-                                    profile.homeAddress?.state ?? ''
-                                }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.state
-                                }
-                            />
-
-                            {errors.state && (
-                                <p className="field-error">
-                                    {errors.state}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="form-field">
-                        <label>ZIP Code</label>
-
-                        <input
-                            type="text"
-                            name="zipCode"
-                            value={
-                                profile.homeAddress?.zipCode ?? ''
-                            }
-                            onChange={handleAddressChange}
-                            aria-invalid={
-                                !!errors.zipCode
-                            }
-                        />
-
-                        {errors.zipCode && (
-                            <p className="field-error">
-                                {errors.zipCode}
-                            </p>
-                        )}
-                    </div>
-                </fieldset>
-
-                <button
-                    className="auth-button"
-                    onClick={saveProfile}
-                >
-                    Save Changes
-                </button>
 
                 <fieldset>
                     <legend>Payment Cards</legend>
