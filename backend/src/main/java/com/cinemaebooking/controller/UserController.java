@@ -106,8 +106,35 @@ public class UserController {
 
     // Login the user
     @PostMapping("/login")
-    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
-        return userService.loginUser(loginRequest);
+    public ResponseEntity<?> loginUser(
+            @RequestBody LoginRequest loginRequest) {
+
+        try {
+
+            LoginResponse response = userService.loginUser(
+                    loginRequest);
+
+            return ResponseEntity.ok(
+                    response);
+
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    "Incorrect email or password."));
+
+        } catch (IllegalStateException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    e.getMessage()));
+        }
     }
 
     // Retrieve data from the logged in user
