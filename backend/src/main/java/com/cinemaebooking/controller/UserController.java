@@ -124,7 +124,12 @@ public class UserController {
     @PutMapping("/{id}/profile")
     public User updateProfile(
             @PathVariable Integer id,
-            @RequestBody UpdateProfileRequest request) {
+            @RequestBody UpdateProfileRequest request,
+            Authentication authentication
+        ) {
+        if (id != getCurrentUser(authentication).getBody().id()) {
+            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+        }
         User user = userService.getUserById(id);
         emailService.sendEmailForUpdataProfile(user.getEmail());
         return userService.updateProfile(
