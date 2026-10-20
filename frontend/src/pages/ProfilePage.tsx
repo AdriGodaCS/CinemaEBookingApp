@@ -75,6 +75,10 @@ function ProfilePage() {
     const [billingZipCode, setBillingZipCode] =
         useState('')
 
+    const [showAddress, setShowAddress] =
+        useState(false)
+
+
     type Errors = Record<string, string>
 
     const [errors, setErrors] =
@@ -139,6 +143,16 @@ function ProfilePage() {
 
             setProfile(data)
 
+            setShowAddress(
+                !!data.homeAddress &&
+                (
+                    data.homeAddress.street ||
+                    data.homeAddress.city ||
+                    data.homeAddress.state ||
+                    data.homeAddress.zipCode
+                )
+            )
+
             setPaymentCards(
                 data.paymentCards ?? []
             )
@@ -196,6 +210,7 @@ function ProfilePage() {
 
         // Address validation if nonempty
         const hasAddressData =
+            showAddress &&
             profile?.homeAddress &&
             (
                 profile.homeAddress.street.trim() ||
@@ -736,24 +751,6 @@ function ProfilePage() {
             <div className="auth-card profile-page">
                 <h1>My Profile</h1>
 
-                {errors.server && (
-                    <p
-                        className="form-message error"
-                        role="alert"
-                    >
-                        {errors.server}
-                    </p>
-                )}
-
-                {successMessage && (
-                    <p
-                        className="form-message success"
-                        role="status"
-                    >
-                        {successMessage}
-                    </p>
-                )}
-
                 <fieldset>
                     <legend>
                         Personal Information
@@ -763,7 +760,7 @@ function ProfilePage() {
 
                         <div className="form-row">
                             <div className="form-field">
-                                <label>First Name</label>
+                                <label>First Name *</label>
 
                                 <input
                                     type="text"
@@ -783,7 +780,7 @@ function ProfilePage() {
                             </div>
 
                             <div className="form-field">
-                                <label>Last Name</label>
+                                <label>Last Name *</label>
 
                                 <input
                                     type="text"
@@ -804,7 +801,7 @@ function ProfilePage() {
                         </div>
 
                         <div className="form-field">
-                            <label>Email</label>
+                            <label>Email *</label>
 
                             <input
                                 type="text"
@@ -814,7 +811,7 @@ function ProfilePage() {
                         </div>
 
                         <div className="form-field">
-                            <label>Phone Number</label>
+                            <label>Phone Number *</label>
 
                             <input
                                 type="text"
@@ -847,98 +844,174 @@ function ProfilePage() {
                     </fieldset>
 
                     <fieldset>
-                        <legend>Home Address</legend>
+                        <legend>
+                            Home Address (Optional)
+                        </legend>
 
-                        <div className="form-field">
-                            <label>Street</label>
-
-                            <input
-                                type="text"
-                                name="street"
-                                value={
-                                    profile.homeAddress?.street ?? ''
+                        {!showAddress ? (
+                            <button
+                                type="button"
+                                className="auth-button secondary"
+                                onClick={() =>
+                                    setShowAddress(true)
                                 }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.street
-                                }
-                            />
+                            >
+                                Add Address
+                            </button>
+                        ) : (
+                            <>
+                                <div className="form-field">
+                                    <label>
+                                        Street *
+                                    </label>
 
-                            {errors.street && (
-                                <p className="field-error">
-                                    {errors.street}
-                                </p>
-                            )}
-                        </div>
+                                    <input
+                                        type="text"
+                                        name="street"
+                                        value={
+                                            profile.homeAddress?.street ?? ''
+                                        }
+                                        onChange={handleAddressChange}
+                                        aria-invalid={
+                                            !!errors.street
+                                        }
+                                    />
 
-                        <div className="form-row">
-                            <div className="form-field">
-                                <label>City</label>
+                                    {errors.street && (
+                                        <p className="field-error">
+                                            {errors.street}
+                                        </p>
+                                    )}
+                                </div>
 
-                                <input
-                                    type="text"
-                                    name="city"
-                                    value={
-                                        profile.homeAddress?.city ?? ''
-                                    }
-                                    onChange={handleAddressChange}
-                                    aria-invalid={
-                                        !!errors.city
-                                    }
-                                />
+                                <div className="form-row">
+                                    <div className="form-field">
+                                        <label>
+                                            City *
+                                        </label>
 
-                                {errors.city && (
-                                    <p className="field-error">
-                                        {errors.city}
-                                    </p>
-                                )}
-                            </div>
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            value={
+                                                profile.homeAddress?.city ?? ''
+                                            }
+                                            onChange={handleAddressChange}
+                                            aria-invalid={
+                                                !!errors.city
+                                            }
+                                        />
 
-                            <div className="form-field">
-                                <label>State</label>
+                                        {errors.city && (
+                                            <p className="field-error">
+                                                {errors.city}
+                                            </p>
+                                        )}
+                                    </div>
 
-                                <input
-                                    type="text"
-                                    name="state"
-                                    value={
-                                        profile.homeAddress?.state ?? ''
-                                    }
-                                    onChange={handleAddressChange}
-                                    aria-invalid={
-                                        !!errors.state
-                                    }
-                                />
+                                    <div className="form-field">
+                                        <label>
+                                            State *
+                                        </label>
 
-                                {errors.state && (
-                                    <p className="field-error">
-                                        {errors.state}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                                        <input
+                                            type="text"
+                                            name="state"
+                                            value={
+                                                profile.homeAddress?.state ?? ''
+                                            }
+                                            onChange={handleAddressChange}
+                                            aria-invalid={
+                                                !!errors.state
+                                            }
+                                        />
 
-                        <div className="form-field">
-                            <label>ZIP Code</label>
+                                        {errors.state && (
+                                            <p className="field-error">
+                                                {errors.state}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
 
-                            <input
-                                type="text"
-                                name="zipCode"
-                                value={
-                                    profile.homeAddress?.zipCode ?? ''
-                                }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.zipCode
-                                }
-                            />
+                                <div className="form-field">
+                                    <label>
+                                        ZIP Code *
+                                    </label>
 
-                            {errors.zipCode && (
-                                <p className="field-error">
-                                    {errors.zipCode}
-                                </p>
-                            )}
-                        </div>
+                                    <input
+                                        type="text"
+                                        name="zipCode"
+                                        value={
+                                            profile.homeAddress?.zipCode ?? ''
+                                        }
+                                        onChange={handleAddressChange}
+                                        aria-invalid={
+                                            !!errors.zipCode
+                                        }
+                                    />
+
+                                    {errors.zipCode && (
+                                        <p className="field-error">
+                                            {errors.zipCode}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="auth-button secondary"
+                                    onClick={() => {
+                                        setProfile({
+                                            ...profile,
+                                            homeAddress: {
+                                                street: '',
+                                                city: '',
+                                                state: '',
+                                                zipCode: '',
+                                            },
+                                        })
+
+                                        setShowAddress(false)
+
+                                        setErrors((prev) => {
+                                            const next = {
+                                                ...prev,
+                                            }
+
+                                            delete next.street
+                                            delete next.city
+                                            delete next.state
+                                            delete next.zipCode
+
+                                            return next
+                                        })
+                                    }}
+                                >
+                                    Remove Address
+                                </button>
+                            </>
+                        )}
                     </fieldset>
+
+                    {errors.server && (
+                        <p
+                            className="form-message error"
+                            role="alert"
+                        >
+                            {errors.server}
+                        </p>
+                    )}
+
+
+                    {successMessage && (
+                        <p
+                            className="form-message success"
+                            role="status"
+                        >
+                            {successMessage}
+                        </p>
+                    )}
                     <button
                         className="auth-button"
                         onClick={saveProfile}
@@ -956,7 +1029,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            Current Password
+                            Current Password *
                         </label>
 
                         <input
@@ -981,7 +1054,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            New Password
+                            New Password *
                         </label>
 
                         <input
@@ -1013,7 +1086,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            Confirm New Password
+                            Confirm New Password *
                         </label>
 
                         <input
@@ -1118,7 +1191,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Card Number
+                                    Card Number *
                                 </label>
 
                                 <input
@@ -1145,7 +1218,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Expiration
+                                    Expiration *
                                 </label>
 
                                 <input
@@ -1173,7 +1246,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Billing Street
+                                    Billing Street *
                                 </label>
 
                                 <input
@@ -1203,7 +1276,7 @@ function ProfilePage() {
                             <div className="form-row">
                                 <div className="form-field">
                                     <label>
-                                        Billing City
+                                        Billing City *
                                     </label>
 
                                     <input
@@ -1230,7 +1303,7 @@ function ProfilePage() {
 
                                 <div className="form-field">
                                     <label>
-                                        Billing State
+                                        Billing State *
                                     </label>
 
                                     <input
@@ -1260,7 +1333,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Billing ZIP Code
+                                    Billing ZIP Code *
                                 </label>
 
                                 <input
