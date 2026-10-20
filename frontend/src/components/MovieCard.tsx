@@ -11,6 +11,7 @@ type MovieCardProps = {
   showFavoriteButton?: boolean
   isFavorited?: boolean
   onFavorite?: (movieId: number) => void
+  onUnfavorite?: (movieId: number) => void
 }
 
 function MovieCard({
@@ -22,37 +23,48 @@ function MovieCard({
   showFavoriteButton = true,
   isFavorited = false,
   onFavorite,
+  onUnfavorite
 }: MovieCardProps) {
   const { user, isLoggedIn } = useAuth()
 
-  const addFavorite = async (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault()
-    event.stopPropagation()
+  const handleFavoriteClick =
+    async () => {
 
-    if (!user) return
+      if (!user) return
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/users/${user.id}/favorites/${id}`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-          },
+      try {
+
+        const url = `http://localhost:8080/users/${user.id}/favorites/${id}`
+
+        const response =
+          await fetch(
+            url,
+            {
+              method:
+                isFavorited
+                  ? 'DELETE'
+                  : 'POST',
+              headers: {
+                Authorization:
+                  `Bearer ${localStorage.getItem('token') ?? ''}`,
+              },
+            }
+          )
+
+        if (!response.ok) {
+          return
         }
-      )
 
-      if (!response.ok) {
-        throw new Error('Failed to add favorite')
+        if (isFavorited) {
+          onUnfavorite?.(id)
+        } else {
+          onFavorite?.(id)
+        }
+
+      } catch (error) {
+        console.error(error)
       }
-
-      onFavorite?.(id)
-    } catch (error) {
-      console.error(error)
     }
-  }
 
   return (
     <div>
@@ -77,13 +89,19 @@ function MovieCard({
             <p>{rating}</p>
 
             {showFavoriteButton &&
-              isLoggedIn &&
-              !isFavorited && (
+              isLoggedIn && (
                 <button
-                  className="fav-button"
-                  onClick={addFavorite}
+                  className={`fav-button ${isFavorited ? 'favorited' : ''
+                    }`}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    handleFavoriteClick()
+                  }}
                 >
-                  ♡ Favorite
+                  {isFavorited
+                    ? '♥ Favorited'
+                    : '♡ Favorite'}
                 </button>
               )}
           </div>

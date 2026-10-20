@@ -42,23 +42,38 @@ public class UserController {
 
     // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
     @PostMapping
-    public ResponseEntity<User> createUser(
+    public ResponseEntity<?> createUser(
             @RequestBody CreateUserRequest user) {
-        User createdUser = userService.createUser(user);
 
-        // Generate a verification token
-        String verificationToken = UUID.randomUUID().toString();
-        createdUser.setVerificationToken(verificationToken);
+        try {
 
-        // Save the user with the token
-        userService.saveUser(createdUser);
+            User createdUser = userService.createUser(user);
 
-        // Send verification email
-        emailService.sendVerificationEmail(createdUser.getEmail(), createdUser.getId(), verificationToken);
+            String verificationToken = UUID.randomUUID().toString();
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(createdUser);
+            createdUser.setVerificationToken(
+                    verificationToken);
+
+            userService.saveUser(createdUser);
+
+            emailService.sendVerificationEmail(
+                    createdUser.getEmail(),
+                    createdUser.getId(),
+                    verificationToken);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(createdUser);
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}/delete")
@@ -115,8 +130,35 @@ public class UserController {
 
     // Login the user
     @PostMapping("/login")
-    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
-        return userService.loginUser(loginRequest);
+    public ResponseEntity<?> loginUser(
+            @RequestBody LoginRequest loginRequest) {
+
+        try {
+
+            LoginResponse response = userService.loginUser(
+                    loginRequest);
+
+            return ResponseEntity.ok(
+                    response);
+
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    "Incorrect email or password."));
+
+        } catch (IllegalStateException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            java.util.Map.of(
+                                    "message",
+                                    e.getMessage()));
+        }
     }
 
     // Retrieve data from the logged in user
@@ -140,12 +182,11 @@ public class UserController {
     public User updateProfile(
             @PathVariable Integer id,
             @RequestBody UpdateProfileRequest request,
-            Authentication authentication
-        ) {
+            Authentication authentication) {
         if (id != getCurrentUser(authentication).getBody().id()) {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
-        User user = userService.getUserById(id);
+        User user = userService.getStoredUserById(id);
         emailService.sendEmailForUpdataProfile(user.getEmail());
         return userService.updateProfile(
                 id,
@@ -188,15 +229,17 @@ public class UserController {
 
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> changePassword(
-            @PathVariable Integer id,
-            @RequestBody ChangePasswordRequest request,
-            Authentication authentication
-        ) {
+        @PathVariable Integer id,
+        @RequestBody ChangePasswordRequest request,
+        Authentication authentication
+    ) {
         if (id != getCurrentUser(authentication).getBody().id()) {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
-
+        User user = userService.getStoredUserById(id);
+                
         userService.changePassword(id, request);
+        emailService.sendEmailForUpdataProfile(user.getEmail());
 
         return ResponseEntity.ok().build();
     }

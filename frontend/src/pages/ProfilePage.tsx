@@ -60,10 +60,7 @@ function ProfilePage() {
     const [cardNumber, setCardNumber] =
         useState('')
 
-    const [expirationMonth, setExpirationMonth] =
-        useState('')
-
-    const [expirationYear, setExpirationYear] =
+    const [expiration, setExpiration] =
         useState('')
 
     const [billingStreet, setBillingStreet] =
@@ -77,6 +74,10 @@ function ProfilePage() {
 
     const [billingZipCode, setBillingZipCode] =
         useState('')
+
+    const [showAddress, setShowAddress] =
+        useState(false)
+
 
     type Errors = Record<string, string>
 
@@ -142,12 +143,34 @@ function ProfilePage() {
 
             setProfile(data)
 
+            setShowAddress(
+                !!data.homeAddress &&
+                (
+                    data.homeAddress.street ||
+                    data.homeAddress.city ||
+                    data.homeAddress.state ||
+                    data.homeAddress.zipCode
+                )
+            )
+
             setPaymentCards(
                 data.paymentCards ?? []
             )
         } catch (error) {
             console.error(error)
         }
+    }
+
+    const formatExpiration = (
+        value: string
+    ) => {
+        const digits = value
+            .replace(/\D/g, '')
+            .slice(0, 4)
+
+        return digits.length > 2
+            ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+            : digits
     }
 
     const validateProfile = () => {
@@ -187,6 +210,7 @@ function ProfilePage() {
 
         // Address validation if nonempty
         const hasAddressData =
+            showAddress &&
             profile?.homeAddress &&
             (
                 profile.homeAddress.street.trim() ||
@@ -472,55 +496,54 @@ function ProfilePage() {
                 'Enter a card number with 13 to 19 digits.'
         }
 
-        // Expiration month
-        const month = Number(
-            expirationMonth
-        )
-
-        if (!expirationMonth) {
-            validationErrors.expirationMonth =
-                'Enter an expiration month.'
-        } else if (
-            Number.isNaN(month) ||
-            month < 1 ||
-            month > 12
-        ) {
-            validationErrors.expirationMonth =
-                'Enter a month between 1 and 12.'
+        if (!expiration.trim()) {
+            validationErrors.expiration =
+                'Enter an expiration date.'
         }
+        else {
+            const match =
+                /^(\d{2})\/(\d{2})$/
+                    .exec(expiration)
 
-        // Expiration year
-        const year = Number(
-            expirationYear
-        )
+            if (!match) {
+                validationErrors.expiration =
+                    'Enter a valid date as MM/YY.'
+            }
+            else {
+                const month =
+                    Number(match[1])
 
-        const now = new Date()
+                const year =
+                    2000 +
+                    Number(match[2])
 
-        const currentMonth =
-            now.getMonth() + 1
+                const now =
+                    new Date()
 
-        const currentYear =
-            now.getFullYear()
+                const currentMonth =
+                    now.getMonth() + 1
 
-        if (!expirationYear) {
-            validationErrors.expirationYear =
-                'Enter an expiration year.'
-        } else if (
-            Number.isNaN(year)
-        ) {
-            validationErrors.expirationYear =
-                'Enter a valid expiration year.'
-        } else if (
-            year < currentYear
-        ) {
-            validationErrors.expirationYear =
-                'Card is expired.'
-        } else if (
-            year === currentYear &&
-            month < currentMonth
-        ) {
-            validationErrors.expirationYear =
-                'Card is expired.'
+                const currentYear =
+                    now.getFullYear()
+
+                if (
+                    month < 1 ||
+                    month > 12
+                ) {
+                    validationErrors.expiration =
+                        'Enter a valid month.'
+                }
+                else if (
+                    year < currentYear ||
+                    (
+                        year === currentYear &&
+                        month < currentMonth
+                    )
+                ) {
+                    validationErrors.expiration =
+                        'Card is expired.'
+                }
+            }
         }
 
         // Billing street
@@ -615,11 +638,13 @@ function ProfilePage() {
                         cardNumber,
                         expirationMonth:
                             Number(
-                                expirationMonth
+                                expiration.split('/')[0]
                             ),
+
                         expirationYear:
+                            2000 +
                             Number(
-                                expirationYear
+                                expiration.split('/')[1]
                             ),
                         billingAddress: {
                             street: billingStreet,
@@ -641,8 +666,7 @@ function ProfilePage() {
             await loadProfile()
 
             setCardNumber('')
-            setExpirationMonth('')
-            setExpirationYear('')
+            setExpiration('')
             setBillingStreet('')
             setBillingCity('')
             setBillingState('')
@@ -727,111 +751,276 @@ function ProfilePage() {
             <div className="auth-card profile-page">
                 <h1>My Profile</h1>
 
-                {errors.server && (
-                    <p
-                        className="form-message error"
-                        role="alert"
-                    >
-                        {errors.server}
-                    </p>
-                )}
-
-                {successMessage && (
-                    <p
-                        className="form-message success"
-                        role="status"
-                    >
-                        {successMessage}
-                    </p>
-                )}
-
                 <fieldset>
-                    <legend>Account Information</legend>
+                    <legend>
+                        Personal Information
+                    </legend>
+                    <fieldset>
+                        <legend>Account Information</legend>
 
-                    <div className="form-row">
+                        <div className="form-row">
+                            <div className="form-field">
+                                <label>First Name *</label>
+
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={profile.firstName}
+                                    onChange={handleChange}
+                                    aria-invalid={
+                                        !!errors.firstName
+                                    }
+                                />
+
+                                {errors.firstName && (
+                                    <p className="field-error">
+                                        {errors.firstName}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="form-field">
+                                <label>Last Name *</label>
+
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={profile.lastName}
+                                    onChange={handleChange}
+                                    aria-invalid={
+                                        !!errors.lastName
+                                    }
+                                />
+
+                                {errors.lastName && (
+                                    <p className="field-error">
+                                        {errors.lastName}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="form-field">
-                            <label>First Name</label>
+                            <label>Email *</label>
 
                             <input
                                 type="text"
-                                name="firstName"
-                                value={profile.firstName}
+                                value={profile.email}
+                                disabled
+                            />
+                        </div>
+
+                        <div className="form-field">
+                            <label>Phone Number *</label>
+
+                            <input
+                                type="text"
+                                name="phone"
+                                value={profile.phone}
                                 onChange={handleChange}
                                 aria-invalid={
-                                    !!errors.firstName
+                                    !!errors.phone
                                 }
                             />
 
-                            {errors.firstName && (
+                            {errors.phone && (
                                 <p className="field-error">
-                                    {errors.firstName}
+                                    {errors.phone}
                                 </p>
                             )}
                         </div>
 
-                        <div className="form-field">
-                            <label>Last Name</label>
-
+                        <label className="checkbox-field">
                             <input
-                                type="text"
-                                name="lastName"
-                                value={profile.lastName}
-                                onChange={handleChange}
-                                aria-invalid={
-                                    !!errors.lastName
+                                type="checkbox"
+                                name="recievePromotions"
+                                checked={
+                                    profile.recievePromotions
                                 }
+                                onChange={handleChange}
                             />
+                            Receive Promotions
+                        </label>
+                    </fieldset>
 
-                            {errors.lastName && (
-                                <p className="field-error">
-                                    {errors.lastName}
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                    <fieldset>
+                        <legend>
+                            Home Address (Optional)
+                        </legend>
 
-                    <div className="form-field">
-                        <label>Email</label>
+                        {!showAddress ? (
+                            <button
+                                type="button"
+                                className="auth-button secondary"
+                                onClick={() =>
+                                    setShowAddress(true)
+                                }
+                            >
+                                Add Address
+                            </button>
+                        ) : (
+                            <>
+                                <div className="form-field">
+                                    <label>
+                                        Street *
+                                    </label>
 
-                        <input
-                            type="text"
-                            value={profile.email}
-                            disabled
-                        />
-                    </div>
+                                    <input
+                                        type="text"
+                                        name="street"
+                                        value={
+                                            profile.homeAddress?.street ?? ''
+                                        }
+                                        onChange={handleAddressChange}
+                                        aria-invalid={
+                                            !!errors.street
+                                        }
+                                    />
 
-                    <div className="form-field">
-                        <label>Phone Number</label>
+                                    {errors.street && (
+                                        <p className="field-error">
+                                            {errors.street}
+                                        </p>
+                                    )}
+                                </div>
 
-                        <input
-                            type="text"
-                            name="phone"
-                            value={profile.phone}
-                            onChange={handleChange}
-                            aria-invalid={
-                                !!errors.phone
-                            }
-                        />
+                                <div className="form-row">
+                                    <div className="form-field">
+                                        <label>
+                                            City *
+                                        </label>
 
-                        {errors.phone && (
-                            <p className="field-error">
-                                {errors.phone}
-                            </p>
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            value={
+                                                profile.homeAddress?.city ?? ''
+                                            }
+                                            onChange={handleAddressChange}
+                                            aria-invalid={
+                                                !!errors.city
+                                            }
+                                        />
+
+                                        {errors.city && (
+                                            <p className="field-error">
+                                                {errors.city}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="form-field">
+                                        <label>
+                                            State *
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="state"
+                                            value={
+                                                profile.homeAddress?.state ?? ''
+                                            }
+                                            onChange={handleAddressChange}
+                                            aria-invalid={
+                                                !!errors.state
+                                            }
+                                        />
+
+                                        {errors.state && (
+                                            <p className="field-error">
+                                                {errors.state}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="form-field">
+                                    <label>
+                                        ZIP Code *
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="zipCode"
+                                        value={
+                                            profile.homeAddress?.zipCode ?? ''
+                                        }
+                                        onChange={handleAddressChange}
+                                        aria-invalid={
+                                            !!errors.zipCode
+                                        }
+                                    />
+
+                                    {errors.zipCode && (
+                                        <p className="field-error">
+                                            {errors.zipCode}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="auth-button secondary"
+                                    onClick={() => {
+                                        setProfile({
+                                            ...profile,
+                                            homeAddress: {
+                                                street: '',
+                                                city: '',
+                                                state: '',
+                                                zipCode: '',
+                                            },
+                                        })
+
+                                        setShowAddress(false)
+
+                                        setErrors((prev) => {
+                                            const next = {
+                                                ...prev,
+                                            }
+
+                                            delete next.street
+                                            delete next.city
+                                            delete next.state
+                                            delete next.zipCode
+
+                                            return next
+                                        })
+                                    }}
+                                >
+                                    Remove Address
+                                </button>
+                            </>
                         )}
-                    </div>
+                    </fieldset>
 
-                    <label className="checkbox-field">
-                        <input
-                            type="checkbox"
-                            name="recievePromotions"
-                            checked={
-                                profile.recievePromotions
-                            }
-                            onChange={handleChange}
-                        />
-                        Receive Promotions
-                    </label>
+                    {errors.server && (
+                        <p
+                            className="form-message error"
+                            role="alert"
+                        >
+                            {errors.server}
+                        </p>
+                    )}
+
+
+                    {successMessage && (
+                        <p
+                            className="form-message success"
+                            role="status"
+                        >
+                            {successMessage}
+                        </p>
+                    )}
+                    <button
+                        className="auth-button"
+                        onClick={saveProfile}
+                    >
+                        Save Changes
+                    </button>
+
                 </fieldset>
+
 
                 <fieldset>
                     <legend>
@@ -840,7 +1029,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            Current Password
+                            Current Password *
                         </label>
 
                         <input
@@ -865,7 +1054,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            New Password
+                            New Password *
                         </label>
 
                         <input
@@ -897,7 +1086,7 @@ function ProfilePage() {
 
                     <div className="form-field">
                         <label>
-                            Confirm New Password
+                            Confirm New Password *
                         </label>
 
                         <input
@@ -928,107 +1117,6 @@ function ProfilePage() {
                         Change Password
                     </button>
                 </fieldset>
-
-                <fieldset>
-                    <legend>Home Address</legend>
-
-                    <div className="form-field">
-                        <label>Street</label>
-
-                        <input
-                            type="text"
-                            name="street"
-                            value={
-                                profile.homeAddress?.street ?? ''
-                            }
-                            onChange={handleAddressChange}
-                            aria-invalid={
-                                !!errors.street
-                            }
-                        />
-
-                        {errors.street && (
-                            <p className="field-error">
-                                {errors.street}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-field">
-                            <label>City</label>
-
-                            <input
-                                type="text"
-                                name="city"
-                                value={
-                                    profile.homeAddress?.city ?? ''
-                                }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.city
-                                }
-                            />
-
-                            {errors.city && (
-                                <p className="field-error">
-                                    {errors.city}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="form-field">
-                            <label>State</label>
-
-                            <input
-                                type="text"
-                                name="state"
-                                value={
-                                    profile.homeAddress?.state ?? ''
-                                }
-                                onChange={handleAddressChange}
-                                aria-invalid={
-                                    !!errors.state
-                                }
-                            />
-
-                            {errors.state && (
-                                <p className="field-error">
-                                    {errors.state}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="form-field">
-                        <label>ZIP Code</label>
-
-                        <input
-                            type="text"
-                            name="zipCode"
-                            value={
-                                profile.homeAddress?.zipCode ?? ''
-                            }
-                            onChange={handleAddressChange}
-                            aria-invalid={
-                                !!errors.zipCode
-                            }
-                        />
-
-                        {errors.zipCode && (
-                            <p className="field-error">
-                                {errors.zipCode}
-                            </p>
-                        )}
-                    </div>
-                </fieldset>
-
-                <button
-                    className="auth-button"
-                    onClick={saveProfile}
-                >
-                    Save Changes
-                </button>
 
                 <fieldset>
                     <legend>Payment Cards</legend>
@@ -1103,7 +1191,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Card Number
+                                    Card Number *
                                 </label>
 
                                 <input
@@ -1128,69 +1216,37 @@ function ProfilePage() {
                                 )}
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-field">
-                                    <label>
-                                        Expiration Month
-                                    </label>
+                            <div className="form-field">
+                                <label>
+                                    Expiration *
+                                </label>
 
-                                    <input
-                                        type="number"
-                                        value={
-                                            expirationMonth
-                                        }
-                                        onChange={(e) =>
-                                            setExpirationMonth(
+                                <input
+                                    type="text"
+                                    placeholder="MM/YY"
+                                    value={expiration}
+                                    onChange={(e) =>
+                                        setExpiration(
+                                            formatExpiration(
                                                 e.target.value
                                             )
-                                        }
-                                        aria-invalid={
-                                            !!errors.expirationMonth
-                                        }
-                                    />
+                                        )
+                                    }
+                                    aria-invalid={
+                                        !!errors.expiration
+                                    }
+                                />
 
-                                    {errors.expirationMonth && (
-                                        <p className="field-error">
-                                            {
-                                                errors.expirationMonth
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="form-field">
-                                    <label>
-                                        Expiration Year
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        value={
-                                            expirationYear
-                                        }
-                                        onChange={(e) =>
-                                            setExpirationYear(
-                                                e.target.value
-                                            )
-                                        }
-                                        aria-invalid={
-                                            !!errors.expirationYear
-                                        }
-                                    />
-
-                                    {errors.expirationYear && (
-                                        <p className="field-error">
-                                            {
-                                                errors.expirationYear
-                                            }
-                                        </p>
-                                    )}
-                                </div>
+                                {errors.expiration && (
+                                    <p className="field-error">
+                                        {errors.expiration}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="form-field">
                                 <label>
-                                    Billing Street
+                                    Billing Street *
                                 </label>
 
                                 <input
@@ -1220,7 +1276,7 @@ function ProfilePage() {
                             <div className="form-row">
                                 <div className="form-field">
                                     <label>
-                                        Billing City
+                                        Billing City *
                                     </label>
 
                                     <input
@@ -1247,7 +1303,7 @@ function ProfilePage() {
 
                                 <div className="form-field">
                                     <label>
-                                        Billing State
+                                        Billing State *
                                     </label>
 
                                     <input
@@ -1277,7 +1333,7 @@ function ProfilePage() {
 
                             <div className="form-field">
                                 <label>
-                                    Billing ZIP Code
+                                    Billing ZIP Code *
                                 </label>
 
                                 <input

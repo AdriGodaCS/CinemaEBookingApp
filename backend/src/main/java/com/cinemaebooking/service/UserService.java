@@ -2,6 +2,7 @@ package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.User;
 import com.cinemaebooking.model.AddPaymentCardRequest;
+import com.cinemaebooking.model.Address;
 import com.cinemaebooking.model.ChangePasswordRequest;
 import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.model.Movie;
@@ -12,6 +13,7 @@ import com.cinemaebooking.model.LoginRequest;
 import com.cinemaebooking.model.LoginResponse;
 import com.cinemaebooking.repository.UserRepository;
 import com.cinemaebooking.Security.SecurityConfig;
+import com.cinemaebooking.Security.EncryptionService;
 import com.cinemaebooking.Security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 public class UserService {
 
         private final PasswordEncoder passwordEncoder;
+        private final EncryptionService encryptionService;
         private final UserRepository userRepository;
         private final MovieService movieService;
         private final EmailService emailService;
@@ -40,24 +43,36 @@ public class UserService {
                         UserRepository userRepository,
                         PasswordEncoder passwordEncoder,
                         JwtUtil jwtUtil,
-                        MovieService movieService, EmailService emailService) {
+                        MovieService movieService,
+                        EmailService emailService,
+                        EncryptionService encryptionService) {
                 this.userRepository = userRepository;
                 this.passwordEncoder = passwordEncoder;
                 this.movieService = movieService;
                 this.jwtUtil = jwtUtil;
                 this.emailService = emailService;
+                this.encryptionService = encryptionService;
         }
 
-        public User getUserById(Integer id) {
-                return userRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "User not found with id: " + id));
+        public User getUserById(
+                        Integer id) {
+
+                User user = getStoredUserById(id);
+
+                if (user.getPaymentCards() != null) {
+
+                        user.setPaymentCards(
+                                        decryptCards(
+                                                        user.getPaymentCards()));
+                }
+
+                return user;
         }
 
         public User updateProfile(
                         Integer id,
                         UpdateProfileRequest request) {
-                User user = getUserById(id);
+                User user = getStoredUserById(id);
 
                 user.setFirstName(request.firstName());
                 user.setLastName(request.lastName());
@@ -97,7 +112,7 @@ public class UserService {
         public void resetPassword(
                         ResetPasswordRequest request) {
 
-                User user = getUserById(
+                User user = getStoredUserById(
                                 request.userId());
 
                 if (!request.token().equals(
@@ -120,7 +135,7 @@ public class UserService {
         public void changePassword(
                         Integer userId,
                         ChangePasswordRequest request) {
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 boolean matches = passwordEncoder.matches(
                                 request.currentPassword(),
@@ -142,7 +157,7 @@ public class UserService {
 
         public List<Movie> getFavoriteMovies(
                         Integer userId) {
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 if (user.getFavoriteMovieIds() == null) {
                         return Collections.emptyList();
@@ -157,7 +172,7 @@ public class UserService {
         public void removeFavorite(
                         Integer userId,
                         Integer movieId) {
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 if (user.getFavoriteMovieIds() == null) {
                         return;
@@ -189,12 +204,12 @@ public class UserService {
 
                 if ("INACTIVE".equalsIgnoreCase(user.getStatus())) {
                         throw new IllegalStateException(
-                                        "Account must be verified to log in.");
+                                        "Account is not verified. Please check your email to verify your account.");
                 }
 
                 if ("SUSPENDED".equalsIgnoreCase(user.getStatus())) {
                         throw new IllegalStateException(
-                                        "Account must be verified to log in.");
+                                        "Your account has been suspended.");
                 }
 
                 String token = jwtUtil.generateToken(user.getId(), user.getEmail());
@@ -257,10 +272,11 @@ public class UserService {
                                                 "Users may have a maximum of 3 payment cards.");
                         }
 
-                        List<PaymentCard> paymentCards = userRequest.paymentCards()
-                                        .stream()
-                                        .map(this::createPaymentCard)
-                                        .toList();
+                        List<PaymentCard> paymentCards = new ArrayList<>(
+                                        userRequest.paymentCards()
+                                                        .stream()
+                                                        .map(this::createPaymentCard)
+                                                        .toList());
                         user.setPaymentCards(paymentCards);
                 }
 
@@ -285,10 +301,43 @@ public class UserService {
         private PaymentCard createPaymentCard(AddPaymentCardRequest request) {
                 PaymentCard card = new PaymentCard();
                 card.setCardId(UUID.randomUUID().toString());
-                card.setCardNumberHash(passwordEncoder.encode(request.cardNumber()));
-                card.setExpirationMonth(request.expirationMonth());
-                card.setExpirationYear(request.expirationYear());
-                card.setBillingAddress(request.billingAddress());
+                card.setCardNumberHash(
+                                encryptionService.encrypt(
+                                                request.cardNumber()));
+
+                card.setExpirationMonth(
+                                encryptionService.encrypt(
+                                                String.valueOf(
+                                                                request.expirationMonth())));
+
+                card.setExpirationYear(
+                                encryptionService.encrypt(
+                                                String.valueOf(
+                                                                request.expirationYear())));
+                Address address = new Address();
+
+                address.setStreet(
+                                encryptionService.encrypt(
+                                                request.billingAddress()
+                                                                .getStreet()));
+
+                address.setCity(
+                                encryptionService.encrypt(
+                                                request.billingAddress()
+                                                                .getCity()));
+
+                address.setState(
+                                encryptionService.encrypt(
+                                                request.billingAddress()
+                                                                .getState()));
+
+                address.setZipCode(
+                                encryptionService.encrypt(
+                                                request.billingAddress()
+                                                                .getZipCode()));
+
+                card.setBillingAddress(
+                                address);
                 return card;
         }
 
@@ -296,7 +345,7 @@ public class UserService {
                         Integer userId,
                         String cardId) {
 
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 user.getPaymentCards()
                                 .removeIf(card -> card.getCardId()
@@ -309,7 +358,7 @@ public class UserService {
                         Integer userId,
                         AddPaymentCardRequest request) {
 
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 if (user.getPaymentCards() == null) {
                         user.setPaymentCards(
@@ -321,25 +370,77 @@ public class UserService {
                                         "Maximum 3 payment cards allowed.");
                 }
 
-                PaymentCard card = new PaymentCard();
-                card.setCardId(UUID.randomUUID().toString());
+                PaymentCard card = createPaymentCard(
+                                request);
 
-                card.setCardNumberHash(
-                                passwordEncoder.encode(
-                                                request.cardNumber()));
-
-                card.setExpirationMonth(
-                                request.expirationMonth());
-
-                card.setExpirationYear(
-                                request.expirationYear());
-
-                card.setBillingAddress(
-                                request.billingAddress());
-
-                user.getPaymentCards().add(card);
+                user.getPaymentCards()
+                                .add(card);
 
                 userRepository.save(user);
+
+                return card;
+        }
+
+        private List<PaymentCard> decryptCards(
+                        List<PaymentCard> cards) {
+
+                if (cards == null) {
+                        return Collections.emptyList();
+                }
+
+                return cards.stream()
+                                .map(this::decryptCard)
+                                .toList();
+        }
+
+        private PaymentCard decryptCard(
+                        PaymentCard encryptedCard) {
+
+                PaymentCard card = new PaymentCard();
+
+                card.setCardId(
+                                encryptedCard.getCardId());
+
+                card.setCardNumberHash(
+                                encryptionService.decrypt(
+                                                encryptedCard.getCardNumberHash()));
+
+                card.setExpirationMonth(
+                                encryptionService.decrypt(
+                                                encryptedCard.getExpirationMonth()));
+
+                card.setExpirationYear(
+                                encryptionService.decrypt(
+                                                encryptedCard.getExpirationYear()));
+
+                Address address = new Address();
+
+                address.setStreet(
+                                encryptionService.decrypt(
+                                                encryptedCard
+                                                                .getBillingAddress()
+                                                                .getStreet()));
+
+                address.setCity(
+                                encryptionService.decrypt(
+                                                encryptedCard
+                                                                .getBillingAddress()
+                                                                .getCity()));
+
+                address.setState(
+                                encryptionService.decrypt(
+                                                encryptedCard
+                                                                .getBillingAddress()
+                                                                .getState()));
+
+                address.setZipCode(
+                                encryptionService.decrypt(
+                                                encryptedCard
+                                                                .getBillingAddress()
+                                                                .getZipCode()));
+
+                card.setBillingAddress(
+                                address);
 
                 return card;
         }
@@ -347,7 +448,7 @@ public class UserService {
         public void addFavorite(
                         Integer userId,
                         Integer movieId) {
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 int[] favorites = user.getFavoriteMovieIds();
 
@@ -390,11 +491,19 @@ public class UserService {
                 return userRepository.findByVerificationToken(token);
         }
 
+        public User getStoredUserById(
+                        Integer id) {
+
+                return userRepository.findById(id)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "User not found with id: " + id));
+        }
+
         public boolean checkResetPasswordToken(
                         Integer userId,
                         String token) {
 
-                User user = getUserById(userId);
+                User user = getStoredUserById(userId);
 
                 return user.getPasswordResetToken() != null
                                 &&
