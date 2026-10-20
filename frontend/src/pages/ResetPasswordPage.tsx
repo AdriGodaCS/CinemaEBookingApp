@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import {
+    useSearchParams,
+    useNavigate,
+} from 'react-router-dom'
 import './ResetPasswordPage.css'
 
 function ResetPasswordPage() {
     const [searchParams] =
         useSearchParams()
+
+    const navigate =
+        useNavigate()
 
     const [validToken, setValidToken] =
         useState<boolean | null>(null)
@@ -102,11 +108,17 @@ function ResetPasswordPage() {
             }
 
             setMessage(
-                'Password successfully updated.'
+                'Password successfully updated. Redirecting to login...'
             )
 
             setNewPassword('')
             setConfirmPassword('')
+
+            setTimeout(() => {
+                navigate('/login')
+            }, 2000)
+
+
         } catch (error) {
             console.error(error)
 
