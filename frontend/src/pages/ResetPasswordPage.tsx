@@ -151,7 +151,7 @@ function ResetPasswordPage() {
                 onSubmit={handleSubmit}
             >
                 <label>
-                    New Password
+                    New Password *
                 </label>
 
                 <input
@@ -166,7 +166,7 @@ function ResetPasswordPage() {
                 />
 
                 <label>
-                    Confirm Password
+                    Confirm Password *
                 </label>
 
                 <input
@@ -181,7 +181,7 @@ function ResetPasswordPage() {
                 />
 
                 <button type="submit">
-                    Change Password
+                    Change Password 
                 </button>
             </form>
 
