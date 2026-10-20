@@ -208,8 +208,7 @@ public class UserController {
                         @PathVariable Integer id,
                         @RequestBody ChangePasswordRequest request) {
                 User user = userService.getStoredUserById(id);
-                userService.changePassword(id, request);
-                emailService.sendEmailForUpdataProfile(user.getEmail());
+                userService.changePassword(id, request);                
 
                 return ResponseEntity.ok().build();
         }
