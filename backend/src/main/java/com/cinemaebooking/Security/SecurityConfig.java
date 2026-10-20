@@ -11,6 +11,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.cinemaebooking.security.JwtUtil;
+
 import java.util.List;
 
 //@Configuration // This is only needed if more methods othere than passwordEncoder are needed
@@ -29,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/verify").permitAll()
                         .anyRequest().authenticated()
+                        .jwt()
                 );
 
         return http.build();

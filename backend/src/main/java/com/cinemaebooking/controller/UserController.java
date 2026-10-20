@@ -135,7 +135,8 @@ public class UserController {
     @PostMapping("/{id}/cards")
     public ResponseEntity<Void> addCard(
             @PathVariable Integer id,
-            @RequestBody AddPaymentCardRequest request) {
+            @RequestBody AddPaymentCardRequest request
+        ) {
 
         userService.addPaymentCard(
                 id,
