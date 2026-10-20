@@ -60,10 +60,7 @@ function ProfilePage() {
     const [cardNumber, setCardNumber] =
         useState('')
 
-    const [expirationMonth, setExpirationMonth] =
-        useState('')
-
-    const [expirationYear, setExpirationYear] =
+    const [expiration, setExpiration] =
         useState('')
 
     const [billingStreet, setBillingStreet] =
@@ -148,6 +145,18 @@ function ProfilePage() {
         } catch (error) {
             console.error(error)
         }
+    }
+
+    const formatExpiration = (
+        value: string
+    ) => {
+        const digits = value
+            .replace(/\D/g, '')
+            .slice(0, 4)
+
+        return digits.length > 2
+            ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+            : digits
     }
 
     const validateProfile = () => {
@@ -472,55 +481,54 @@ function ProfilePage() {
                 'Enter a card number with 13 to 19 digits.'
         }
 
-        // Expiration month
-        const month = Number(
-            expirationMonth
-        )
-
-        if (!expirationMonth) {
-            validationErrors.expirationMonth =
-                'Enter an expiration month.'
-        } else if (
-            Number.isNaN(month) ||
-            month < 1 ||
-            month > 12
-        ) {
-            validationErrors.expirationMonth =
-                'Enter a month between 1 and 12.'
+        if (!expiration.trim()) {
+            validationErrors.expiration =
+                'Enter an expiration date.'
         }
+        else {
+            const match =
+                /^(\d{2})\/(\d{2})$/
+                    .exec(expiration)
 
-        // Expiration year
-        const year = Number(
-            expirationYear
-        )
+            if (!match) {
+                validationErrors.expiration =
+                    'Enter a valid date as MM/YY.'
+            }
+            else {
+                const month =
+                    Number(match[1])
 
-        const now = new Date()
+                const year =
+                    2000 +
+                    Number(match[2])
 
-        const currentMonth =
-            now.getMonth() + 1
+                const now =
+                    new Date()
 
-        const currentYear =
-            now.getFullYear()
+                const currentMonth =
+                    now.getMonth() + 1
 
-        if (!expirationYear) {
-            validationErrors.expirationYear =
-                'Enter an expiration year.'
-        } else if (
-            Number.isNaN(year)
-        ) {
-            validationErrors.expirationYear =
-                'Enter a valid expiration year.'
-        } else if (
-            year < currentYear
-        ) {
-            validationErrors.expirationYear =
-                'Card is expired.'
-        } else if (
-            year === currentYear &&
-            month < currentMonth
-        ) {
-            validationErrors.expirationYear =
-                'Card is expired.'
+                const currentYear =
+                    now.getFullYear()
+
+                if (
+                    month < 1 ||
+                    month > 12
+                ) {
+                    validationErrors.expiration =
+                        'Enter a valid month.'
+                }
+                else if (
+                    year < currentYear ||
+                    (
+                        year === currentYear &&
+                        month < currentMonth
+                    )
+                ) {
+                    validationErrors.expiration =
+                        'Card is expired.'
+                }
+            }
         }
 
         // Billing street
@@ -615,11 +623,13 @@ function ProfilePage() {
                         cardNumber,
                         expirationMonth:
                             Number(
-                                expirationMonth
+                                expiration.split('/')[0]
                             ),
+
                         expirationYear:
+                            2000 +
                             Number(
-                                expirationYear
+                                expiration.split('/')[1]
                             ),
                         billingAddress: {
                             street: billingStreet,
@@ -641,8 +651,7 @@ function ProfilePage() {
             await loadProfile()
 
             setCardNumber('')
-            setExpirationMonth('')
-            setExpirationYear('')
+            setExpiration('')
             setBillingStreet('')
             setBillingCity('')
             setBillingState('')
@@ -930,14 +939,14 @@ function ProfilePage() {
                             )}
                         </div>
                     </fieldset>
-                </fieldset>
+                    <button
+                        className="auth-button"
+                        onClick={saveProfile}
+                    >
+                        Save Changes
+                    </button>
 
-                <button
-                    className="auth-button"
-                    onClick={saveProfile}
-                >
-                    Save Changes
-                </button>
+                </fieldset>
 
 
                 <fieldset>
@@ -1134,64 +1143,32 @@ function ProfilePage() {
                                 )}
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-field">
-                                    <label>
-                                        Expiration Month
-                                    </label>
+                            <div className="form-field">
+                                <label>
+                                    Expiration
+                                </label>
 
-                                    <input
-                                        type="number"
-                                        value={
-                                            expirationMonth
-                                        }
-                                        onChange={(e) =>
-                                            setExpirationMonth(
+                                <input
+                                    type="text"
+                                    placeholder="MM/YY"
+                                    value={expiration}
+                                    onChange={(e) =>
+                                        setExpiration(
+                                            formatExpiration(
                                                 e.target.value
                                             )
-                                        }
-                                        aria-invalid={
-                                            !!errors.expirationMonth
-                                        }
-                                    />
+                                        )
+                                    }
+                                    aria-invalid={
+                                        !!errors.expiration
+                                    }
+                                />
 
-                                    {errors.expirationMonth && (
-                                        <p className="field-error">
-                                            {
-                                                errors.expirationMonth
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="form-field">
-                                    <label>
-                                        Expiration Year
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        value={
-                                            expirationYear
-                                        }
-                                        onChange={(e) =>
-                                            setExpirationYear(
-                                                e.target.value
-                                            )
-                                        }
-                                        aria-invalid={
-                                            !!errors.expirationYear
-                                        }
-                                    />
-
-                                    {errors.expirationYear && (
-                                        <p className="field-error">
-                                            {
-                                                errors.expirationYear
-                                            }
-                                        </p>
-                                    )}
-                                </div>
+                                {errors.expiration && (
+                                    <p className="field-error">
+                                        {errors.expiration}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="form-field">
