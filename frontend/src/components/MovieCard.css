@@ -7,20 +7,20 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-width: 0;
-  min-height: 0;  
+  min-height: 0;
   overflow: hidden;
   background: #20252a;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   border: 1px solid var(--line);
 
   /* For hovering */
-  transition: transform 100ms ease-in-out;  
-  will-change: transform; 
+  transition: transform 100ms ease-in-out;
+  will-change: transform;
 }
 
 .movie-card:hover {
   /* 1.05 scales the element up by exactly 5% */
-  transform: scale(1.05); 
+  transform: scale(1.05);
 }
 
 .movie-poster {
@@ -30,15 +30,29 @@
   aspect-ratio: 2 / 3;
   object-fit: fill;
   object-position: center;
-  background: linear-gradient(145deg, rgba(238, 117, 94, 0.16), rgba(233, 189, 100, 0.06));
+  background: linear-gradient(
+    145deg,
+    rgba(238, 117, 94, 0.16),
+    rgba(233, 189, 100, 0.06)
+  );
+}
+
+.fav-button.favorited {
+  background-color: #d32f2f;
+  color: white;
+  border-color: #d32f2f;
+}
+
+.fav-button.favorited:hover {
+  background-color: #b71c1c;
 }
 
 .fav-button {
-    font-size: 1px;
-    height: 40px;
-    width: 100%;
-    padding-inline: 10px;
-    font-family: 'Space Grotesk', sans-serif;
+  font-size: 1px;
+  height: 40px;
+  width: 100%;
+  padding-inline: 10px;
+  font-family: "Space Grotesk", sans-serif;
 }
 
 .movie-details {

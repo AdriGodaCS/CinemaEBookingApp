@@ -156,6 +156,16 @@ function MovieList({
         })
     }
 
+    const handleFavoriteRemoved = (
+        movieId: number
+    ) => {
+        setFavoriteMovieIds((prev) => {
+            const updated = new Set(prev)
+            updated.delete(movieId)
+            return updated
+        })
+    }
+
     return (
         <div
             data-input={input}
@@ -194,6 +204,9 @@ function MovieList({
                                     )}
                                     onFavorite={
                                         handleFavoriteAdded
+                                    }
+                                    onUnfavorite={
+                                        handleFavoriteRemoved
                                     }
                                 />
                             )
