@@ -1,4 +1,4 @@
-package com.cinemaebooking.Security;
+package com.cinemaebooking.security;
 
 import java.io.IOException;
 

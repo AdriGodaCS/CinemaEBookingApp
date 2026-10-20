@@ -43,7 +43,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                         .requestMatchers("/users/*", "/users/*/**").authenticated()
                         .anyRequest().authenticated()
-
                 );
 
         return http.build();
