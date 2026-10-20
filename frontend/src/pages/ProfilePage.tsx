@@ -658,9 +658,15 @@ function ProfilePage() {
             )
 
             if (!response.ok) {
-                throw new Error(
-                    'Failed to add card'
-                )
+                const data =
+                    await response.json()
+
+                setErrors({
+                    paymentCards:
+                        data.message
+                })
+
+                return
             }
 
             await loadProfile()
@@ -1121,12 +1127,6 @@ function ProfilePage() {
                 <fieldset>
                     <legend>Payment Cards</legend>
 
-                    {errors.paymentCards && (
-                        <p className="field-error">
-                            {errors.paymentCards}
-                        </p>
-                    )}
-
                     {paymentCards.length === 0 ? (
                         <p>No payment cards saved.</p>
                     ) : (
@@ -1184,7 +1184,6 @@ function ProfilePage() {
                             </div>
                         ))
                     )}
-
                     {paymentCards.length < 3 && (
                         <>
                             <h3>Add Payment Card</h3>
@@ -1359,7 +1358,11 @@ function ProfilePage() {
                                     </p>
                                 )}
                             </div>
-
+                            {errors.paymentCards && (
+                                <p className="field-error">
+                                    {errors.paymentCards}
+                                </p>
+                            )}
                             <button
                                 type="button"
                                 className="auth-button"

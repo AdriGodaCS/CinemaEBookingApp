@@ -370,6 +370,19 @@ public class UserService {
                                         "Maximum 3 payment cards allowed.");
                 }
 
+                for (PaymentCard existingCard : user.getPaymentCards()) {
+
+                        String existingCardNumber = encryptionService.decrypt(
+                                        existingCard.getCardNumberHash());
+
+                        if (existingCardNumber.equals(
+                                        request.cardNumber())) {
+
+                                throw new IllegalArgumentException(
+                                                "This payment card has already been added.");
+                        }
+                }
+
                 PaymentCard card = createPaymentCard(
                                 request);
 
