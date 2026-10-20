@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/verify").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/*/checkResetPasswordToken").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/users/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/users/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                         .requestMatchers("/users/*", "/users/*/**").authenticated()
                         .anyRequest().authenticated()
