@@ -382,6 +382,10 @@ public class UserService {
                 return userRepository.save(user);
         }
 
+        public void deleteUser(User user) {
+                userRepository.delete(user);
+        }
+
         public User getByVerificationToken(String token) {
                 return userRepository.findByVerificationToken(token);
         }
