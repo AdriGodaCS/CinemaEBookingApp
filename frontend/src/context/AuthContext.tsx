@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 export interface User {
-  id: string;
+  id: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -42,7 +42,7 @@ export function AuthProvider({
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/users/me",
+        "http://localhost:8080/users/me",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -53,6 +53,9 @@ export function AuthProvider({
       if (response.ok) {
         const data: User = await response.json();
         setUser(data);
+      } else if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        setUser(null);
       }
     } catch (err) {
       console.error(err);

@@ -38,6 +38,9 @@ function MovieCard({
         `http://localhost:8080/users/${user.id}/favorites/${id}`,
         {
           method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+          },
         }
       )
 

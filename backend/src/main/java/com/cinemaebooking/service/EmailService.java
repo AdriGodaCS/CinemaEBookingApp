@@ -17,9 +17,9 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String toEmail, Integer userId, String token) {
-        String verificationLink = "http://localhost:5173/verifyaccount?" 
+        String verificationLink = "http://localhost:5173/verifyaccount?userId="
             + userId
-            + "&token=" 
+            + "&token="
             + token;
 
         try {

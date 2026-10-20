@@ -99,8 +99,8 @@ public class UserController {
     }
 
     // Login the user
-    @GetMapping("/login")
-    public LoginResponse loginUser(LoginRequest loginRequest) {
+    @PostMapping("/login")
+    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
         return userService.loginUser(loginRequest);
     }
 
@@ -135,7 +135,8 @@ public class UserController {
     @PostMapping("/{id}/cards")
     public ResponseEntity<Void> addCard(
             @PathVariable Integer id,
-            @RequestBody AddPaymentCardRequest request) {
+            @RequestBody AddPaymentCardRequest request
+        ) {
 
         userService.addPaymentCard(
                 id,
