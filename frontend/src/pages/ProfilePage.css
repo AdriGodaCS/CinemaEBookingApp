@@ -55,3 +55,8 @@
 .saved-payment-card .card-entry-header {
   margin-bottom: 1rem;
 }
+
+input:disabled {    
+    color: #6c757d;    
+    cursor: not-allowed;
+}
