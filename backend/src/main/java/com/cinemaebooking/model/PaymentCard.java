@@ -14,10 +14,10 @@ public class PaymentCard {
     private String cardNumberHash;
 
     @Field("expiration_month")
-    private Integer expirationMonth;
+    private String expirationMonth;
 
     @Field("expiration_year")
-    private Integer expirationYear;
+    private String expirationYear;
 
     @Field("billing_address")
     private Address billingAddress;
@@ -41,20 +41,20 @@ public class PaymentCard {
     }
 
     // Getter and Setter for expirationMonth
-    public Integer getExpirationMonth() {
+    public String getExpirationMonth() {
         return expirationMonth;
     }
 
-    public void setExpirationMonth(Integer expirationMonth) {
+    public void setExpirationMonth(String expirationMonth) {
         this.expirationMonth = expirationMonth;
     }
 
     // Getter and Setter for expirationYear
-    public Integer getExpirationYear() {
+    public String getExpirationYear() {
         return expirationYear;
     }
 
-    public void setExpirationYear(Integer expirationYear) {
+    public void setExpirationYear(String expirationYear) {
         this.expirationYear = expirationYear;
     }
 
