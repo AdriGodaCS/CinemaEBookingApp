@@ -115,7 +115,12 @@ function MovieList({
 
             try {
                 const response = await fetch(
-                    `http://localhost:8080/users/${user.id}/favorites`
+                    `http://localhost:8080/users/${user.id}/favorites`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
+                        },
+                    }
                 )
 
                 if (!response.ok) {

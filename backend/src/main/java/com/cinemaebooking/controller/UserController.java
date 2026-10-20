@@ -99,8 +99,8 @@ public class UserController {
     }
 
     // Login the user
-    @GetMapping("/login")
-    public LoginResponse loginUser(LoginRequest loginRequest) {
+    @PostMapping("/login")
+    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
         return userService.loginUser(loginRequest);
     }
 

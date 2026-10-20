@@ -40,3 +40,18 @@
   padding: 0.75rem;
   cursor: pointer;
 }
+
+.saved-payment-card {
+  border: 1px solid var(--line);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #20252a;
+}
+
+.saved-payment-card p {
+  margin: 0.25rem 0;
+}
+
+.saved-payment-card .card-entry-header {
+  margin-bottom: 1rem;
+}

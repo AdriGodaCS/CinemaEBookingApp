@@ -40,7 +40,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         </Route>
         <Route
-          path="/verify-account"
+          path="/verifyaccount"
           element={<VerifyAccountPage />}
         />
 

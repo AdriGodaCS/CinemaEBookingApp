@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.authentication.BadCredentialsException;
 
@@ -56,17 +57,10 @@ public class UserService {
             UpdateProfileRequest request) {
         User user = getUserById(id);
 
-        if (request.paymentCards() != null
-                && request.paymentCards().size() > 3) {
-            throw new IllegalArgumentException(
-                    "Users may have a maximum of 3 payment cards.");
-        }
-
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setPhone(request.phone());
-        user.setHomeAddress(request.homeAddress());
-        user.setPaymentCards(request.paymentCards());
+        user.setHomeAddress(request.homeAddress());        
         user.setRecievePromotions(
                 request.recievePromotions());
 
@@ -166,13 +160,13 @@ public class UserService {
                     "Invalid email or password");
         }
 
-        if (user.getStatus().equals("INACTIVE")) {
+        if ("INACTIVE".equalsIgnoreCase(user.getStatus())) {
             throw new IllegalStateException(
                     "Account must be verified to log in.");
         }
 
 
-        if (user.getStatus().equals("SUSPENDED")) {
+        if ("SUSPENDED".equalsIgnoreCase(user.getStatus())) {
             throw new IllegalStateException(
                 "Account must be verified to log in."
             );
@@ -181,6 +175,7 @@ public class UserService {
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
 
         LoggedInUserData userData = new LoggedInUserData(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -201,6 +196,7 @@ public class UserService {
                 .orElseThrow(() -> new BadCredentialsException("User not found."));
 
         return new LoggedInUserData(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -263,6 +259,7 @@ public class UserService {
 
     private PaymentCard createPaymentCard(AddPaymentCardRequest request) {
         PaymentCard card = new PaymentCard();
+        card.setCardId(UUID.randomUUID().toString());
         card.setCardNumberHash(passwordEncoder.encode(request.cardNumber()));
         card.setExpirationMonth(request.expirationMonth());
         card.setExpirationYear(request.expirationYear());
@@ -300,6 +297,7 @@ public class UserService {
         }
 
         PaymentCard card = new PaymentCard();
+        card.setCardId(UUID.randomUUID().toString());
 
         card.setCardNumberHash(
                 passwordEncoder.encode(
