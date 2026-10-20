@@ -112,7 +112,7 @@ public class UserService {
         public void resetPassword(
                         ResetPasswordRequest request) {
 
-                User user = getUserById(
+                User user = getStoredUserById(
                                 request.userId());
 
                 if (!request.token().equals(
