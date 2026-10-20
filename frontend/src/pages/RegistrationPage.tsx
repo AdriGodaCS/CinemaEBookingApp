@@ -259,7 +259,7 @@ function RegistrationPage() {
                     )}
                     {duplicateEmail && (
                         <p className="form-message error" role="alert">
-                            You already have an account with this email. <Link to="/login">Log in</Link> or{' '}
+                            There is already an account with this email. <Link to="/login">Log in</Link> or{' '}
                             <Link to="/forgot-password">reset your password</Link>, or use a different email address.
                         </p>
                     )}
