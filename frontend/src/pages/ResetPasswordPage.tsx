@@ -4,6 +4,7 @@ import {
     useNavigate,
 } from 'react-router-dom'
 import './ResetPasswordPage.css'
+import './AuthPages.css'
 
 function ResetPasswordPage() {
     const [searchParams] =
@@ -12,11 +13,20 @@ function ResetPasswordPage() {
     const navigate =
         useNavigate()
 
+    const PASSWORD_PATTERN =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
+
     const [validToken, setValidToken] =
         useState<boolean | null>(null)
 
     const [newPassword, setNewPassword] =
         useState('')
+
+    const [errors, setErrors] =
+        useState<{
+            newPassword?: string
+            confirmPassword?: string
+        }>({})
 
     const [confirmPassword, setConfirmPassword] =
         useState('')
@@ -72,13 +82,45 @@ function ResetPasswordPage() {
             return
         }
 
-        if (
-            newPassword !==
-            confirmPassword
-        ) {
-            setMessage(
-                'Passwords do not match.'
+        setErrors({})
+        setMessage('')
+
+        const validationErrors: {
+            newPassword?: string
+            confirmPassword?: string
+        } = {}
+
+        if (!newPassword) {
+            validationErrors.newPassword =
+                'Create a new password.'
+        }
+        else if (
+            !PASSWORD_PATTERN.test(
+                newPassword
             )
+        ) {
+            validationErrors.newPassword =
+                'Use at least 8 characters with uppercase, lowercase, a number, and a special character.'
+        }
+
+        if (!confirmPassword) {
+            validationErrors.confirmPassword =
+                'Confirm your password.'
+        }
+        else if (
+            confirmPassword !==
+            newPassword
+        ) {
+            validationErrors.confirmPassword =
+                'Passwords do not match.'
+        }
+
+        setErrors(validationErrors)
+
+        if (
+            Object.keys(validationErrors)
+                .length > 0
+        ) {
             return
         }
 
@@ -153,17 +195,26 @@ function ResetPasswordPage() {
                 <label>
                     New Password *
                 </label>
-
                 <input
                     type="password"
                     value={newPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                         setNewPassword(
                             e.target.value
                         )
-                    }
+
+                        setErrors((prev) => ({
+                            ...prev,
+                            newPassword: undefined,
+                        }))
+                    }}
                     required
                 />
+                {errors.newPassword && (
+                    <p className="field-error">
+                        {errors.newPassword}
+                    </p>
+                )}
 
                 <label>
                     Confirm Password *
@@ -172,16 +223,21 @@ function ResetPasswordPage() {
                 <input
                     type="password"
                     value={confirmPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                         setConfirmPassword(
                             e.target.value
                         )
-                    }
+
+                        setErrors((prev) => ({
+                            ...prev,
+                            confirmPassword: undefined,
+                        }))
+                    }}
                     required
                 />
 
                 <button type="submit">
-                    Change Password 
+                    Change Password
                 </button>
             </form>
 
