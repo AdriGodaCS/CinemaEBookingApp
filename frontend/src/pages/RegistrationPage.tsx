@@ -109,6 +109,7 @@ function RegistrationPage() {
     const [cards, setCards] = useState<CardEntry[]>([])
     const [errors, setErrors] = useState<Errors>({})
     const [serverError, setServerError] = useState('')
+    const [duplicateEmail, setDuplicateEmail] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [registeredEmail, setRegisteredEmail] = useState('')
 
@@ -123,6 +124,7 @@ function RegistrationPage() {
         const { name, value } = event.target
         setValues((previous) => ({ ...previous, [name]: value }))
         clearError(name)
+        if (name === 'email') setDuplicateEmail(false)
     }
 
     const addCard = () => {
@@ -151,6 +153,7 @@ function RegistrationPage() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         setServerError('')
+        setDuplicateEmail(false)
 
         const validationErrors = validate(values, showAddress, cards)
         setErrors(validationErrors)
@@ -209,7 +212,10 @@ function RegistrationPage() {
                 const message: string = data?.message ?? ''
                 // Backend throws "A user with that email already exists"; the status code depends on the controller
                 if (response.status === 409 || message.toLowerCase().includes('already exists')) {
-                    setErrors({ email: 'An account with this email already exists. Log in or use a different email.' })
+                    // Distinct duplicate-email error: field message, a banner with next steps, and focus on the field
+                    setErrors({ email: 'An account with this email already exists.' })
+                    setDuplicateEmail(true)
+                    setTimeout(() => document.getElementById('email')?.focus(), 0)
                 } else {
                     setServerError(message || 'We could not create your account. Please try again.')
                 }
@@ -251,6 +257,12 @@ function RegistrationPage() {
                     {serverError && (
                         <p className="form-message error" role="alert">
                             {serverError}
+                        </p>
+                    )}
+                    {duplicateEmail && (
+                        <p className="form-message error" role="alert">
+                            You already have an account with this email. <Link to="/login">Log in</Link> or{' '}
+                            <Link to="/forgot-password">reset your password</Link>, or use a different email address.
                         </p>
                     )}
 
