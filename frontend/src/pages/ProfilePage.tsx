@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from '../components/MovieCard'
 import type { Movie } from '@/types/movie'
@@ -343,6 +343,7 @@ function ProfilePage() {
 
         setErrors({})
         setProfileSuccess('')
+        setPasswordSuccess('')
 
         const validationErrors =
             validateProfile()
@@ -401,6 +402,7 @@ function ProfilePage() {
 
         setErrors({})
         setPasswordSuccess('')
+        setProfileSuccess('')
 
         const validationErrors: Errors =
             {}
@@ -756,6 +758,18 @@ function ProfilePage() {
         }
     }
 
+    const topMessageRef = useRef<HTMLDivElement>(null)
+
+    // Scroll to the success message at the top whenever one appears
+    useEffect(() => {
+        if (profileSuccess || passwordSuccess) {
+            topMessageRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            })
+        }
+    }, [profileSuccess, passwordSuccess])
+
     if (loading) {
         return <h2>Loading...</h2>
     }
@@ -768,6 +782,24 @@ function ProfilePage() {
         <section className="auth-page">
             <div className="auth-card profile-page">
                 <h1>My Profile</h1>
+
+                {(profileSuccess || passwordSuccess) && (
+                    <div
+                        ref={topMessageRef}
+                        style={{ marginBottom: '16px', scrollMarginTop: '24px' }}
+                    >
+                        {profileSuccess && (
+                            <p className="form-message success" role="status">
+                                {profileSuccess}
+                            </p>
+                        )}
+                        {passwordSuccess && (
+                            <p className="form-message success" role="status">
+                                {passwordSuccess}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <fieldset>
                     <legend>
@@ -1020,16 +1052,7 @@ function ProfilePage() {
                             {errors.server}
                         </p>
                     )}
-
-
-                    {profileSuccess && (
-                        <p
-                            className="form-message success"
-                            role="status"
-                        >
-                            {profileSuccess}
-                        </p>
-                    )}
+           
                     <button
                         className="auth-button"
                         onClick={saveProfile}
@@ -1127,14 +1150,6 @@ function ProfilePage() {
                         )}
                     </div>
 
-                     {passwordSuccess && (
-                        <p
-                            className="form-message success"
-                            role="status"
-                        >
-                            {passwordSuccess}
-                        </p>
-                    )}
                     <button
                         type="button"
                         className="auth-button"
