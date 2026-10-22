@@ -1201,7 +1201,7 @@ function ProfilePage() {
                     </button>
                 </fieldset>
 
-                <fieldset style={{marginTop: '10px'}}>
+                <fieldset style={{marginTop: '20px'}}>
                     <legend>Payment Cards</legend>
 
                     {paymentCards.length === 0 ? (
