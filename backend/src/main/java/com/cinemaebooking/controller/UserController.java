@@ -7,6 +7,7 @@ import com.cinemaebooking.model.CreateUserRequest;
 import com.cinemaebooking.model.ForgotPasswordRequest;
 import com.cinemaebooking.model.Movie;
 import com.cinemaebooking.model.ResetPasswordRequest;
+import com.cinemaebooking.model.UpdatePreferencesRequest;
 import com.cinemaebooking.model.UpdateProfileRequest;
 import com.cinemaebooking.model.LoggedInUserData;
 import com.cinemaebooking.model.LoginRequest;
@@ -170,6 +171,25 @@ public class UserController {
                                 request);
         }
 
+        @PutMapping("/{id}/preferences")
+        public User updatePreferences(
+                        @PathVariable Integer id,
+                        @RequestBody UpdatePreferencesRequest request,
+                        Authentication authentication) {
+
+                if (id != getCurrentUser(authentication)
+                                .getBody()
+                                .id()) {
+
+                        throw new IllegalArgumentException(
+                                        "User may not edit preferences that are not theirs");
+                }
+
+                return userService.updatePreferences(
+                                id,
+                                request.recievePromotions());
+        }
+
         @PostMapping("/{id}/cards")
         public ResponseEntity<?> addCard(
                         @PathVariable Integer id,
@@ -208,7 +228,7 @@ public class UserController {
                         @PathVariable Integer id,
                         @RequestBody ChangePasswordRequest request) {
                 User user = userService.getStoredUserById(id);
-                userService.changePassword(id, request);                
+                userService.changePassword(id, request);
 
                 return ResponseEntity.ok().build();
         }

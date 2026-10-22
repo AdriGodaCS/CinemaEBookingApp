@@ -77,11 +77,22 @@ public class UserService {
                 user.setFirstName(request.firstName());
                 user.setLastName(request.lastName());
                 user.setPhone(request.phone());
-                user.setHomeAddress(request.homeAddress());
-                user.setRecievePromotions(
-                                request.recievePromotions());
+                user.setHomeAddress(request.homeAddress());                        
 
                 return userRepository.save(user);
+        }
+
+        public User updatePreferences(
+                        Integer id,
+                        boolean recievePromotions) {
+
+                User user = getStoredUserById(id);
+
+                user.setRecievePromotions(
+                                recievePromotions);
+
+                return userRepository.save(
+                                user);
         }
 
         public void sendPasswordResetEmail(

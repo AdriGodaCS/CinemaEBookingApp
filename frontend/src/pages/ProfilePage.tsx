@@ -221,7 +221,7 @@ function ProfilePage() {
         }
 
         // Address validation if nonempty
-        const hasAddressData = showAddress && profile?.homeAddress 
+        const hasAddressData = showAddress && profile?.homeAddress
 
         if (hasAddressData) {
 
@@ -372,8 +372,6 @@ function ProfilePage() {
                         phone: profile.phone,
                         homeAddress:
                             profile.homeAddress,
-                        recievePromotions:
-                            profile.recievePromotions,
                     }),
                 }
             )
@@ -396,6 +394,36 @@ function ProfilePage() {
             })
         }
     }
+
+    const updatePreferences =
+        async (
+            recievePromotions: boolean
+        ) => {
+
+            if (!user) return
+
+            try {
+
+                await fetch(
+                    `http://localhost:8080/users/${user.id}/preferences`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            ...authHeaders,
+                            'Content-Type':
+                                'application/json',
+                        },
+                        body: JSON.stringify({
+                            recievePromotions,
+                        }),
+                    }
+                )
+
+            } catch (error) {
+
+                console.error(error)
+            }
+        }
 
     const changePassword = async () => {
         if (!user) return
@@ -879,18 +907,6 @@ function ProfilePage() {
                                 </p>
                             )}
                         </div>
-
-                        <label className="checkbox-field">
-                            <input
-                                type="checkbox"
-                                name="recievePromotions"
-                                checked={
-                                    profile.recievePromotions
-                                }
-                                onChange={handleChange}
-                            />
-                            Receive Promotions
-                        </label>
                     </fieldset>
 
                     <fieldset>
@@ -1052,7 +1068,7 @@ function ProfilePage() {
                             {errors.server}
                         </p>
                     )}
-           
+
                     <button
                         className="auth-button"
                         onClick={saveProfile}
@@ -1062,6 +1078,32 @@ function ProfilePage() {
 
                 </fieldset>
 
+                <fieldset style={{ marginTop: '10px', marginBottom: '20px'}}>
+                    <label className="checkbox-field">
+                        <input
+                            type="checkbox"
+                            checked={
+                                profile.recievePromotions
+                            }
+                            onChange={async (e) => {
+
+                                const checked =
+                                    e.target.checked
+
+                                setProfile({
+                                    ...profile,
+                                    recievePromotions:
+                                        checked,
+                                })
+
+                                await updatePreferences(
+                                    checked
+                                )
+                            }}
+                        />
+                        Receive Promotions
+                    </label>
+                </fieldset>
 
                 <fieldset>
                     <legend>
@@ -1159,7 +1201,7 @@ function ProfilePage() {
                     </button>
                 </fieldset>
 
-                <fieldset>
+                <fieldset style={{marginTop: '10px'}}>
                     <legend>Payment Cards</legend>
 
                     {paymentCards.length === 0 ? (
