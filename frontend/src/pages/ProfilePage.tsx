@@ -14,6 +14,7 @@ type Address = {
 
 type PaymentCard = {
     cardId: string
+    cardNumberHash: string
     expirationMonth: number
     expirationYear: number
     billingAddress: Address
@@ -1214,7 +1215,7 @@ function ProfilePage() {
                             >
                                 <div className="card-entry-header">
                                     <h3>
-                                        Card ending in ****
+                                        Card ending in {card.cardNumberHash.slice(-4)}
                                     </h3>
 
                                     <button
