@@ -7,7 +7,20 @@ import './AuthPages.css'
 const API_URL = 'http://localhost:8080'
 const MAX_CARDS = 3
 
-type CardEntry = { cardNumber: string; expiration: string }
+type CardEntry = {
+    cardNumber: string
+    expiration: string
+    sameAsHome: boolean
+    billingStreet: string
+    billingCity: string
+    billingState: string
+    billingZip: string
+}
+type CardTextField = Exclude<keyof CardEntry, 'sameAsHome'>
+// Error keys for a card are `${field}${index}`, which also match the input ids (used to focus the first error)
+const CARD_ERROR_FIELDS: CardTextField[] = [
+    'cardNumber', 'expiration', 'billingStreet', 'billingCity', 'billingState', 'billingZip',
+]
 type Errors = Record<string, string>
 
 const initialValues = {
@@ -97,6 +110,15 @@ function validate(values: Values, showAddress: boolean, cards: CardEntry[]): Err
         else if (seenNumbers.has(card.cardNumber)) errors[`cardNumber${index}`] = 'This card number was already entered.'
         else seenNumbers.add(card.cardNumber)
         if (!isValidExpiration(card.expiration)) errors[`expiration${index}`] = 'Enter a valid, unexpired date as MM/YY.'
+
+        // Every card needs a billing address: either the home address or its own
+        if (!(card.sameAsHome && showAddress)) {
+            if (!card.billingStreet.trim()) errors[`billingStreet${index}`] = 'Enter the billing street address.'
+            if (!card.billingCity.trim()) errors[`billingCity${index}`] = 'Enter the billing city.'
+            if (!US_STATES.has(card.billingState.trim().toUpperCase()))
+                errors[`billingState${index}`] = 'Enter a valid 2-letter state code, like GA.'
+            if (!/^\d{5}$/.test(card.billingZip.trim())) errors[`billingZip${index}`] = 'Enter a 5-digit ZIP code.'
+        }
     })
 
     return errors
@@ -127,8 +149,23 @@ function RegistrationPage() {
         if (name === 'email') setDuplicateEmail(false)
     }
 
+    // A card reuses the home address only while the home address section is open
+    const usesHome = (card: CardEntry) => card.sameAsHome && showAddress
+
     const addCard = () => {
-        if (cards.length < MAX_CARDS) setCards([...cards, { cardNumber: '', expiration: '' }])
+        if (cards.length < MAX_CARDS)
+            setCards([
+                ...cards,
+                {
+                    cardNumber: '',
+                    expiration: '',
+                    sameAsHome: showAddress,
+                    billingStreet: '',
+                    billingCity: '',
+                    billingState: '',
+                    billingZip: '',
+                },
+            ])
     }
 
     const removeCard = (index: number) => {
@@ -137,17 +174,37 @@ function RegistrationPage() {
             // Card errors are keyed by position, so drop them all and let validation re-run on submit
             const rest = { ...previous }
             cards.forEach((_, i) => {
-                delete rest[`cardNumber${i}`]
-                delete rest[`expiration${i}`]
+                CARD_ERROR_FIELDS.forEach((field) => delete rest[`${field}${i}`])
             })
             return rest
         })
     }
 
-    const updateCard = (index: number, field: keyof CardEntry, value: string) => {
-        const cleaned = field === 'cardNumber' ? value.replace(/\D/g, '').slice(0, 19) : formatExpiration(value)
-        setCards(cards.map((card, cardIndex) => (cardIndex === index ? { ...card, [field]: cleaned } : card)))
+    const updateCard = (index: number, field: CardTextField, value: string) => {
+        let cleaned = value
+        if (field === 'cardNumber') cleaned = value.replace(/\D/g, '').slice(0, 19)
+        else if (field === 'expiration') cleaned = formatExpiration(value)
+        else if (field === 'billingState') cleaned = value.toUpperCase().slice(0, 2)
+        else if (field === 'billingZip') cleaned = value.replace(/\D/g, '').slice(0, 5)
+
+        setCards((previous) =>
+            previous.map((card, cardIndex) => (cardIndex === index ? { ...card, [field]: cleaned } : card)),
+        )
         clearError(`${field}${index}`)
+    }
+
+    const toggleSameAsHome = (index: number, checked: boolean) => {
+        setCards((previous) =>
+            previous.map((card, cardIndex) => (cardIndex === index ? { ...card, sameAsHome: checked } : card)),
+        )
+        // Billing errors no longer apply (or will be re-checked on submit)
+        setErrors((previous) => {
+            const rest = { ...previous }
+            ;(['billingStreet', 'billingCity', 'billingState', 'billingZip'] as const).forEach((field) => {
+                delete rest[`${field}${index}`]
+            })
+            return rest
+        })
     }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -164,7 +221,9 @@ function RegistrationPage() {
             return
         }
 
-        // Field names follow the backend registration request models.
+        // Field names follow the backend models (Address has zipCode; promotions flag is spelled "recievePromotions").
+        // TODO (backend): CreateUserRequest must accept homeAddress (currently "homAddress"), recievePromotions,
+        // and a list of AddPaymentCardRequest-style cards, and createUser must save them.
         const homeAddress = showAddress
             ? {
                   street: values.street.trim(),
@@ -189,8 +248,14 @@ function RegistrationPage() {
                         cardNumber: card.cardNumber,
                         expirationMonth: Number(month),
                         expirationYear: 2000 + Number(year),
-                        // Reuses the home address as the billing address when one was entered
-                        ...(homeAddress && { billingAddress: homeAddress }),
+                        billingAddress: usesHome(card)
+                            ? homeAddress
+                            : {
+                                  street: card.billingStreet.trim(),
+                                  city: card.billingCity.trim(),
+                                  state: card.billingState.trim().toUpperCase(),
+                                  zipCode: card.billingZip.trim(),
+                              },
                     }
                 }),
             }),
@@ -259,7 +324,7 @@ function RegistrationPage() {
                     )}
                     {duplicateEmail && (
                         <p className="form-message error" role="alert">
-                            There is already an account with this email. <Link to="/login">Log in</Link> or{' '}
+                            You already have an account with this email. <Link to="/login">Log in</Link> or{' '}
                             <Link to="/forgot-password">reset your password</Link>, or use a different email address.
                         </p>
                     )}
@@ -333,6 +398,36 @@ function RegistrationPage() {
                                         onChange={(e) => updateCard(index, 'expiration', e.target.value)}
                                         error={errors[`expiration${index}`]} />
                                 </div>
+                                <label className="checkbox-field">
+                                    <input type="checkbox" checked={usesHome(card)} disabled={!showAddress}
+                                        onChange={(e) => toggleSameAsHome(index, e.target.checked)} />
+                                    <span>
+                                        Billing address is the same as my home address
+                                        {!showAddress && ' (add a home address above to use this)'}
+                                    </span>
+                                </label>
+                                {!usesHome(card) && (
+                                    <>
+                                        <FormField id={`billingStreet${index}`} label="Billing street address" required maxLength={100}
+                                            autoComplete="billing street-address" value={card.billingStreet}
+                                            onChange={(e) => updateCard(index, 'billingStreet', e.target.value)}
+                                            error={errors[`billingStreet${index}`]} />
+                                        <div className="form-row">
+                                            <FormField id={`billingCity${index}`} label="Billing city" required maxLength={60}
+                                                autoComplete="billing address-level2" value={card.billingCity}
+                                                onChange={(e) => updateCard(index, 'billingCity', e.target.value)}
+                                                error={errors[`billingCity${index}`]} />
+                                            <FormField id={`billingState${index}`} label="Billing state" required maxLength={2}
+                                                placeholder="GA" autoComplete="billing address-level1" value={card.billingState}
+                                                onChange={(e) => updateCard(index, 'billingState', e.target.value)}
+                                                error={errors[`billingState${index}`]} />
+                                        </div>
+                                        <FormField id={`billingZip${index}`} label="Billing ZIP code" required inputMode="numeric"
+                                            maxLength={5} autoComplete="billing postal-code" value={card.billingZip}
+                                            onChange={(e) => updateCard(index, 'billingZip', e.target.value)}
+                                            error={errors[`billingZip${index}`]} />
+                                    </>
+                                )}
                             </div>
                         ))}
                         <button type="button" className="auth-button secondary" onClick={addCard} disabled={cards.length >= MAX_CARDS}>

@@ -7,6 +7,5 @@ public record UpdateProfileRequest(
     String lastName,
     String phone,
     Address homeAddress,
-    List<PaymentCard> paymentCards,
-    Boolean recievePromotions
+    List<PaymentCard> paymentCards    
 ) {}

@@ -9,6 +9,7 @@ import com.cinemaebooking.model.DeleteUserRequest;
 import com.cinemaebooking.model.ForgotPasswordRequest;
 import com.cinemaebooking.model.Movie;
 import com.cinemaebooking.model.ResetPasswordRequest;
+import com.cinemaebooking.model.UpdatePreferencesRequest;
 import com.cinemaebooking.model.UpdateProfileRequest;
 import com.cinemaebooking.model.LoggedInUserData;
 import com.cinemaebooking.model.LoginRequest;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -40,32 +42,32 @@ public class UserController {
         this.backendApplication = backendApplication;
     }
 
-    // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
-    @PostMapping
-    public ResponseEntity<?> createUser(
-            @RequestBody CreateUserRequest user) {
+        // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
+        @PostMapping
+        public ResponseEntity<?> createUser(
+                        @RequestBody CreateUserRequest user) {
 
-        try {
+                try {
 
-            User createdUser = userService.createUser(user);
+                        User createdUser = userService.createUser(user);
 
-            String verificationToken = UUID.randomUUID().toString();
+                        String verificationToken = UUID.randomUUID().toString();
 
-            createdUser.setVerificationToken(
-                    verificationToken);
+                        createdUser.setVerificationToken(
+                                        verificationToken);
 
-            userService.saveUser(createdUser);
+                        userService.saveUser(createdUser);
 
-            emailService.sendVerificationEmail(
-                    createdUser.getEmail(),
-                    createdUser.getId(),
-                    verificationToken);
+                        emailService.sendVerificationEmail(
+                                        createdUser.getEmail(),
+                                        createdUser.getId(),
+                                        verificationToken);
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(createdUser);
+                        return ResponseEntity
+                                        .status(HttpStatus.CREATED)
+                                        .body(createdUser);
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
@@ -96,102 +98,121 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}/checkResetPasswordToken")
-    public ResponseEntity<Boolean> checkResetPasswordToken(
-            @PathVariable Integer id,
-            @RequestParam String token) {
+        @GetMapping("/{id}/checkResetPasswordToken")
+        public ResponseEntity<Boolean> checkResetPasswordToken(
+                        @PathVariable Integer id,
+                        @RequestParam String token) {
 
-        boolean valid = userService.checkResetPasswordToken(
-                id,
-                token);
+                boolean valid = userService.checkResetPasswordToken(
+                                id,
+                                token);
 
-        return ResponseEntity.ok(valid);
-    }
-
-    @PutMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(
-            @RequestBody ResetPasswordRequest request) {
-
-        userService.resetPassword(
-                request);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(
-            @RequestBody ForgotPasswordRequest request) {
-
-        userService.sendPasswordResetEmail(
-                request.email());
-
-        return ResponseEntity.ok().build();
-    }
-
-    // Login the user
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(
-            @RequestBody LoginRequest loginRequest) {
-
-        try {
-
-            LoginResponse response = userService.loginUser(
-                    loginRequest);
-
-            return ResponseEntity.ok(
-                    response);
-
-        } catch (org.springframework.security.authentication.BadCredentialsException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            java.util.Map.of(
-                                    "message",
-                                    "Incorrect email or password."));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(
-                            java.util.Map.of(
-                                    "message",
-                                    e.getMessage()));
+                return ResponseEntity.ok(valid);
         }
-    }
 
-    // Retrieve data from the logged in user
-    @GetMapping("/me")
-    public ResponseEntity<LoggedInUserData> getCurrentUser(
-            Authentication authentication) {
+        @PutMapping("/reset-password")
+        public ResponseEntity<Void> resetPassword(
+                        @RequestBody ResetPasswordRequest request) {
 
-        LoggedInUserData userData = userService.getLoggedInUserData(
-                authentication.getName());
+                userService.resetPassword(
+                                request);
 
-        return ResponseEntity.ok(userData);
-    }
-
-    @GetMapping("/{id}")
-    public User getUser(
-            @PathVariable Integer id) {
-        return userService.getUserById(id);
-    }
-
-    @PutMapping("/{id}/profile")
-    public User updateProfile(
-            @PathVariable Integer id,
-            @RequestBody UpdateProfileRequest request,
-            Authentication authentication) {
-        if (id != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                return ResponseEntity.ok().build();
         }
-        User user = userService.getStoredUserById(id);
-        emailService.sendEmailForUpdataProfile(user.getEmail());
-        return userService.updateProfile(
-                id,
-                request);
-    }
+
+        @PostMapping("/forgot-password")
+        public ResponseEntity<Void> forgotPassword(
+                        @RequestBody ForgotPasswordRequest request) {
+
+                userService.sendPasswordResetEmail(
+                                request.email());
+
+                return ResponseEntity.ok().build();
+        }
+
+        // Login the user
+        @PostMapping("/login")
+        public ResponseEntity<?> loginUser(
+                        @RequestBody LoginRequest loginRequest) {
+
+                try {
+
+                        LoginResponse response = userService.loginUser(
+                                        loginRequest);
+
+                        return ResponseEntity.ok(
+                                        response);
+
+                } catch (org.springframework.security.authentication.BadCredentialsException e) {
+
+                        return ResponseEntity
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .body(
+                                                        java.util.Map.of(
+                                                                        "message",
+                                                                        "Incorrect email or password."));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .status(HttpStatus.FORBIDDEN)
+                                        .body(
+                                                        java.util.Map.of(
+                                                                        "message",
+                                                                        e.getMessage()));
+                }
+        }
+
+        // Retrieve data from the logged in user
+        @GetMapping("/me")
+        public ResponseEntity<LoggedInUserData> getCurrentUser(
+                        Authentication authentication) {
+
+                LoggedInUserData userData = userService.getLoggedInUserData(
+                                authentication.getName());
+
+                return ResponseEntity.ok(userData);
+        }
+
+        @GetMapping("/{id}")
+        public User getUser(
+                        @PathVariable Integer id) {
+                return userService.getUserById(id);
+        }
+
+        @PutMapping("/{id}/profile")
+        public User updateProfile(
+                        @PathVariable Integer id,
+                        @RequestBody UpdateProfileRequest request,
+                        Authentication authentication) {
+                if (id != getCurrentUser(authentication).getBody().id()) {
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                }
+                User user = userService.getStoredUserById(id);
+                emailService.sendEmailForUpdataProfile(user.getEmail());
+                return userService.updateProfile(
+                                id,
+                                request);
+        }
+
+        @PutMapping("/{id}/preferences")
+        public User updatePreferences(
+                        @PathVariable Integer id,
+                        @RequestBody UpdatePreferencesRequest request,
+                        Authentication authentication) {
+
+                if (id != getCurrentUser(authentication)
+                                .getBody()
+                                .id()) {
+
+                        throw new IllegalArgumentException(
+                                        "User may not edit preferences that are not theirs");
+                }
+
+                return userService.updatePreferences(
+                                id,
+                                request.recievePromotions());
+        }
 
     @PostMapping("/{id}/cards")
     public ResponseEntity<Void> addCard(
@@ -203,11 +224,13 @@ public class UserController {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
 
+
         userService.addPaymentCard(
                 id,
                 request);
 
         return ResponseEntity.ok().build();
+
     }
 
     @DeleteMapping("/{id}/cards/{cardId}")
@@ -221,8 +244,8 @@ public class UserController {
         }
 
         userService.removePaymentCard(
-                id,
-                cardId);
+                        id,
+                        cardId);
 
         return ResponseEntity.ok().build();
     }
@@ -241,14 +264,14 @@ public class UserController {
         userService.changePassword(id, request);
         emailService.sendEmailForUpdataProfile(user.getEmail());
 
-        return ResponseEntity.ok().build();
-    }
+                return ResponseEntity.ok().build();
+        }
 
-    @GetMapping("/{id}/favorites")
-    public List<Movie> getFavorites(
-            @PathVariable Integer id) {
-        return userService.getFavoriteMovies(id);
-    }
+        @GetMapping("/{id}/favorites")
+        public List<Movie> getFavorites(
+                        @PathVariable Integer id) {
+                return userService.getFavoriteMovies(id);
+        }
 
     @DeleteMapping("/{userId}/favorites/{movieId}")
     public ResponseEntity<Void> removeFavorite(
@@ -281,22 +304,23 @@ public class UserController {
                 userId,
                 movieId);
 
-        return ResponseEntity.ok().build();
-    }
 
-    @GetMapping("/verify")
-    public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
-        User user = userService.getByVerificationToken(token);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
+                return ResponseEntity.ok().build();
         }
 
-        user.setStatus("ACTIVE");
-        user.setVerificationToken(null); // Clear the token after verification
-        userService.saveUser(user);
+        @GetMapping("/verify")
+        public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
+                User user = userService.getByVerificationToken(token);
 
-        return ResponseEntity
-                .ok("Account verified successfully!");
-    }
+                if (user == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
+                }
+
+                user.setStatus("ACTIVE");
+                user.setVerificationToken(null); // Clear the token after verification
+                userService.saveUser(user);
+
+                return ResponseEntity
+                                .ok("Account verified successfully!");
+        }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from '../components/MovieCard'
 import type { Movie } from '@/types/movie'
@@ -14,6 +14,7 @@ type Address = {
 
 type PaymentCard = {
     cardId: string
+    cardNumberHash: string
     expirationMonth: number
     expirationYear: number
     billingAddress: Address
@@ -86,6 +87,18 @@ function ProfilePage() {
 
     const [successMessage,
         setSuccessMessage] =
+        useState('')
+
+    const [profileSuccess,
+        setProfileSuccess] =
+        useState('')
+
+    const [passwordSuccess,
+        setPasswordSuccess] =
+        useState('')
+
+    const [cardSuccess,
+        setCardSuccess] =
         useState('')
 
     const NAME_PATTERN =
@@ -209,15 +222,7 @@ function ProfilePage() {
         }
 
         // Address validation if nonempty
-        const hasAddressData =
-            showAddress &&
-            profile?.homeAddress &&
-            (
-                profile.homeAddress.street.trim() ||
-                profile.homeAddress.city.trim() ||
-                profile.homeAddress.state.trim() ||
-                profile.homeAddress.zipCode.trim()
-            )
+        const hasAddressData = showAddress && profile?.homeAddress
 
         if (hasAddressData) {
 
@@ -338,7 +343,8 @@ function ProfilePage() {
         if (!profile || !user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setProfileSuccess('')
+        setPasswordSuccess('')
 
         const validationErrors =
             validateProfile()
@@ -367,8 +373,6 @@ function ProfilePage() {
                         phone: profile.phone,
                         homeAddress:
                             profile.homeAddress,
-                        recievePromotions:
-                            profile.recievePromotions,
                     }),
                 }
             )
@@ -379,7 +383,7 @@ function ProfilePage() {
                 )
             }
 
-            setSuccessMessage(
+            setProfileSuccess(
                 'Profile updated successfully.'
             )
         } catch (error) {
@@ -392,11 +396,42 @@ function ProfilePage() {
         }
     }
 
+    const updatePreferences =
+        async (
+            recievePromotions: boolean
+        ) => {
+
+            if (!user) return
+
+            try {
+
+                await fetch(
+                    `http://localhost:8080/users/${user.id}/preferences`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            ...authHeaders,
+                            'Content-Type':
+                                'application/json',
+                        },
+                        body: JSON.stringify({
+                            recievePromotions,
+                        }),
+                    }
+                )
+
+            } catch (error) {
+
+                console.error(error)
+            }
+        }
+
     const changePassword = async () => {
         if (!user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setPasswordSuccess('')
+        setProfileSuccess('')
 
         const validationErrors: Errors =
             {}
@@ -463,7 +498,7 @@ function ProfilePage() {
                 )
             }
 
-            setSuccessMessage(
+            setPasswordSuccess(
                 'Password updated successfully.'
             )
 
@@ -601,7 +636,7 @@ function ProfilePage() {
         if (!user) return
 
         setErrors({})
-        setSuccessMessage('')
+        setCardSuccess('')
 
         const validationErrors =
             validateCard()
@@ -658,13 +693,22 @@ function ProfilePage() {
             )
 
             if (!response.ok) {
-                throw new Error(
-                    'Failed to add card'
-                )
+                const data =
+                    await response.json()
+
+                setErrors({
+                    paymentCards:
+                        data.message
+                })
+
+                return
             }
 
             await loadProfile()
 
+            setCardSuccess(
+                'Payment card added successfully.'
+            )
             setCardNumber('')
             setExpiration('')
             setBillingStreet('')
@@ -702,6 +746,11 @@ function ProfilePage() {
                         card.cardId !== cardId
                 )
             )
+
+            setCardSuccess(
+                'Payment card removed successfully.'
+            )
+
         } catch (error) {
             console.error(error)
         }
@@ -738,6 +787,18 @@ function ProfilePage() {
         }
     }
 
+    const topMessageRef = useRef<HTMLDivElement>(null)
+
+    // Scroll to the success message at the top whenever one appears
+    useEffect(() => {
+        if (profileSuccess || passwordSuccess) {
+            topMessageRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            })
+        }
+    }, [profileSuccess, passwordSuccess])
+
     if (loading) {
         return <h2>Loading...</h2>
     }
@@ -750,6 +811,24 @@ function ProfilePage() {
         <section className="auth-page">
             <div className="auth-card profile-page">
                 <h1>My Profile</h1>
+
+                {(profileSuccess || passwordSuccess) && (
+                    <div
+                        ref={topMessageRef}
+                        style={{ marginBottom: '16px', scrollMarginTop: '24px' }}
+                    >
+                        {profileSuccess && (
+                            <p className="form-message success" role="status">
+                                {profileSuccess}
+                            </p>
+                        )}
+                        {passwordSuccess && (
+                            <p className="form-message success" role="status">
+                                {passwordSuccess}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <fieldset>
                     <legend>
@@ -829,18 +908,6 @@ function ProfilePage() {
                                 </p>
                             )}
                         </div>
-
-                        <label className="checkbox-field">
-                            <input
-                                type="checkbox"
-                                name="recievePromotions"
-                                checked={
-                                    profile.recievePromotions
-                                }
-                                onChange={handleChange}
-                            />
-                            Receive Promotions
-                        </label>
                     </fieldset>
 
                     <fieldset>
@@ -1003,15 +1070,6 @@ function ProfilePage() {
                         </p>
                     )}
 
-
-                    {successMessage && (
-                        <p
-                            className="form-message success"
-                            role="status"
-                        >
-                            {successMessage}
-                        </p>
-                    )}
                     <button
                         className="auth-button"
                         onClick={saveProfile}
@@ -1021,6 +1079,32 @@ function ProfilePage() {
 
                 </fieldset>
 
+                <fieldset style={{ marginTop: '10px', marginBottom: '20px'}}>
+                    <label className="checkbox-field">
+                        <input
+                            type="checkbox"
+                            checked={
+                                profile.recievePromotions
+                            }
+                            onChange={async (e) => {
+
+                                const checked =
+                                    e.target.checked
+
+                                setProfile({
+                                    ...profile,
+                                    recievePromotions:
+                                        checked,
+                                })
+
+                                await updatePreferences(
+                                    checked
+                                )
+                            }}
+                        />
+                        Receive Promotions
+                    </label>
+                </fieldset>
 
                 <fieldset>
                     <legend>
@@ -1118,14 +1202,8 @@ function ProfilePage() {
                     </button>
                 </fieldset>
 
-                <fieldset>
+                <fieldset style={{marginTop: '20px'}}>
                     <legend>Payment Cards</legend>
-
-                    {errors.paymentCards && (
-                        <p className="field-error">
-                            {errors.paymentCards}
-                        </p>
-                    )}
 
                     {paymentCards.length === 0 ? (
                         <p>No payment cards saved.</p>
@@ -1137,7 +1215,7 @@ function ProfilePage() {
                             >
                                 <div className="card-entry-header">
                                     <h3>
-                                        Card ending in ****
+                                        Card ending in {card.cardNumberHash.slice(-4)}
                                     </h3>
 
                                     <button
@@ -1184,7 +1262,14 @@ function ProfilePage() {
                             </div>
                         ))
                     )}
-
+                    {cardSuccess && (
+                        <p
+                            className="form-message success"
+                            role="status"
+                        >
+                            {cardSuccess}
+                        </p>
+                    )}
                     {paymentCards.length < 3 && (
                         <>
                             <h3>Add Payment Card</h3>
@@ -1359,7 +1444,11 @@ function ProfilePage() {
                                     </p>
                                 )}
                             </div>
-
+                            {errors.paymentCards && (
+                                <p className="field-error">
+                                    {errors.paymentCards}
+                                </p>
+                            )}
                             <button
                                 type="button"
                                 className="auth-button"

@@ -4,7 +4,6 @@ import {
     useNavigate,
 } from 'react-router-dom'
 import './ResetPasswordPage.css'
-import './AuthPages.css'
 
 function ResetPasswordPage() {
     const [searchParams] =
@@ -192,6 +191,13 @@ function ResetPasswordPage() {
             <form
                 onSubmit={handleSubmit}
             >
+                <p className="field-hint">
+                    At least 8 characters with
+                    uppercase, lowercase,
+                    a number, and a special
+                    character.
+                </p>
+
                 <label>
                     New Password *
                 </label>
@@ -235,6 +241,12 @@ function ResetPasswordPage() {
                     }}
                     required
                 />
+
+                {errors.confirmPassword && (
+                    <p className="field-error">
+                        {errors.confirmPassword}
+                    </p>
+                )}
 
                 <button type="submit">
                     Change Password

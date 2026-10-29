@@ -77,11 +77,22 @@ public class UserService {
                 user.setFirstName(request.firstName());
                 user.setLastName(request.lastName());
                 user.setPhone(request.phone());
-                user.setHomeAddress(request.homeAddress());
-                user.setRecievePromotions(
-                                request.recievePromotions());
+                user.setHomeAddress(request.homeAddress());                        
 
                 return userRepository.save(user);
+        }
+
+        public User updatePreferences(
+                        Integer id,
+                        boolean recievePromotions) {
+
+                User user = getStoredUserById(id);
+
+                user.setRecievePromotions(
+                                recievePromotions);
+
+                return userRepository.save(
+                                user);
         }
 
         public void sendPasswordResetEmail(
@@ -368,6 +379,19 @@ public class UserService {
                 if (user.getPaymentCards().size() >= 3) {
                         throw new IllegalArgumentException(
                                         "Maximum 3 payment cards allowed.");
+                }
+
+                for (PaymentCard existingCard : user.getPaymentCards()) {
+
+                        String existingCardNumber = encryptionService.decrypt(
+                                        existingCard.getCardNumberHash());
+
+                        if (existingCardNumber.equals(
+                                        request.cardNumber())) {
+
+                                throw new IllegalArgumentException(
+                                                "This payment card has already been added.");
+                        }
                 }
 
                 PaymentCard card = createPaymentCard(
