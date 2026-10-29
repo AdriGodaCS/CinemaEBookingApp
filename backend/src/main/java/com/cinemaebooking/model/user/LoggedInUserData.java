@@ -1,4 +1,4 @@
-package com.cinemaebooking.model;
+package com.cinemaebooking.model.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

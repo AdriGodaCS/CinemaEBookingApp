@@ -1,9 +1,10 @@
 package com.cinemaebooking.repository;
 
-import com.cinemaebooking.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.ReadPreference;
 import org.springframework.stereotype.Repository;
+
+import com.cinemaebooking.model.user.User;
 
 import java.util.List;
 import java.util.Optional;

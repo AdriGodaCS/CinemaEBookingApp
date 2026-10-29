@@ -1,7 +1,11 @@
 package com.cinemaebooking.controller;
 
-import com.cinemaebooking.model.Movie;
+import com.cinemaebooking.model.movie.CreateMovieRequest;
+import com.cinemaebooking.model.movie.Movie;
 import com.cinemaebooking.service.MovieService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +20,8 @@ public class MovieController {
     public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
+
+    /****** GET endpoints ******/
 
     // Get every movie
     @GetMapping
@@ -51,5 +57,28 @@ public class MovieController {
     @GetMapping("/status/{status}")
     public List<Movie> getMoviesByStatus(@PathVariable String status) {
         return movieService.getMoviesByStatus(status);
+    }
+
+
+    /****** POST endpoint ******/
+
+    @PostMapping
+    public ResponseEntity<?> addMovie(
+        @RequestBody CreateMovieRequest movieRequest
+    ) {
+        try {
+            Movie createdMovie = movieService.createMovie(movieRequest);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(createdMovie);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(
+                        java.util.Map.of(
+                            "message",
+                            e.getMessage()));
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.cinemaebooking.model;
+package com.cinemaebooking.model.user;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

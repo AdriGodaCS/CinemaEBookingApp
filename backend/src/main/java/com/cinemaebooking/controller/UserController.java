@@ -1,19 +1,19 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.backend.BackendApplication;
-import com.cinemaebooking.model.User;
-import com.cinemaebooking.model.AddPaymentCardRequest;
-import com.cinemaebooking.model.ChangePasswordRequest;
-import com.cinemaebooking.model.CreateUserRequest;
-import com.cinemaebooking.model.DeleteUserRequest;
-import com.cinemaebooking.model.ForgotPasswordRequest;
-import com.cinemaebooking.model.Movie;
-import com.cinemaebooking.model.ResetPasswordRequest;
-import com.cinemaebooking.model.UpdatePreferencesRequest;
-import com.cinemaebooking.model.UpdateProfileRequest;
-import com.cinemaebooking.model.LoggedInUserData;
-import com.cinemaebooking.model.LoginRequest;
-import com.cinemaebooking.model.LoginResponse;
+import com.cinemaebooking.model.movie.Movie;
+import com.cinemaebooking.model.user.CreateUserRequest;
+import com.cinemaebooking.model.user.DeleteUserRequest;
+import com.cinemaebooking.model.user.LoggedInUserData;
+import com.cinemaebooking.model.user.LoginRequest;
+import com.cinemaebooking.model.user.LoginResponse;
+import com.cinemaebooking.model.user.UpdatePreferencesRequest;
+import com.cinemaebooking.model.user.UpdateProfileRequest;
+import com.cinemaebooking.model.user.User;
+import com.cinemaebooking.model.user.password.ChangePasswordRequest;
+import com.cinemaebooking.model.user.password.ForgotPasswordRequest;
+import com.cinemaebooking.model.user.password.ResetPasswordRequest;
+import com.cinemaebooking.model.user.paymentcard.AddPaymentCardRequest;
 import com.cinemaebooking.service.UserService;
 import com.cinemaebooking.service.EmailService;
 
@@ -42,39 +42,34 @@ public class UserController {
         this.backendApplication = backendApplication;
     }
 
-        // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
-        @PostMapping
-        public ResponseEntity<?> createUser(
-                        @RequestBody CreateUserRequest user) {
+    // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
+    @PostMapping
+    public ResponseEntity<?> createUser(
+                @RequestBody CreateUserRequest user) {
+        try {
 
-                try {
+                User createdUser = userService.createUser(user);
+                String verificationToken = UUID.randomUUID().toString();
+                createdUser.setVerificationToken(
+                                verificationToken);
 
-                        User createdUser = userService.createUser(user);
+                userService.saveUser(createdUser);
+                emailService.sendVerificationEmail(
+                                createdUser.getEmail(),
+                                createdUser.getId(),
+                                verificationToken);
+                                
+                return ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .body(createdUser);
+        } catch (IllegalArgumentException e) {
 
-                        String verificationToken = UUID.randomUUID().toString();
-
-                        createdUser.setVerificationToken(
-                                        verificationToken);
-
-                        userService.saveUser(createdUser);
-
-                        emailService.sendVerificationEmail(
-                                        createdUser.getEmail(),
-                                        createdUser.getId(),
-                                        verificationToken);
-
-                        return ResponseEntity
-                                        .status(HttpStatus.CREATED)
-                                        .body(createdUser);
-
-                } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(
-                            java.util.Map.of(
-                                    "message",
-                                    e.getMessage()));
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(
+                                java.util.Map.of(
+                                        "message",
+                                        e.getMessage()));
         }
     }
 

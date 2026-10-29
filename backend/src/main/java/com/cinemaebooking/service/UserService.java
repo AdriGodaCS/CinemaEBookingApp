@@ -1,23 +1,23 @@
 package com.cinemaebooking.service;
 
-import com.cinemaebooking.model.User;
-import com.cinemaebooking.model.AddPaymentCardRequest;
-import com.cinemaebooking.model.Address;
-import com.cinemaebooking.model.ChangePasswordRequest;
-import com.cinemaebooking.model.CreateUserRequest;
-import com.cinemaebooking.model.Movie;
-import com.cinemaebooking.model.PaymentCard;
-import com.cinemaebooking.model.ResetPasswordRequest;
-import com.cinemaebooking.model.LoggedInUserData;
-import com.cinemaebooking.model.LoginRequest;
-import com.cinemaebooking.model.LoginResponse;
+import com.cinemaebooking.model.movie.Movie;
+import com.cinemaebooking.model.user.Address;
+import com.cinemaebooking.model.user.CreateUserRequest;
+import com.cinemaebooking.model.user.LoggedInUserData;
+import com.cinemaebooking.model.user.LoginRequest;
+import com.cinemaebooking.model.user.LoginResponse;
+import com.cinemaebooking.model.user.UpdateProfileRequest;
+import com.cinemaebooking.model.user.User;
+import com.cinemaebooking.model.user.password.ChangePasswordRequest;
+import com.cinemaebooking.model.user.password.ResetPasswordRequest;
+import com.cinemaebooking.model.user.paymentcard.AddPaymentCardRequest;
+import com.cinemaebooking.model.user.paymentcard.PaymentCard;
 import com.cinemaebooking.repository.UserRepository;
 import com.cinemaebooking.Security.SecurityConfig;
 import com.cinemaebooking.Security.EncryptionService;
 import com.cinemaebooking.Security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.cinemaebooking.model.UpdateProfileRequest;
 
 import java.util.ArrayList;
 import java.util.Arrays;

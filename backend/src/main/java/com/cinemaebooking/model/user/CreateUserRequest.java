@@ -1,8 +1,9 @@
-package com.cinemaebooking.model;
-
-import com.cinemaebooking.model.Address;
+package com.cinemaebooking.model.user;
 
 import java.util.List;
+
+import com.cinemaebooking.model.user.Address;
+import com.cinemaebooking.model.user.paymentcard.AddPaymentCardRequest;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
