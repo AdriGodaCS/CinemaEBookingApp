@@ -21,7 +21,7 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    /****** GET endpoints ******/
+    /****** GET ******/
 
     // Get every movie
     @GetMapping
@@ -60,7 +60,7 @@ public class MovieController {
     }
 
 
-    /****** POST endpoint ******/
+    /****** POST ******/
 
     @PostMapping
     public ResponseEntity<?> addMovie(
@@ -81,4 +81,8 @@ public class MovieController {
                             e.getMessage()));
         }
     }
+
+    /****** PUT ******/
+
+    /****** DELETE ******/
 }

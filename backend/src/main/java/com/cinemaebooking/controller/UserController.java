@@ -40,79 +40,96 @@ public class UserController {
         this.userService = userService;
         this.emailService = emailService;
         this.backendApplication = backendApplication;
-    }
+    }   
 
-    // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
-    @PostMapping
-    public ResponseEntity<?> createUser(
-                @RequestBody CreateUserRequest user) {
-        try {
 
-                User createdUser = userService.createUser(user);
-                String verificationToken = UUID.randomUUID().toString();
-                createdUser.setVerificationToken(
-                                verificationToken);
+        /****** GET ******/
 
-                userService.saveUser(createdUser);
-                emailService.sendVerificationEmail(
-                                createdUser.getEmail(),
-                                createdUser.getId(),
-                                verificationToken);
-                                
-                return ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(createdUser);
-        } catch (IllegalArgumentException e) {
-
-                return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body(
-                                java.util.Map.of(
-                                        "message",
-                                        e.getMessage()));
-        }
-    }
-
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<Void> deleteUser(
-        @PathVariable Integer id,
-        @RequestBody DeleteUserRequest request,
-        Authentication authentication
-    ) {
-        // Check id sent in request
-        if (request.id() != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
-        }
-        // check id from url
-        if (id != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
-        }
-        User user = userService.getUserById(request.id());
-        userService.deleteUser(user);
-
-        return ResponseEntity.ok().build();
-    }
 
         @GetMapping("/{id}/checkResetPasswordToken")
         public ResponseEntity<Boolean> checkResetPasswordToken(
                         @PathVariable Integer id,
                         @RequestParam String token) {
-
+        
                 boolean valid = userService.checkResetPasswordToken(
                                 id,
                                 token);
-
+        
                 return ResponseEntity.ok(valid);
         }
 
-        @PutMapping("/reset-password")
-        public ResponseEntity<Void> resetPassword(
-                        @RequestBody ResetPasswordRequest request) {
+        // Retrieve data from the logged in user
+        @GetMapping("/me")
+        public ResponseEntity<LoggedInUserData> getCurrentUser(
+                        Authentication authentication) {
 
-                userService.resetPassword(
-                                request);
+                LoggedInUserData userData = userService.getLoggedInUserData(
+                                authentication.getName());
 
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(userData);
+        }
+
+        @GetMapping("/{id}")
+        public User getUser(
+                        @PathVariable Integer id) {
+                return userService.getUserById(id);
+        }
+
+        @GetMapping("/{id}/favorites")
+        public List<Movie> getFavorites(
+                        @PathVariable Integer id) {
+                return userService.getFavoriteMovies(id);
+        }
+
+        @GetMapping("/verify")
+        public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
+                User user = userService.getByVerificationToken(token);
+
+                if (user == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
+                }
+
+                user.setStatus("ACTIVE");
+                user.setVerificationToken(null); // Clear the token after verification
+                userService.saveUser(user);
+
+                return ResponseEntity
+                                .ok("Account verified successfully!");
+        }
+        
+
+        /****** POST ******/
+
+
+        // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
+        @PostMapping
+        public ResponseEntity<?> createUser(
+                @RequestBody CreateUserRequest user) {
+                try {
+                
+                        User createdUser = userService.createUser(user);
+                        String verificationToken = UUID.randomUUID().toString();
+                        createdUser.setVerificationToken(
+                                        verificationToken);
+        
+                        userService.saveUser(createdUser);
+                        emailService.sendVerificationEmail(
+                                        createdUser.getEmail(),
+                                        createdUser.getId(),
+                                        verificationToken);
+                                        
+                        return ResponseEntity
+                                        .status(HttpStatus.CREATED)
+                                        .body(createdUser);
+                } catch (IllegalArgumentException e) {
+        
+                        return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body(
+                                        java.util.Map.of(
+                                                "message",
+                                                e.getMessage()));
+                }
         }
 
         @PostMapping("/forgot-password")
@@ -158,21 +175,55 @@ public class UserController {
                 }
         }
 
-        // Retrieve data from the logged in user
-        @GetMapping("/me")
-        public ResponseEntity<LoggedInUserData> getCurrentUser(
-                        Authentication authentication) {
+        @PostMapping("/{id}/cards")
+        public ResponseEntity<Void> addCard(
+                @PathVariable Integer id,
+                @RequestBody AddPaymentCardRequest request,
+                Authentication authentication
+        ) {
+                if (id != getCurrentUser(authentication).getBody().id()) {
+                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                }
 
-                LoggedInUserData userData = userService.getLoggedInUserData(
-                                authentication.getName());
 
-                return ResponseEntity.ok(userData);
+                userService.addPaymentCard(
+                        id,
+                        request);
+
+                return ResponseEntity.ok().build();
+
         }
 
-        @GetMapping("/{id}")
-        public User getUser(
-                        @PathVariable Integer id) {
-                return userService.getUserById(id);
+        @PostMapping("/{userId}/favorites/{movieId}")
+        public ResponseEntity<Void> addFavorite(
+            @PathVariable Integer userId,
+            @PathVariable Integer movieId,
+            Authentication authentication
+        ) {
+        if (userId != getCurrentUser(authentication).getBody().id()) {
+            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+        }
+
+        userService.addFavorite(
+                userId,
+                movieId);
+
+
+                return ResponseEntity.ok().build();
+        }
+
+        
+        /****** PUT ******/
+
+
+        @PutMapping("/reset-password")
+        public ResponseEntity<Void> resetPassword(
+                        @RequestBody ResetPasswordRequest request) {
+        
+                userService.resetPassword(
+                                request);
+        
+                return ResponseEntity.ok().build();
         }
 
         @PutMapping("/{id}/profile")
@@ -209,48 +260,12 @@ public class UserController {
                                 request.recievePromotions());
         }
 
-    @PostMapping("/{id}/cards")
-    public ResponseEntity<Void> addCard(
-            @PathVariable Integer id,
-            @RequestBody AddPaymentCardRequest request,
-            Authentication authentication
+        @PutMapping("/{id}/password")
+        public ResponseEntity<Void> changePassword(
+                @PathVariable Integer id,
+                @RequestBody ChangePasswordRequest request,
+                Authentication authentication
         ) {
-        if (id != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
-        }
-
-
-        userService.addPaymentCard(
-                id,
-                request);
-
-        return ResponseEntity.ok().build();
-
-    }
-
-    @DeleteMapping("/{id}/cards/{cardId}")
-    public ResponseEntity<Void> removeCard(
-            @PathVariable Integer id,
-            @PathVariable String cardId,
-            Authentication authentication
-        ) {
-        if (id != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
-        }
-
-        userService.removePaymentCard(
-                        id,
-                        cardId);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}/password")
-    public ResponseEntity<Void> changePassword(
-        @PathVariable Integer id,
-        @RequestBody ChangePasswordRequest request,
-        Authentication authentication
-    ) {
         if (id != getCurrentUser(authentication).getBody().id()) {
             throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
         }
@@ -262,60 +277,61 @@ public class UserController {
                 return ResponseEntity.ok().build();
         }
 
-        @GetMapping("/{id}/favorites")
-        public List<Movie> getFavorites(
-                        @PathVariable Integer id) {
-                return userService.getFavoriteMovies(id);
-        }
+        
+        /****** DELETE ******/
+        
 
-    @DeleteMapping("/{userId}/favorites/{movieId}")
-    public ResponseEntity<Void> removeFavorite(
-            @PathVariable Integer userId,
-            @PathVariable Integer movieId,
-            Authentication authentication
+        @DeleteMapping("/{id}/delete")
+        public ResponseEntity<Void> deleteUser(
+                @PathVariable Integer id,
+                @RequestBody DeleteUserRequest request,
+                Authentication authentication
         ) {
-        if (userId != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                // Check id sent in request
+                if (request.id() != getCurrentUser(authentication).getBody().id()) {
+                throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
+                }
+                // check id from url
+                if (id != getCurrentUser(authentication).getBody().id()) {
+                throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
+                }
+                User user = userService.getUserById(request.id());
+                userService.deleteUser(user);
+        
+                return ResponseEntity.ok().build();
         }
 
-        userService.removeFavorite(
-                userId,
-                movieId);
+        @DeleteMapping("/{id}/cards/{cardId}")
+        public ResponseEntity<Void> removeCard(
+                @PathVariable Integer id,
+                @PathVariable String cardId,
+                Authentication authentication
+                ) {
+                if (id != getCurrentUser(authentication).getBody().id()) {
+                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                }
 
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{userId}/favorites/{movieId}")
-    public ResponseEntity<Void> addFavorite(
-            @PathVariable Integer userId,
-            @PathVariable Integer movieId,
-            Authentication authentication
-        ) {
-        if (userId != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
-        }
-
-        userService.addFavorite(
-                userId,
-                movieId);
-
+                userService.removePaymentCard(
+                                id,
+                                cardId);
 
                 return ResponseEntity.ok().build();
         }
 
-        @GetMapping("/verify")
-        public ResponseEntity<String> verifyUser(@RequestParam("token") String token) {
-                User user = userService.getByVerificationToken(token);
-
-                if (user == null) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification token.");
+        @DeleteMapping("/{userId}/favorites/{movieId}")
+        public ResponseEntity<Void> removeFavorite(
+                @PathVariable Integer userId,
+                @PathVariable Integer movieId,
+                Authentication authentication
+                ) {
+                if (userId != getCurrentUser(authentication).getBody().id()) {
+                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
                 }
 
-                user.setStatus("ACTIVE");
-                user.setVerificationToken(null); // Clear the token after verification
-                userService.saveUser(user);
+                userService.removeFavorite(
+                        userId,
+                        movieId);
 
-                return ResponseEntity
-                                .ok("Account verified successfully!");
+                return ResponseEntity.noContent().build();
         }
 }

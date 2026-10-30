@@ -31,14 +31,14 @@ public class ShowController {
         this.showService = showService;
     }
 
-    /****** GET endpoints ******/
+    /****** GET ******/
 
     @GetMapping("/{id}")
     public Optional<Show> getShowById(@RequestParam Integer id) {
         return showService.getById(id);
     }
 
-    /****** POST endpoint ******/
+    /****** POST ******/
 
     @PostMapping
     public ResponseEntity<?> createShow(
@@ -59,5 +59,8 @@ public class ShowController {
         }
         
     }
+
+    /****** PUT ******/
     
+    /****** DELETE ******/
 }
