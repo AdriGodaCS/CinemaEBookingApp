@@ -1,6 +1,6 @@
 package com.cinemaebooking.service;
 
-import com.cinemaebooking.backend.BackendApplication;
+
 import com.cinemaebooking.model.movie.Movie;
 import com.cinemaebooking.model.movie.CreateMovieRequest;
 import com.cinemaebooking.repository.MovieRepository;
@@ -12,12 +12,10 @@ import java.util.Optional;
 @Service
 public class MovieService {
 
-    private final BackendApplication backendApplication;
     private final MovieRepository movieRepository;
 
-    public MovieService(MovieRepository movieRepository, BackendApplication backendApplication) {
+    public MovieService(MovieRepository movieRepository) {
         this.movieRepository = movieRepository;
-        this.backendApplication = backendApplication;
     }
 
     public List<Movie> getAllMovies() {
@@ -49,7 +47,7 @@ public class MovieService {
 
         // Retrieve next available id for the new Movie
         Integer nextId = movieRepository.findTopByOrderByIdDesc()
-                                .map(existingUser -> existingUser.getId() + 1)
+                                .map(existingMovie -> existingMovie.getId() + 1)
                                 .orElse(1);
 
         // Transfer data from request DTO to the new movie object
@@ -77,12 +75,12 @@ public class MovieService {
                 || movie.getDirector() == null
                 || movie.getProducer() == null
                 || movie.getStatus() == null) {
-            throw new IllegalArgumentException("All required fields must be filled");
+            throw new IllegalArgumentException("All required fields must be filled.");
         }
 
         // Check if the movie already exists in the database
         if (movieRepository.existsByTitleAndDescription(movie.getTitle(), movie.getDescription())) {
-            throw new IllegalArgumentException("A movie with that title and description already exists");
+            throw new IllegalArgumentException("A movie with that title and description already exists.");
         }
 
         return movieRepository.save(movie);

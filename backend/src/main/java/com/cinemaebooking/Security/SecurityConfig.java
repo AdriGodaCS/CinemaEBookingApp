@@ -44,6 +44,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/users/forgot-password").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                                                 .requestMatchers("/users/*", "/users/*/**").authenticated()
+                                                .requestMatchers(HttpMethod.POST, "/movies").authenticated()
                                                 .anyRequest().authenticated());
 
                 return http.build();
