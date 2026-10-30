@@ -45,6 +45,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                                                 .requestMatchers("/users/*", "/users/*/**").authenticated()
                                                 .requestMatchers(HttpMethod.POST, "/movies").authenticated()
+                                                .requestMatchers(HttpMethod.GET, "/shows/**").authenticated()
+                                                .requestMatchers(HttpMethod.POST, "/shows").authenticated()
                                                 .anyRequest().authenticated());
 
                 return http.build();
