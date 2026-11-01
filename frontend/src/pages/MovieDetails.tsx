@@ -4,6 +4,7 @@ import type { Movie } from '@/types/movie'
 import type { Show } from '@/types/show'
 import { mockShowtimes } from '@/types/show'
 import ShowtimesList from '@/components/ShowtimesList'
+import { CastAndCrew } from '@/components/CastAndCrew'
 import styles from './MovieDetails.module.css'
 
 type MovieRoutParam = {
@@ -73,7 +74,7 @@ export const MovieDetails = () => {
                 />
             </section>            
                 <section className={styles['movie-details-info']}>
-                    <img src={movie.posterUrl} alt="Movie poster"/>
+                    <img className={styles.poster} src={movie.posterUrl} alt="Movie poster"/>
                     <div>
                         <h1>{movie.title}</h1>
                         <ul className={styles['rating-genre']}>
@@ -81,18 +82,7 @@ export const MovieDetails = () => {
                             <li>{movie.genre}</li>
                         </ul>
                         <p>{movie.description}</p>
-                        <dl>
-                            <dt className={styles.miniTitle}>Movie Cast</dt>
-                            <dd>
-                                {movie.movieCast.map((cast) => {
-                                    return <p className={styles.cast}>{cast}</p>
-                                })}
-                            </dd>
-                            <dt className={styles.miniTitle}>Director</dt>
-                            <dd>{movie.director}</dd>
-                            <dt className={styles.miniTitle}>Producer</dt>
-                            <dd>{movie.producer}</dd>
-                        </dl>
+                        <CastAndCrew movie={movie}/>
                           <section className={styles.reviews}>
                         {/*Render the reviews under the rest of the details */}
                         <h2>Reviews</h2>

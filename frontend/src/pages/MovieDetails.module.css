@@ -19,7 +19,7 @@
     flex-direction: row;
     justify-content: space-between
 }
-.movie-details-page .movie-details-info img {
+.movie-details-page .movie-details-info .poster {
     width: 400px;
     margin: 10px;
 }
@@ -45,6 +45,54 @@
 }
 .movie-details-page .cast {
     margin-block: 10px;
+    
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 30px;
+    
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    max-height: 150px;
+    max-width: 600px;
+    padding: 10px;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgb(53, 39, 39) transparent;
+}
+.movie-details-page .cast::-webkit-scrollbar {
+    height: 8px; /* Adjust scrollbar height */
+}
+
+.movie-details-page .cast::-webkit-scrollbar-thumb {
+    background-color: rgba(103, 102, 102, 0.436); /* Scrollbar color */
+    border-radius: 4px; /* Rounded scrollbar */
+}
+
+.movie-details-page .cast::-webkit-scrollbar-track {
+    background-color: transparent; /* Scrollbar track color */
+}
+.cast li {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.cast li img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+    
+    border-radius: 100%;
+}
+.cast li p {
+    margin: 0px;
+}
+.cast li .position {
+    font-style: italic;
+    color: grey;
 }
 .movie-details-page .fav-button {
     font-size: 20px;
