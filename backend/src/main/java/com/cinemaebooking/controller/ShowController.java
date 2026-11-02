@@ -39,7 +39,7 @@ public class ShowController {
     }
 
     @GetMapping("/movie-id/{id}")
-    public List<Show> getShowByMovieId(@RequestParam Integer id) {
+    public List<Show> getShowsByMovieId(@RequestParam Integer id) {
         return showService.getByMovieId(id);
     }
 
