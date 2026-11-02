@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
-
+import java.util.List;
 
 @RestController 
 @RequestMapping("/shows")
@@ -36,6 +36,11 @@ public class ShowController {
     @GetMapping("/{id}")
     public Optional<Show> getShowById(@RequestParam Integer id) {
         return showService.getById(id);
+    }
+
+    @GetMapping("/movie-id/{id}")
+    public List<Show> getShowByMovieId(@RequestParam Integer id) {
+        return showService.getByMovieId(id);
     }
 
     /****** POST ******/

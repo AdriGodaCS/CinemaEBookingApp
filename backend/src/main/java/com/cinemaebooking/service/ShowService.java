@@ -23,11 +23,11 @@ public class ShowService {
         return showRepository.findById(id);
     }
 
-    public List<Show> findByMovieId(Integer movieId) {
+    public List<Show> getByMovieId(Integer movieId) {
         return showRepository.findByMovieId(movieId);
     }
 
-    public List<Show> findByShowroomId(Integer showroomId) {
+    public List<Show> getByShowroomId(Integer showroomId) {
         return showRepository.findByShowroomId(showroomId);
     }
 
