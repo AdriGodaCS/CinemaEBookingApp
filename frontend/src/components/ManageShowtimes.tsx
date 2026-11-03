@@ -309,7 +309,7 @@ function ManageShowtimes(
                                 </p>
                             )}
 
-                            <div className="form-field">
+                            <div className="showtime-field">
 
                                 <label>
                                     Date *

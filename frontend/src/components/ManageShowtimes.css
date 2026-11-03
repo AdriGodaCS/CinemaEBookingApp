@@ -116,6 +116,19 @@
     color: var(--gold);
 }
 
+.showtime-field input[type="date"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+
+    cursor: pointer;
+}
+
+.showtime-field input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+    opacity: 1;
+}
+
 @media (max-width: 900px) {
 
     .showtime-layout {
