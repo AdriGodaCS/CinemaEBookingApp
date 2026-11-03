@@ -63,8 +63,7 @@ public class MovieService {
         movie.setProducerImageUrl(movieRequest.producerImageUrl());
         movie.setMovieCast(movieRequest.movieCast());
         movie.setMovieCastImageUrls(movieRequest.movieCastImageUrls());
-        movie.setReviews(movieRequest.reviews());
-        movie.setStatus(movieRequest.status());
+        movie.setReviews(movieRequest.reviews());        
 
         // Check if any required fields are null
         if (movie.getTitle() == null
@@ -73,8 +72,7 @@ public class MovieService {
                 || movie.getDescription() == null
                 || movie.getPosterUrl() == null
                 || movie.getDirector() == null
-                || movie.getProducer() == null
-                || movie.getStatus() == null) {
+                || movie.getProducer() == null) {
             throw new IllegalArgumentException("All required fields must be filled.");
         }
 
