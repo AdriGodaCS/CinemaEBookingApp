@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AddMovieForm from '../components/AddMovieForm'
+import ManageShowtimes from '../components/ManageShowtimes'
 import './AdminPage.css'
 
 function AdminPage() {
@@ -44,8 +45,10 @@ function AdminPage() {
 
         <button
           className="admin-card"
-          onClick={() =>
-            setViewMode("showtime")
+          onClick={() =>{
+                        setViewMode("showtime")
+                        console.log("clicked showtime")
+          }
           }
         >
           Manage Showtimes
@@ -54,6 +57,10 @@ function AdminPage() {
 
       {viewMode === "movie" && (
         <AddMovieForm />
+      )}
+
+      {viewMode === "showtime" && (
+        <ManageShowtimes />
       )}
     </div>
   )
