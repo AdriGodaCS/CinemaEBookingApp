@@ -22,6 +22,11 @@ function ManageShowtimes(
     const [showrooms, setShowrooms] =
         useState<Showroom[]>([])
 
+    const [
+        availableShowroomIds,
+        setAvailableShowroomIds
+    ] = useState<number[]>([])
+
     const [selectedMovie,
         setSelectedMovie] =
         useState<Movie | null>(null)
@@ -67,6 +72,24 @@ function ManageShowtimes(
                 await response.json()
 
             setMovies(data)
+        }
+
+    const loadAvailableShowrooms =
+        async (date: string) => {
+
+            const response =
+                await fetch(
+                    `http://localhost:8080/shows/available-showrooms?showDate=${date}`
+                )
+
+            if (!response.ok) {
+                return
+            }
+
+            const data =
+                await response.json()
+
+            setAvailableShowroomIds(data)
         }
 
     const loadShowrooms =
@@ -300,25 +323,39 @@ function ManageShowtimes(
                                             .split('T')[0]
                                     }
                                     value={showDate}
-                                    onChange={(e) => {
-
-                                        setShowDate(
+                                    onChange={async (e) => {
+                                        const date =
                                             e.target.value
-                                        )
+
+                                        setShowDate(date)
 
                                         setShowroomId('')
                                         setShowTime('')
                                         setAvailableTimeslots([])
+
+                                        await loadAvailableShowrooms(
+                                            date
+                                        )
                                     }}
                                 />
 
                             </div>
 
+                            {
+                                showDate &&
+                                availableShowroomIds.length === 0 && (
+                                    <p className="field-error">
+                                        No showrooms have available
+                                        timeslots for this date.
+                                    </p>
+                                )
+                            }
+
                             {showDate && (
                                 <div className="form-field">
 
                                     <label>
-                                        Showroom *
+                                        Available Showrooms *
                                     </label>
 
                                     <select
@@ -351,8 +388,13 @@ function ManageShowtimes(
                                             Select Showroom
                                         </option>
 
-                                        {showrooms.map(
-                                            showroom => (
+                                        {showrooms
+                                            .filter(showroom =>
+                                                availableShowroomIds.includes(
+                                                    showroom.id
+                                                )
+                                            )
+                                            .map(showroom => (
 
                                                 <option
                                                     key={
@@ -367,7 +409,7 @@ function ManageShowtimes(
                                                     }
                                                 </option>
                                             )
-                                        )}
+                                            )}
 
                                     </select>
 

@@ -1,8 +1,10 @@
 package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.show.Show;
+import com.cinemaebooking.model.showroom.Showroom;
 import com.cinemaebooking.model.show.CreateShowRequest;
 import com.cinemaebooking.repository.ShowRepository;
+import com.cinemaebooking.repository.ShowroomRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,11 @@ import java.util.Optional;
 public class ShowService {
 
     private final ShowRepository showRepository;
+    private final ShowroomRepository showroomRepository;
 
-    public ShowService(ShowRepository showRepository) {
+    public ShowService(ShowRepository showRepository, ShowroomRepository showroomRepository) {
         this.showRepository = showRepository;
+        this.showroomRepository = showroomRepository;
     }
 
     public Optional<Show> getById(Integer id) {
@@ -53,6 +57,36 @@ public class ShowService {
 
         return allTimeslots.stream()
                 .filter(time -> !usedTimes.contains(time))
+                .toList();
+    }
+
+    public List<Integer> getAvailableShowroomIds(
+            String showDate) {
+
+        List<Showroom> allShowrooms = showroomRepository.findAll();
+
+        List<String> allTimeslots = List.of(
+                "09:00",
+                "12:00",
+                "15:00",
+                "18:00",
+                "21:00");
+
+        return allShowrooms.stream()
+                .filter(showroom -> {
+                    List<Show> shows = showRepository
+                            .findByShowDateAndShowroomId(
+                                    showDate,
+                                    showroom.getId());
+
+                    long bookedCount = shows.stream()
+                            .map(Show::getShowTime)
+                            .distinct()
+                            .count();
+
+                    return bookedCount < allTimeslots.size(); // Return whether there is at least one timeslot available 
+                })
+                .map(Showroom::getId)
                 .toList();
     }
 

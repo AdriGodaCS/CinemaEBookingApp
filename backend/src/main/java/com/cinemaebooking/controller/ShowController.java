@@ -59,6 +59,14 @@ public class ShowController {
                 showroomId);
     }
 
+    @GetMapping("/available-showrooms")
+    public List<Integer> getAvailableShowrooms(
+            @RequestParam String showDate) {
+
+        return showService.getAvailableShowroomIds(
+                showDate);
+    }
+
     /****** POST ******/
 
     @PostMapping
