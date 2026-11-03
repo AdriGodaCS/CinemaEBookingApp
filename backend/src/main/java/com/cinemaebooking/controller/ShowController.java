@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 import java.util.List;
 
-@RestController 
+@RestController
 @RequestMapping("/shows")
 @CrossOrigin(origins = "*")
 public class ShowController {
@@ -49,12 +49,21 @@ public class ShowController {
         return showService.getByShowroomId(id);
     }
 
+    @GetMapping("/available-timeslots")
+    public List<String> getAvailableTimeslots(
+            @RequestParam String showDate,
+            @RequestParam Integer showroomId) {
+
+        return showService.getAvailableTimeslots(
+                showDate,
+                showroomId);
+    }
+
     /****** POST ******/
 
     @PostMapping
     public ResponseEntity<?> createShow(
-        @RequestBody CreateShowRequest showRequest
-    ) {
+            @RequestBody CreateShowRequest showRequest) {
         try {
             Show createdShow = showService.createShow(showRequest);
             return ResponseEntity
@@ -64,14 +73,13 @@ public class ShowController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(
-                        java.util.Map.of(
-                            "message", e.getMessage()
-                    ));
+                            java.util.Map.of(
+                                    "message", e.getMessage()));
         }
-        
+
     }
 
     /****** PUT ******/
-    
+
     /****** DELETE ******/
 }

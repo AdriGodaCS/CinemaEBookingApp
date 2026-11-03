@@ -19,6 +19,8 @@ public interface ShowRepository extends MongoRepository<Show, Integer> {
 
     List<Show> findByShowDate(String showDate);
 
+    List<Show> findByShowDateAndShowroomId(String showDate, Integer showroomId);
+
     Optional<Show> findTopByOrderByIdDesc();
 
     Boolean existsByMovieId(Integer movieId);

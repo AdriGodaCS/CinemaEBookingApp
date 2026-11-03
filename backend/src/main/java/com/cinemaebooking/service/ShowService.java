@@ -30,14 +30,53 @@ public class ShowService {
         return showRepository.findByShowroomId(showroomId);
     }
 
+    public List<String> getAvailableTimeslots(
+            String showDate,
+            Integer showroomId) {
+
+        List<String> allTimeslots = List.of(
+                "09:00",
+                "12:00",
+                "15:00",
+                "18:00",
+                "21:00");
+
+        List<Show> existingShows = showRepository.findByShowDateAndShowroomId(
+                showDate,
+                showroomId);
+
+        List<String> usedTimes = existingShows.stream()
+                .map(Show::getShowTime)
+                .toList();
+
+        return allTimeslots.stream()
+                .filter(time -> !usedTimes.contains(time))
+                .toList();
+    }
+
     public Show createShow(CreateShowRequest showRequest) {
+
+        boolean alreadyExists = showRepository
+                .findByShowDateAndShowroomId(
+                        showRequest.showDate(),
+                        showRequest.showroomId())
+                .stream()
+                .anyMatch(show -> show.getShowTime()
+                        .equals(
+                                showRequest.showTime()));
+
+        if (alreadyExists) {
+            throw new IllegalArgumentException(
+                    "That timeslot is already booked.");
+        }
+
         // new show object
         Show createdShow = new Show();
 
         // Get next id slot
         Integer nextId = showRepository.findTopByOrderByIdDesc()
-                    .map(existingShow -> existingShow.getId() + 1)
-                    .orElse(1);
+                .map(existingShow -> existingShow.getId() + 1)
+                .orElse(1);
 
         // fill show object with showRequest info
         createdShow.setId(nextId);
@@ -50,12 +89,11 @@ public class ShowService {
 
         // check if required fields are filled (not null)
         if (createdShow.getMovieId() == null
-            || createdShow.getShowroomId() == null
-            || createdShow.getShowDate() == null
-            || createdShow.getShowTime() == null
-            || createdShow.getDurationMinutes() == null
-            || createdShow.getStatus() == null
-        ) {
+                || createdShow.getShowroomId() == null
+                || createdShow.getShowDate() == null
+                || createdShow.getShowTime() == null
+                || createdShow.getDurationMinutes() == null
+                || createdShow.getStatus() == null) {
             throw new IllegalArgumentException("All required fields must be filled.");
         }
 
@@ -64,14 +102,13 @@ public class ShowService {
             throw new IllegalArgumentException("Show with this id already exists");
         }
         if (showRepository.existsByShowroomIdAndShowDateAndShowTime(
-                createdShow.getShowroomId(), 
-                createdShow.getShowDate(), 
-                createdShow.getShowTime())
-        ) {
+                createdShow.getShowroomId(),
+                createdShow.getShowDate(),
+                createdShow.getShowTime())) {
             throw new IllegalArgumentException("Cannot schedule two shows at the same place and time");
         }
 
         return showRepository.save(createdShow);
     }
-    
+
 }
