@@ -16,8 +16,6 @@ import com.cinemaebooking.Security.JwtUtil;
 
 import java.util.List;
 
-//@Configuration // This is only needed if more methods othere than passwordEncoder are needed
-//if using @Configuration, must
 @Configuration
 public class SecurityConfig {
 
