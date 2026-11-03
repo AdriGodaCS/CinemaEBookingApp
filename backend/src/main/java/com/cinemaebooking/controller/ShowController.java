@@ -44,6 +44,11 @@ public class ShowController {
         return showService.getByMovieId(id);
     }
 
+    @GetMapping("/by-showroom-id/{id}")
+    public List<Show> getShowByShowroomId(@PathVariable Integer id) {
+        return showService.getByShowroomId(id);
+    }
+
     /****** POST ******/
 
     @PostMapping

@@ -75,7 +75,7 @@ export function AuthProvider({
         user,
         setUser,        
         loading,
-        logout,
+        logout        
       }}
     >
       {children}
