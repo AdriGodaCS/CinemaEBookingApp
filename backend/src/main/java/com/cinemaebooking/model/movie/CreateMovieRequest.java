@@ -22,6 +22,9 @@ public record CreateMovieRequest(
     @NotBlank
     String posterUrl,
 
+    @NotBlank 
+    String trailerUrl,
+
     @NotBlank
     String director,
 
@@ -36,11 +39,8 @@ public record CreateMovieRequest(
     List<String> movieCast,
 
     List<String> movieCastImageUrls,
-
-    @NotBlank
-    List<String> reviews,
-
-    @NotBlank
-    String status
+    
+    List<String> reviews
+    
 ) {
 }
