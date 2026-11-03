@@ -6,6 +6,8 @@ import com.cinemaebooking.repository.ShowRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +72,30 @@ public class ShowService {
                     "That timeslot is already booked.");
         }
 
+        LocalDate showDate = LocalDate.parse(
+                showRequest.showDate());
+
+        LocalDate today = LocalDate.now();
+
+        if (showDate.isBefore(today)) {
+            throw new IllegalArgumentException(
+                    "Show date cannot be in the past.");
+        }
+
+        if (showDate.equals(today)) {
+
+            LocalTime showTime = LocalTime.parse(
+                    showRequest.showTime());
+
+            LocalTime now = LocalTime.now();
+
+            if (!showTime.isAfter(now)) {
+
+                throw new IllegalArgumentException(
+                        "Show time must be in the future.");
+            }
+        }
+
         // new show object
         Show createdShow = new Show();
 
@@ -91,9 +117,7 @@ public class ShowService {
         if (createdShow.getMovieId() == null
                 || createdShow.getShowroomId() == null
                 || createdShow.getShowDate() == null
-                || createdShow.getShowTime() == null
-                || createdShow.getDurationMinutes() == null
-                || createdShow.getStatus() == null) {
+                || createdShow.getShowTime() == null) {
             throw new IllegalArgumentException("All required fields must be filled.");
         }
 

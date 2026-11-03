@@ -87,6 +87,44 @@ function ManageShowtimes(
             setShowrooms(data)
         }
 
+    const getAvailableTimesForDate = (
+        times: string[]
+    ) => {
+
+        if (!showDate) {
+            return times
+        }
+
+        const now = new Date()
+
+        const today =
+            now
+                .toISOString()
+                .split('T')[0]
+
+        if (showDate !== today) {
+            return times
+        }
+
+        const currentMinutes =
+            now.getHours() * 60 +
+            now.getMinutes()
+
+        return times.filter(time => { // Filter available times to times that are > the current time if the date is today
+
+            const [hours, minutes] =
+                time.split(':').map(Number)
+
+            const timeMinutes =
+                hours * 60 + minutes
+
+            return (
+                timeMinutes >
+                currentMinutes
+            )
+        })
+    }
+
     const loadAvailableTimeslots =
         async (
             selectedDate: string,
@@ -230,7 +268,7 @@ function ManageShowtimes(
                         ))}
 
                     </div>
-                {selectedMovie && (
+                    {selectedMovie && (
 
                         <div className="movie-form">
 
@@ -256,6 +294,11 @@ function ManageShowtimes(
 
                                 <input
                                     type="date"
+                                    min={
+                                        new Date()
+                                            .toISOString()
+                                            .split('T')[0]
+                                    }
                                     value={showDate}
                                     onChange={(e) => {
 
@@ -354,7 +397,9 @@ function ManageShowtimes(
                                             Select Time
                                         </option>
 
-                                        {availableTimeslots.map(
+                                        {getAvailableTimesForDate(
+                                            availableTimeslots
+                                        ).map(
                                             time => (
 
                                                 <option
@@ -368,6 +413,17 @@ function ManageShowtimes(
 
                                     </select>
 
+                                    {
+                                        getAvailableTimesForDate(
+                                            availableTimeslots
+                                        ).length === 0 && (
+                                            <p className="field-error">
+                                                No future timeslots remain for
+                                                today.
+                                            </p>
+                                        )
+                                    }
+
                                 </div>
                             )}
 
@@ -378,7 +434,7 @@ function ManageShowtimes(
                                 Create Showtime
                             </button>
                         </div>
-                )}
+                    )}
                 </div>
             </div>
         </div>
