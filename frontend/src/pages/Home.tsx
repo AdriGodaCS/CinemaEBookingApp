@@ -23,11 +23,6 @@ function Home() {
 
             const movies: Movie[] = await response.json()
             const movieGenreOptions = movies
-                .filter(
-                    (movie) =>
-                        movie.status === 'Currently Running' ||
-                        movie.status === 'Coming Soon',
-                )
                 .map((movie) => movie.genre.trim())
                 .filter(Boolean)
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,7 +40,7 @@ public class ShowController {
     }
 
     @GetMapping("/by-movie-id/{id}")
-    public List<Show> getShowsByMovieId(@RequestParam Integer id) {
+    public List<Show> getShowsByMovieId(@PathVariable Integer id) {
         return showService.getByMovieId(id);
     }
 

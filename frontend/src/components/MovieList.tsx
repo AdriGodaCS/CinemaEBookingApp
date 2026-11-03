@@ -12,9 +12,51 @@ type Movie = {
     status: string
 }
 
+type Show = {
+    showDate: string
+    showTime: string
+}
+
 type MovieListProps = {
     input?: string
     genre?: string
+}
+
+const parseShowDateTime = (show: Show): Date => {
+    const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(show.showDate)
+    const timeMatch = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(show.showTime)
+
+    if (!dateMatch || !timeMatch) {
+        throw new Error(
+            `Invalid show date/time: ${show.showDate} ${show.showTime}`,
+        )
+    }
+
+    const [, year, month, day] = dateMatch
+    const [, hour, minute, second = '0'] = timeMatch
+    const parsedDate = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hour),
+        Number(minute),
+        Number(second),
+    )
+
+    if (
+        parsedDate.getFullYear() !== Number(year) ||
+        parsedDate.getMonth() !== Number(month) - 1 ||
+        parsedDate.getDate() !== Number(day) ||
+        parsedDate.getHours() !== Number(hour) ||
+        parsedDate.getMinutes() !== Number(minute) ||
+        parsedDate.getSeconds() !== Number(second)
+    ) {
+        throw new Error(
+            `Invalid show date/time: ${show.showDate} ${show.showTime}`,
+        )
+    }
+
+    return parsedDate
 }
 
 function MovieList({
@@ -56,40 +98,59 @@ function MovieList({
                     .trim()
                     .toLowerCase()
 
-            const filteredMovies =
-                movies.filter((movie) => {
+            const now = new Date()
+            const movieClassifications = await Promise.all(
+                movies.map(async (movie) => {
+                    const showsResponse = await fetch(
+                        `http://localhost:8080/shows/by-movie-id/${movie.id}`,
+                    )
+
+                    if (!showsResponse.ok) {
+                        throw new Error(
+                            `Failed to fetch shows for movie ${movie.id}: ${showsResponse.status}`,
+                        )
+                    }
+
+                    const shows: Show[] = await showsResponse.json()
+                    const hasFutureShow = shows.some(
+                        (show) => parseShowDateTime(show) >= now,
+                    )
+
+                    return {
+                        movie,
+                        hasFutureShow,
+                        hasNoShows: shows.length === 0,
+                    }
+                }),
+            )
+
+            const filteredMovies = movieClassifications.filter(
+                ({ movie, hasFutureShow, hasNoShows }) => {
                     const matchesTitle =
                         normalizedInput === '' ||
-                        movie.title
-                            .toLowerCase()
-                            .includes(normalizedInput)
-
+                        movie.title.toLowerCase().includes(normalizedInput)
                     const matchesGenre =
                         normalizedGenre === '' ||
-                        movie.genre
-                            .toLowerCase() ===
-                        normalizedGenre
+                        movie.genre.toLowerCase() === normalizedGenre
 
                     return (
                         matchesTitle &&
-                        matchesGenre
+                        matchesGenre &&
+                        (hasFutureShow || hasNoShows)
                     )
-                })
+                },
+            )
 
             setCurrentlyRunningMovies(
-                filteredMovies.filter(
-                    (movie) =>
-                        movie.status ===
-                        'Currently Running'
-                )
+                filteredMovies
+                    .filter(({ hasFutureShow }) => hasFutureShow)
+                    .map(({ movie }) => movie),
             )
 
             setComingSoonMovies(
-                filteredMovies.filter(
-                    (movie) =>
-                        movie.status ===
-                        'Coming Soon'
-                )
+                filteredMovies
+                    .filter(({ hasNoShows }) => hasNoShows)
+                    .map(({ movie }) => movie),
             )
         }
 
