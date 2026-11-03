@@ -1,7 +1,6 @@
 package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.showroom.Showroom;
-import com.cinemaebooking.model.showroom.CreateShowroomRequest;
 import com.cinemaebooking.repository.ShowroomRepository;
 
 import org.springframework.stereotype.Service;

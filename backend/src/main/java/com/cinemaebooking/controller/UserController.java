@@ -289,11 +289,11 @@ public class UserController {
         ) {
                 // Check id sent in request
                 if (request.id() != getCurrentUser(authentication).getBody().id()) {
-                throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
+                        throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
                 }
                 // check id from url
                 if (id != getCurrentUser(authentication).getBody().id()) {
-                throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
+                        throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
                 }
                 User user = userService.getUserById(request.id());
                 userService.deleteUser(user);

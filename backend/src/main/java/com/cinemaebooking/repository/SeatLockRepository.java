@@ -19,4 +19,8 @@ public interface SeatLockRepository extends MongoRepository<SeatLock, Integer> {
     List<SeatLock> findByLockedAt(String lockedAt);
 
     List<SeatLock> findByExpiresAt(String expiresAt);
+
+    Optional<SeatLock> findTopByOrderByIdDesc();
+
+    Boolean existsByShowIdAndSeatId();
 }
