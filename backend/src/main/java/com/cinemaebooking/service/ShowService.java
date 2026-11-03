@@ -2,7 +2,6 @@ package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.show.Show;
 import com.cinemaebooking.model.show.CreateShowRequest;
-import com.cinemaebooking.repository.MovieRepository;
 import com.cinemaebooking.repository.ShowRepository;
 
 import org.springframework.stereotype.Service;
