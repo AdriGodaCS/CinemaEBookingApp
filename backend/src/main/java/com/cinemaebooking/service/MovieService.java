@@ -43,28 +43,28 @@ public class MovieService {
     }
 
     public Movie createMovie(CreateMovieRequest movieRequest) {
-        Movie movie = new Movie();
-
         // Retrieve next available id for the new Movie
         Integer nextId = movieRepository.findTopByOrderByIdDesc()
                                 .map(existingMovie -> existingMovie.getId() + 1)
                                 .orElse(1);
 
         // Transfer data from request DTO to the new movie object
-        movie.setId(nextId);
-        movie.setTitle(movieRequest.title());
-        movie.setGenre(movieRequest.genre());
-        movie.setRating(movieRequest.rating());
-        movie.setDescription(movieRequest.description());
-        movie.setPosterUrl(movieRequest.posterUrl());
-        movie.setTrailerUrl(movieRequest.trailerUrl());
-        movie.setDirector(movieRequest.director());
-        movie.setDirectorImageUrl(movieRequest.directorImageUrl());
-        movie.setProducer(movieRequest.producer());
-        movie.setProducerImageUrl(movieRequest.producerImageUrl());
-        movie.setMovieCast(movieRequest.movieCast());
-        movie.setMovieCastImageUrls(movieRequest.movieCastImageUrls());
-        movie.setReviews(movieRequest.reviews());        
+        Movie movie = new Movie.Builder()
+            .id(nextId)
+            .title(movieRequest.title())
+            .genre(movieRequest.genre())
+            .rating(movieRequest.rating())
+            .description(movieRequest.description())
+            .posterUrl(movieRequest.posterUrl())
+            .trailerUrl(movieRequest.trailerUrl())
+            .director(movieRequest.director())
+            .directorImageUrl(movieRequest.directorImageUrl())
+            .producer(movieRequest.producer())
+            .producerImageUrl(movieRequest.producerImageUrl())
+            .movieCast(movieRequest.movieCast())
+            .movieCastImageUrls(movieRequest.movieCastImageUrls())
+            .reviews(movieRequest.reviews())
+            .build();     
 
         // Check if any required fields are null
         if (movie.getTitle() == null

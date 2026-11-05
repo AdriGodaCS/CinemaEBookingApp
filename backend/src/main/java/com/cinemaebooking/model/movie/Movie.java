@@ -43,6 +43,30 @@ public class Movie {
 
     private String status;
 
+    public Movie() {
+
+    }
+
+
+     // Private constructor for Builder
+     private Movie(Builder builder) {
+        this.id = builder.id;
+        this.title = builder.title;
+        this.genre = builder.genre;
+        this.rating = builder.rating;
+        this.description = builder.description;
+        this.posterUrl = builder.posterUrl;
+        this.trailerUrl = builder.trailerUrl;
+        this.director = builder.director;
+        this.directorImageUrl = builder.directorImageUrl;
+        this.producer = builder.producer;
+        this.producerImageUrl = builder.producerImageUrl;
+        this.movieCast = builder.movieCast;
+        this.movieCastImageUrls = builder.movieCastImageUrls;
+        this.reviews = builder.reviews;
+        this.status = builder.status;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -161,5 +185,103 @@ public class Movie {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // Builder Class
+    public static class Builder {
+        private Integer id;
+        private String title;
+        private String genre;
+        private String rating;
+        private String description;
+        private String posterUrl;
+        private String trailerUrl;
+        private String director;
+        private String directorImageUrl;
+        private String producer;
+        private String producerImageUrl;
+        private List<String> movieCast;
+        private List<String> movieCastImageUrls;
+        private List<String> reviews;
+        private String status;
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder genre(String genre) {
+            this.genre = genre;
+            return this;
+        }
+
+        public Builder rating(String rating) {
+            this.rating = rating;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder posterUrl(String posterUrl) {
+            this.posterUrl = posterUrl;
+            return this;
+        }
+
+        public Builder trailerUrl(String trailerUrl) {
+            this.trailerUrl = trailerUrl;
+            return this;
+        }
+
+        public Builder director(String director) {
+            this.director = director;
+            return this;
+        }
+
+        public Builder directorImageUrl(String directorImageUrl) {
+            this.directorImageUrl = directorImageUrl;
+            return this;
+        }
+
+        public Builder producer(String producer) {
+            this.producer = producer;
+            return this;
+        }
+
+        public Builder producerImageUrl(String producerImageUrl) {
+            this.producerImageUrl = producerImageUrl;
+            return this;
+        }
+
+        public Builder movieCast(List<String> movieCast) {
+            this.movieCast = movieCast;
+            return this;
+        }
+
+        public Builder movieCastImageUrls(List<String> movieCastImageUrls) {
+            this.movieCastImageUrls = movieCastImageUrls;
+            return this;
+        }
+
+        public Builder reviews(List<String> reviews) {
+            this.reviews = reviews;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Movie build() {
+            return new Movie(this);
+        }
     }
 }
