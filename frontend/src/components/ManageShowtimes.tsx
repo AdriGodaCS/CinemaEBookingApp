@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './ManageShowtimes.css'
 
 type Movie = {
@@ -26,6 +26,19 @@ function ManageShowtimes(
         availableShowroomIds,
         setAvailableShowroomIds
     ] = useState<number[]>([])
+
+    const [
+        loadingShowrooms,
+        setLoadingShowrooms
+    ] = useState(true)
+
+    const [
+        loadingShowtimes,
+        setLoadingShowtimes
+    ] = useState(true);
+
+    const formRef =
+        useRef<HTMLDivElement>(null)
 
     const [selectedMovie,
         setSelectedMovie] =
@@ -77,19 +90,28 @@ function ManageShowtimes(
     const loadAvailableShowrooms =
         async (date: string) => {
 
-            const response =
-                await fetch(
-                    `http://localhost:8080/shows/available-showrooms?showDate=${date}`
-                )
+            setLoadingShowrooms(true)
 
-            if (!response.ok) {
-                return
+            try {
+
+                const response =
+                    await fetch(
+                        `http://localhost:8080/shows/available-showrooms?showDate=${date}`
+                    )
+
+                if (!response.ok) {
+                    return
+                }
+
+                const data =
+                    await response.json()
+
+                setAvailableShowroomIds(data)
+
+            } finally {
+
+                setLoadingShowrooms(false)
             }
-
-            const data =
-                await response.json()
-
-            setAvailableShowroomIds(data)
         }
 
     const loadShowrooms =
@@ -153,20 +175,23 @@ function ManageShowtimes(
             selectedDate: string,
             selectedShowroomId: number
         ) => {
+            try {
+                const response =
+                    await fetch(
+                        `http://localhost:8080/shows/available-timeslots?showDate=${selectedDate}&showroomId=${selectedShowroomId}`
+                    )
 
-            const response =
-                await fetch(
-                    `http://localhost:8080/shows/available-timeslots?showDate=${selectedDate}&showroomId=${selectedShowroomId}`
-                )
+                if (!response.ok) {
+                    return
+                }
 
-            if (!response.ok) {
-                return
+                const data =
+                    await response.json()
+
+                setAvailableTimeslots(data)
+            } finally {
+                setLoadingShowtimes(false);
             }
-
-            const data =
-                await response.json()
-
-            setAvailableTimeslots(data)
         }
 
     const createShowtime =
@@ -277,6 +302,13 @@ function ManageShowtimes(
                                     onClick={() => {
                                         setSelectedMovie(movie)
 
+                                        setTimeout(() => {
+                                            formRef.current?.scrollIntoView({
+                                                behavior: 'smooth',
+                                                block: 'start',
+                                            })
+                                        }, 0)
+
                                         setMessage('')
                                         setShowDate('')
                                         setShowroomId('')
@@ -293,7 +325,7 @@ function ManageShowtimes(
                     </div>
                     {selectedMovie && (
 
-                        <div className="movie-form">
+                        <div ref={formRef} className="movie-form">
 
                             <h3>
                                 Add Showtime
@@ -332,6 +364,7 @@ function ManageShowtimes(
                                         setShowroomId('')
                                         setShowTime('')
                                         setAvailableTimeslots([])
+                                        setLoadingShowrooms(true)
 
                                         await loadAvailableShowrooms(
                                             date
@@ -343,6 +376,7 @@ function ManageShowtimes(
 
                             {
                                 showDate &&
+                                !loadingShowrooms &&
                                 availableShowroomIds.length === 0 && (
                                     <p className="field-error">
                                         No showrooms have available
@@ -372,9 +406,8 @@ function ManageShowtimes(
 
                                             setShowTime('')
 
-                                            if (
-                                                value
-                                            ) {
+                                            if (value) {
+                                                setLoadingShowtimes(true)
                                                 await loadAvailableTimeslots(
                                                     showDate,
                                                     Number(
@@ -416,58 +449,59 @@ function ManageShowtimes(
                                 </div>
                             )}
 
-                            {showroomId && (
+                            {showroomId &&                            
+                                (
 
-                                <div className="form-field">
+                                    <div className="form-field">
 
-                                    <label>
-                                        Available Times *
-                                    </label>
+                                        <label>
+                                            Available Times *
+                                        </label>
 
-                                    <select
-                                        value={showTime}
-                                        onChange={(
-                                            e
-                                        ) =>
-                                            setShowTime(
-                                                e.target.value
+                                        <select
+                                            value={showTime}
+                                            onChange={(
+                                                e
+                                            ) =>
+                                                setShowTime(
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+
+                                            <option value="">
+                                                Select Time
+                                            </option>
+
+                                            {getAvailableTimesForDate(
+                                                availableTimeslots
+                                            ).map(
+                                                time => (
+
+                                                    <option
+                                                        key={time}
+                                                        value={time}
+                                                    >
+                                                        {time}
+                                                    </option>
+                                                )
+                                            )}
+
+                                        </select>
+
+                                        {
+                                            getAvailableTimesForDate(
+                                                availableTimeslots
+                                            ).length === 0 && !loadingShowtimes && (
+                                                <p className="field-error">
+                                                    No future timeslots remain for
+                                                    today.
+                                                </p>
                                             )
                                         }
-                                    >
 
-                                        <option value="">
-                                            Select Time
-                                        </option>
-
-                                        {getAvailableTimesForDate(
-                                            availableTimeslots
-                                        ).map(
-                                            time => (
-
-                                                <option
-                                                    key={time}
-                                                    value={time}
-                                                >
-                                                    {time}
-                                                </option>
-                                            )
-                                        )}
-
-                                    </select>
-
-                                    {
-                                        getAvailableTimesForDate(
-                                            availableTimeslots
-                                        ).length === 0 && (
-                                            <p className="field-error">
-                                                No future timeslots remain for
-                                                today.
-                                            </p>
-                                        )
-                                    }
-
-                                </div>
-                            )}
+                                    </div>
+                                )}
 
                             <button
                                 className="movie-submit-button"
