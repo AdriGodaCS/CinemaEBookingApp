@@ -5,6 +5,17 @@ const API_URL = "http://localhost:8080";
 
 type JsonValue = Record<string, unknown> | string | number | boolean | null;
 
+export class BackendError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly data: unknown,
+  ) {
+    super(message);
+    this.name = "BackendError";
+  }
+}
+
 export class BackendFacade {
   private getHeaders(body?: unknown, requiresAuth = false): HeadersInit {
     const token = localStorage.getItem("token");
@@ -28,7 +39,7 @@ export class BackendFacade {
       headers?: HeadersInit;
       requiresAuth?: boolean;
     } = {},
-  ): Promise<Response> {
+  ): Promise<unknown> {
     const { body, headers, requiresAuth, ...requestOptions } = options;
     const url =
       path.startsWith("http://") || path.startsWith("https://")
@@ -44,6 +55,30 @@ export class BackendFacade {
       ...(body === undefined || body === null
         ? {}
         : { body: typeof body === "string" ? body : JSON.stringify(body) }),
+    }).then(async (response) => {
+      const text = await response.text();
+      let data: unknown = undefined;
+
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+      }
+
+      if (!response.ok) {
+        const message =
+          typeof data === "object" &&
+          data !== null &&
+          "message" in data &&
+          typeof data.message === "string"
+            ? data.message
+            : `Backend request failed with status ${response.status}`;
+        throw new BackendError(message, response.status, data);
+      }
+
+      return data;
     });
   }
 

@@ -77,16 +77,8 @@ function MovieList({
 
     useEffect(() => {
         const fetchMovies = async () => {
-            const response = await backendFacade.getAllMovies()
-
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to fetch movies: ${response.status}`
-                )
-            }
-
-            const movies: Movie[] =
-                await response.json()
+            const movies =
+                await backendFacade.getAllMovies() as Movie[]
 
             const normalizedInput =
                 (input ?? '')
@@ -101,15 +93,8 @@ function MovieList({
             const now = new Date()
             const movieClassifications = await Promise.all(
                 movies.map(async (movie) => {
-                    const showsResponse = await backendFacade.getShowsByMovieId(movie.id)
-
-                    if (!showsResponse.ok) {
-                        throw new Error(
-                            `Failed to fetch shows for movie ${movie.id}: ${showsResponse.status}`,
-                        )
-                    }
-
-                    const shows: Show[] = await showsResponse.json()
+                    const shows =
+                        await backendFacade.getShowsByMovieId(movie.id) as Show[]
                     const hasFutureShow = shows.some(
                         (show) => parseShowDateTime(show) >= now,
                     )
@@ -173,14 +158,8 @@ function MovieList({
             }
 
             try {
-                const response = await backendFacade.getFavorites(user.id)
-
-                if (!response.ok) {
-                    return
-                }
-
                 const favorites =
-                    await response.json()
+                    await backendFacade.getFavorites(user.id) as Movie[]
 
                 setFavoriteMovieIds(
                     new Set(

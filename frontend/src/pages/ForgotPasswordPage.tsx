@@ -31,12 +31,11 @@ function ForgotPasswordPage() {
 
         setSubmitting(true)
         try {
-            const response = await backendFacade.forgotPassword({
+            await backendFacade.forgotPassword({
                 email: trimmed.toLowerCase(),
             })
 
-            if (!response.ok) setFormError('We could not send the reset email. Please try again.')
-            else setSentTo(trimmed)
+            setSentTo(trimmed)
         } catch {
             setFormError('Unable to reach the server. Check your connection and try again.')
         } finally {

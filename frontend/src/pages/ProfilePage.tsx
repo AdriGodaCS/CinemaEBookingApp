@@ -129,15 +129,7 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await backendFacade.getUserById(user.id)
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to load profile'
-                )
-            }
-
-            const data = await response.json()
+            const data = await backendFacade.getUserById(user.id) as UserProfile
 
             if (!data.homeAddress) {
                 data.homeAddress = {
@@ -151,13 +143,13 @@ function ProfilePage() {
             setProfile(data)
 
             setShowAddress(
-                !!data.homeAddress &&
+                Boolean(data.homeAddress &&
                 (
                     data.homeAddress.street ||
                     data.homeAddress.city ||
                     data.homeAddress.state ||
                     data.homeAddress.zipCode
-                )
+                ))
             )
 
             setPaymentCards(
@@ -275,15 +267,7 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await backendFacade.getFavorites(user.id)
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to load favorites'
-                )
-            }
-
-            const data = await response.json()
+            const data = await backendFacade.getFavorites(user.id) as Movie[]
 
             setFavorites(data)
         } catch (error) {
@@ -349,18 +333,12 @@ function ProfilePage() {
             return
         }
         try {
-            const response = await backendFacade.updateProfile(user.id, {
+            await backendFacade.updateProfile(user.id, {
                 firstName: profile.firstName,
                 lastName: profile.lastName,
                 phone: profile.phone,
                 homeAddress: profile.homeAddress,
             })
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to save profile'
-                )
-            }
 
             setProfileSuccess(
                 'Profile updated successfully.'
@@ -444,16 +422,10 @@ function ProfilePage() {
         }
 
         try {
-            const response = await backendFacade.changePassword(user.id, {
+            await backendFacade.changePassword(user.id, {
                 currentPassword,
                 newPassword,
             })
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to update password'
-                )
-            }
 
             setPasswordSuccess(
                 'Password updated successfully.'
@@ -617,7 +589,7 @@ function ProfilePage() {
         }
 
         try {
-            const response = await backendFacade.addPaymentCard(user.id, {
+            await backendFacade.addPaymentCard(user.id, {
                 cardNumber,
                 expirationMonth: Number(expiration.split('/')[0]),
                 expirationYear: 2000 + Number(expiration.split('/')[1]),
@@ -628,18 +600,6 @@ function ProfilePage() {
                     zipCode: billingZipCode,
                 },
             })
-
-            if (!response.ok) {
-                const data =
-                    await response.json()
-
-                setErrors({
-                    paymentCards:
-                        data.message
-                })
-
-                return
-            }
 
             await loadProfile()
 
@@ -663,16 +623,10 @@ function ProfilePage() {
         if (!user || !cardId) return
 
         try {
-            const response = await backendFacade.removePaymentCard(
+            await backendFacade.removePaymentCard(
                 user.id,
                 cardId
             )
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to remove card'
-                )
-            }
 
             setPaymentCards((prev) =>
                 prev.filter(
@@ -696,16 +650,10 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await backendFacade.removeFavorite(
+            await backendFacade.removeFavorite(
                 user.id,
                 movieId
             )
-
-            if (!response.ok) {
-                throw new Error(
-                    'Failed to remove favorite'
-                )
-            }
 
             setFavorites((prev) =>
                 prev.filter(

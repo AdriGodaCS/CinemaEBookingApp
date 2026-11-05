@@ -31,17 +31,8 @@ function VerifyAccountPage() {
       verificationAttempted.current = true
 
       try {
-        const response = await backendFacade.verifyUser(token)
-
-        const text =
-          await response.text()
-
-        if (!response.ok) {
-          setMessage(text)
-          return
-        }
-
-        setMessage(text)
+        const result = await backendFacade.verifyUser(token)
+        setMessage(typeof result === 'string' ? result : 'Account verified.')
       } catch (error) {
         console.error(error)
 

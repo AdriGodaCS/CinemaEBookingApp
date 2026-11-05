@@ -212,8 +212,7 @@ function AddMovieForm({
             }
 
             try {
-                const response =
-                    await backendFacade.createMovie({
+                await backendFacade.createMovie({
                                 title:
                                     formData.title,
                                 rating:
@@ -268,19 +267,6 @@ function AddMovieForm({
                                         )
                                         .filter(Boolean),
                             })
-
-                const data =
-                    await response.json()
-
-                if (
-                    !response.ok
-                ) {
-                    setMessage(
-                        data.message ??
-                        'Failed to create movie.'
-                    )
-                    return
-                }
 
                 setMessage(
                     'Movie created successfully.'

@@ -73,17 +73,8 @@ function ManageShowtimes(
     const loadMovies =
         async () => {
 
-            const response =
-                await backendFacade.getAllMovies()
-
-            if (!response.ok) {
-                return
-            }
-
-            const data =
-                await response.json()
-
-            setMovies(data)
+            const movies = await backendFacade.getAllMovies() as Movie[]
+            setMovies(movies)
         }
 
     const loadAvailableShowrooms =
@@ -93,17 +84,9 @@ function ManageShowtimes(
 
             try {
 
-                const response =
-                    await backendFacade.getAvailableShowrooms(date)
-
-                if (!response.ok) {
-                    return
-                }
-
-                const data =
-                    await response.json()
-
-                setAvailableShowroomIds(data)
+                const showrooms =
+                    await backendFacade.getAvailableShowrooms(date) as number[]
+                setAvailableShowroomIds(showrooms)
 
             } finally {
 
@@ -114,17 +97,8 @@ function ManageShowtimes(
     const loadShowrooms =
         async () => {
 
-            const response =
-                await backendFacade.getAllShowrooms()
-
-            if (!response.ok) {
-                return
-            }
-
-            const data =
-                await response.json()
-
-            setShowrooms(data)
+            const showrooms = await backendFacade.getAllShowrooms() as Showroom[]
+            setShowrooms(showrooms)
         }
 
     const getAvailableTimesForDate = (
@@ -171,17 +145,12 @@ function ManageShowtimes(
             selectedShowroomId: number
         ) => {
             try {
-                const response =
-                    await backendFacade.getAvailableTimeslots(selectedDate, selectedShowroomId)
-
-                if (!response.ok) {
-                    return
-                }
-
-                const data =
-                    await response.json()
-
-                setAvailableTimeslots(data)
+                const timeslots =
+                    await backendFacade.getAvailableTimeslots(
+                        selectedDate,
+                        selectedShowroomId
+                    ) as string[]
+                setAvailableTimeslots(timeslots)
             } finally {
                 setLoadingShowtimes(false);
             }
@@ -206,8 +175,7 @@ function ManageShowtimes(
 
             try {
 
-                const response =
-                    await backendFacade.createShow({
+                await backendFacade.createShow({
                                 movieId:
                                     selectedMovie.id,
                                 showroomId:
@@ -218,19 +186,6 @@ function ManageShowtimes(
                                 showTime,
 
                             })
-
-                const data =
-                    await response.json()
-
-                if (!response.ok) {
-
-                    setMessage(
-                        data.message ??
-                        'Failed to create showtime.'
-                    )
-
-                    return
-                }
 
                 setMessage(
                     'Showtime created successfully.'

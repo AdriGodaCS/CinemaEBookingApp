@@ -39,11 +39,7 @@ export const MovieDetails = () => {
             setError(null);
             
             try {
-                const response = await backendFacade.getMovieById(Number(id));
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch movie details (Status: ${response.status})`);
-                }
-                const movieData: Movie = await response.json();
+                const movieData = await backendFacade.getMovieById(Number(id)) as Movie;
                 setMovie(movieData);
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'An error occcured';

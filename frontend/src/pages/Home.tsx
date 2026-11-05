@@ -16,13 +16,7 @@ function Home() {
     // Load movie genres dynamically from the DB
     useEffect(() => {
         const fetchGenreOptions = async () => {
-            const response = await backendFacade.getAllMovies()
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch movies: ${response.status}`)
-            }
-
-            const movies: Movie[] = await response.json()
+            const movies = await backendFacade.getAllMovies() as Movie[]
             const movieGenreOptions = movies
                 .map((movie) => movie.genre.trim())
                 .filter(Boolean)

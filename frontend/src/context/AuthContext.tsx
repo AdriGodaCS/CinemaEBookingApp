@@ -35,13 +35,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       try {
-        const response = await backendFacade.getCurrentUser();
-        if (response.ok) {
-          setUser(await response.json() as User);
-        } else if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem("token");
-          setUser(null);
-        }
+        setUser(await backendFacade.getCurrentUser() as User);
       } catch (error) {
         console.error(error);
       } finally {

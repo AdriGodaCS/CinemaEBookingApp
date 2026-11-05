@@ -49,21 +49,13 @@ function ResetPasswordPage() {
                 }
 
                 try {
-                    const response =
+                    const valid =
                         await backendFacade.checkResetPasswordToken(
                             Number(userId),
                             token
                         )
 
-                    if (!response.ok) {
-                        setValidToken(false)
-                        return
-                    }
-
-                    const valid =
-                        await response.json()
-
-                    setValidToken(valid)
+                    setValidToken(valid as boolean)
                 } catch (error) {
                     console.error(error)
 
@@ -126,18 +118,11 @@ function ResetPasswordPage() {
         }
 
         try {
-            const response =
-                await backendFacade.resetPassword({
+            await backendFacade.resetPassword({
                     userId: Number(userId),
                     token,
                     newPassword,
                 })
-
-            if (!response.ok) {
-                throw new Error(
-                    'Password reset failed'
-                )
-            }
 
             setMessage(
                 'Password successfully updated. Redirecting to login...'

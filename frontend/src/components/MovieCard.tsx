@@ -35,12 +35,10 @@ function MovieCard({
 
       try {
 
-        const response = isFavorited
-          ? await backendFacade.removeFavorite(user.id, id)
-          : await backendFacade.addFavorite(user.id, id)
-
-        if (!response.ok) {
-          return
+        if (isFavorited) {
+          await backendFacade.removeFavorite(user.id, id)
+        } else {
+          await backendFacade.addFavorite(user.id, id)
         }
 
         if (isFavorited) {
