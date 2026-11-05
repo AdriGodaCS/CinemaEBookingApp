@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useRef, useState } from 'react'
 import './ManageShowtimes.css'
 
@@ -73,9 +74,7 @@ function ManageShowtimes(
         async () => {
 
             const response =
-                await fetch(
-                    'http://localhost:8080/movies'
-                )
+                await backendFacade.getAllMovies()
 
             if (!response.ok) {
                 return
@@ -95,9 +94,7 @@ function ManageShowtimes(
             try {
 
                 const response =
-                    await fetch(
-                        `http://localhost:8080/shows/available-showrooms?showDate=${date}`
-                    )
+                    await backendFacade.getAvailableShowrooms(date)
 
                 if (!response.ok) {
                     return
@@ -118,9 +115,7 @@ function ManageShowtimes(
         async () => {
 
             const response =
-                await fetch(
-                    'http://localhost:8080/showrooms'
-                )
+                await backendFacade.getAllShowrooms()
 
             if (!response.ok) {
                 return
@@ -177,9 +172,7 @@ function ManageShowtimes(
         ) => {
             try {
                 const response =
-                    await fetch(
-                        `http://localhost:8080/shows/available-timeslots?showDate=${selectedDate}&showroomId=${selectedShowroomId}`
-                    )
+                    await backendFacade.getAvailableTimeslots(selectedDate, selectedShowroomId)
 
                 if (!response.ok) {
                     return
@@ -214,23 +207,7 @@ function ManageShowtimes(
             try {
 
                 const response =
-                    await fetch(
-                        'http://localhost:8080/shows',
-                        {
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json',
-
-                                Authorization:
-                                    `Bearer ${localStorage.getItem(
-                                        'token'
-                                    ) ?? ''
-                                    }`,
-                            },
-
-                            body: JSON.stringify({
+                    await backendFacade.createShow({
                                 movieId:
                                     selectedMovie.id,
                                 showroomId:
@@ -240,9 +217,7 @@ function ManageShowtimes(
                                 showDate,
                                 showTime,
 
-                            }),
-                        }
-                    )
+                            })
 
                 const data =
                     await response.json()

@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
@@ -6,7 +7,6 @@ import { useAuth } from '../context/AuthContext'
 import type { User } from '../context/AuthContext'
 import './AuthPages.css'
 
-const API_URL = 'http://localhost:8080'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const UNVERIFIED_MESSAGE = 'Account is not verified. Please check your email to verify your account.'
@@ -45,10 +45,9 @@ function LoginPage() {
         try {
             // TODO: confirm the login path and error status codes with Jacob (controller not seen yet)
             // UserController is mapped to /users, so login belongs at /users/login (endpoint still needs to be added)
-            const response = await fetch(`${API_URL}/users/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+            const response = await backendFacade.login({
+                email: email.trim().toLowerCase(),
+                password,
             })
 
             // Assumed contract: 401 = wrong email/password, 403 = account not verified (INACTIVE)

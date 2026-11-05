@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import MovieList from '../components/MovieList'
 import './Home.css'
@@ -15,7 +16,7 @@ function Home() {
     // Load movie genres dynamically from the DB
     useEffect(() => {
         const fetchGenreOptions = async () => {
-            const response = await fetch('http://localhost:8080/movies')
+            const response = await backendFacade.getAllMovies()
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch movies: ${response.status}`)

@@ -1,10 +1,10 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import FormField from '../components/FormField'
 import './AuthPages.css'
 
-const API_URL = 'http://localhost:8080'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function ForgotPasswordPage() {
@@ -31,12 +31,8 @@ function ForgotPasswordPage() {
 
         setSubmitting(true)
         try {
-            // TODO (backend): this public endpoint does not exist yet. It must look the user up by email,
-            // save a reset token, and send the reset email, returning 200 whether or not the email exists.
-            const response = await fetch(`${API_URL}/users/forgot-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: trimmed.toLowerCase() }),
+            const response = await backendFacade.forgotPassword({
+                email: trimmed.toLowerCase(),
             })
 
             if (!response.ok) setFormError('We could not send the reset email. Please try again.')

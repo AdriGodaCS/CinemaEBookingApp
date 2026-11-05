@@ -20,6 +20,7 @@ import com.cinemaebooking.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,29 +33,28 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-    private final BackendApplication backendApplication;
-    private final UserService userService;
-    private final EmailService emailService;
+        private final BackendApplication backendApplication;
+        private final UserService userService;
+        private final EmailService emailService;
 
-    public UserController(UserService userService, EmailService emailService, BackendApplication backendApplication) {
-        this.userService = userService;
-        this.emailService = emailService;
-        this.backendApplication = backendApplication;
-    }   
-
+        public UserController(UserService userService, EmailService emailService,
+                        BackendApplication backendApplication) {
+                this.userService = userService;
+                this.emailService = emailService;
+                this.backendApplication = backendApplication;
+        }
 
         /****** GET ******/
-
 
         @GetMapping("/{id}/checkResetPasswordToken")
         public ResponseEntity<Boolean> checkResetPasswordToken(
                         @PathVariable Integer id,
                         @RequestParam String token) {
-        
+
                 boolean valid = userService.checkResetPasswordToken(
                                 id,
                                 token);
-        
+
                 return ResponseEntity.ok(valid);
         }
 
@@ -96,39 +96,45 @@ public class UserController {
                 return ResponseEntity
                                 .ok("Account verified successfully!");
         }
-        
 
         /****** POST ******/
-
 
         // Create a user -- req: name, email, phone, pswd | opt: card, homeAddress
         @PostMapping
         public ResponseEntity<?> createUser(
-                @RequestBody CreateUserRequest user) {
+                        @RequestBody CreateUserRequest user) {
                 try {
-                
+
                         User createdUser = userService.createUser(user);
                         String verificationToken = UUID.randomUUID().toString();
                         createdUser.setVerificationToken(
                                         verificationToken);
-        
+
                         userService.saveUser(createdUser);
-                        emailService.sendVerificationEmail(
-                                        createdUser.getEmail(),
-                                        createdUser.getId(),
-                                        verificationToken);
-                                        
+                        try {
+                                emailService.sendVerificationEmail(
+                                                createdUser.getEmail(),
+                                                createdUser.getId(),
+                                                verificationToken);
+                        } catch (MailException e) {
+                                return ResponseEntity
+                                                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                                                .body(java.util.Map.of(
+                                                                "message",
+                                                                "Account created, but the verification email could not be sent. Please contact support."));
+                        }
+
                         return ResponseEntity
                                         .status(HttpStatus.CREATED)
                                         .body(createdUser);
                 } catch (IllegalArgumentException e) {
-        
+
                         return ResponseEntity
-                                .status(HttpStatus.CONFLICT)
-                                .body(
-                                        java.util.Map.of(
-                                                "message",
-                                                e.getMessage()));
+                                        .status(HttpStatus.CONFLICT)
+                                        .body(
+                                                        java.util.Map.of(
+                                                                        "message",
+                                                                        e.getMessage()));
                 }
         }
 
@@ -177,18 +183,16 @@ public class UserController {
 
         @PostMapping("/{id}/cards")
         public ResponseEntity<Void> addCard(
-                @PathVariable Integer id,
-                @RequestBody AddPaymentCardRequest request,
-                Authentication authentication
-        ) {
+                        @PathVariable Integer id,
+                        @RequestBody AddPaymentCardRequest request,
+                        Authentication authentication) {
                 if (id != getCurrentUser(authentication).getBody().id()) {
-                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
                 }
 
-
                 userService.addPaymentCard(
-                        id,
-                        request);
+                                id,
+                                request);
 
                 return ResponseEntity.ok().build();
 
@@ -196,33 +200,29 @@ public class UserController {
 
         @PostMapping("/{userId}/favorites/{movieId}")
         public ResponseEntity<Void> addFavorite(
-            @PathVariable Integer userId,
-            @PathVariable Integer movieId,
-            Authentication authentication
-        ) {
-        if (userId != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
-        }
+                        @PathVariable Integer userId,
+                        @PathVariable Integer movieId,
+                        Authentication authentication) {
+                if (userId != getCurrentUser(authentication).getBody().id()) {
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                }
 
-        userService.addFavorite(
-                userId,
-                movieId);
-
+                userService.addFavorite(
+                                userId,
+                                movieId);
 
                 return ResponseEntity.ok().build();
         }
 
-        
         /****** PUT ******/
-
 
         @PutMapping("/reset-password")
         public ResponseEntity<Void> resetPassword(
                         @RequestBody ResetPasswordRequest request) {
-        
+
                 userService.resetPassword(
                                 request);
-        
+
                 return ResponseEntity.ok().build();
         }
 
@@ -262,31 +262,25 @@ public class UserController {
 
         @PutMapping("/{id}/password")
         public ResponseEntity<Void> changePassword(
-                @PathVariable Integer id,
-                @RequestBody ChangePasswordRequest request,
-                Authentication authentication
-        ) {
-        if (id != getCurrentUser(authentication).getBody().id()) {
-            throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
-        }
-        User user = userService.getStoredUserById(id);
-                
-        userService.changePassword(id, request);
-        emailService.sendEmailForUpdataProfile(user.getEmail());
+                        @PathVariable Integer id,
+                        @RequestBody ChangePasswordRequest request,
+                        Authentication authentication) {
+                if (id != getCurrentUser(authentication).getBody().id()) {
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                }
+                User user = userService.getStoredUserById(id);
 
+                userService.changePassword(id, request);
                 return ResponseEntity.ok().build();
         }
 
-        
         /****** DELETE ******/
-        
 
         @DeleteMapping("/{id}/delete")
         public ResponseEntity<Void> deleteUser(
-                @PathVariable Integer id,
-                @RequestBody DeleteUserRequest request,
-                Authentication authentication
-        ) {
+                        @PathVariable Integer id,
+                        @RequestBody DeleteUserRequest request,
+                        Authentication authentication) {
                 // Check id sent in request
                 if (request.id() != getCurrentUser(authentication).getBody().id()) {
                         throw new IllegalArgumentException("User may mot delete a profile that is not theirs");
@@ -297,18 +291,17 @@ public class UserController {
                 }
                 User user = userService.getUserById(request.id());
                 userService.deleteUser(user);
-        
+
                 return ResponseEntity.ok().build();
         }
 
         @DeleteMapping("/{id}/cards/{cardId}")
         public ResponseEntity<Void> removeCard(
-                @PathVariable Integer id,
-                @PathVariable String cardId,
-                Authentication authentication
-                ) {
+                        @PathVariable Integer id,
+                        @PathVariable String cardId,
+                        Authentication authentication) {
                 if (id != getCurrentUser(authentication).getBody().id()) {
-                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
                 }
 
                 userService.removePaymentCard(
@@ -320,17 +313,16 @@ public class UserController {
 
         @DeleteMapping("/{userId}/favorites/{movieId}")
         public ResponseEntity<Void> removeFavorite(
-                @PathVariable Integer userId,
-                @PathVariable Integer movieId,
-                Authentication authentication
-                ) {
+                        @PathVariable Integer userId,
+                        @PathVariable Integer movieId,
+                        Authentication authentication) {
                 if (userId != getCurrentUser(authentication).getBody().id()) {
-                throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
+                        throw new IllegalArgumentException("User may mot edit a profile that is not theirs");
                 }
 
                 userService.removeFavorite(
-                        userId,
-                        movieId);
+                                userId,
+                                movieId);
 
                 return ResponseEntity.noContent().build();
         }

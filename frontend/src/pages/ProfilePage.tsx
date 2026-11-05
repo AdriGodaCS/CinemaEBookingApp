@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from '../components/MovieCard'
+import { backendFacade } from '../services/BackendFacade'
 import type { Movie } from '@/types/movie'
 import './AuthPages.css'
 import './ProfilePage.css'
@@ -33,10 +34,6 @@ type UserProfile = {
 
 function ProfilePage() {
     const { user } = useAuth()
-    const authHeaders = {
-        Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-    }
-
     const [profile, setProfile] =
         useState<UserProfile | null>(null)
 
@@ -132,10 +129,7 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}`,
-                { headers: authHeaders }
-            )
+            const response = await backendFacade.getUserById(user.id)
 
             if (!response.ok) {
                 throw new Error(
@@ -281,10 +275,7 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/favorites`,
-                { headers: authHeaders }
-            )
+            const response = await backendFacade.getFavorites(user.id)
 
             if (!response.ok) {
                 throw new Error(
@@ -358,24 +349,12 @@ function ProfilePage() {
             return
         }
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/profile`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        ...authHeaders,
-                        'Content-Type':
-                            'application/json',
-                    },
-                    body: JSON.stringify({
-                        firstName: profile.firstName,
-                        lastName: profile.lastName,
-                        phone: profile.phone,
-                        homeAddress:
-                            profile.homeAddress,
-                    }),
-                }
-            )
+            const response = await backendFacade.updateProfile(user.id, {
+                firstName: profile.firstName,
+                lastName: profile.lastName,
+                phone: profile.phone,
+                homeAddress: profile.homeAddress,
+            })
 
             if (!response.ok) {
                 throw new Error(
@@ -405,20 +384,9 @@ function ProfilePage() {
 
             try {
 
-                await fetch(
-                    `http://localhost:8080/users/${user.id}/preferences`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            ...authHeaders,
-                            'Content-Type':
-                                'application/json',
-                        },
-                        body: JSON.stringify({
-                            recievePromotions,
-                        }),
-                    }
-                )
+                await backendFacade.updatePreferences(user.id, {
+                    recievePromotions,
+                })
 
             } catch (error) {
 
@@ -476,21 +444,10 @@ function ProfilePage() {
         }
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/password`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        ...authHeaders,
-                        'Content-Type':
-                            'application/json',
-                    },
-                    body: JSON.stringify({
-                        currentPassword,
-                        newPassword,
-                    }),
-                }
-            )
+            const response = await backendFacade.changePassword(user.id, {
+                currentPassword,
+                newPassword,
+            })
 
             if (!response.ok) {
                 throw new Error(
@@ -660,37 +617,17 @@ function ProfilePage() {
         }
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/cards`,
-                {
-                    method: 'POST',
-                    headers: {
-                        ...authHeaders,
-                        'Content-Type':
-                            'application/json',
-                    },
-                    body: JSON.stringify({
-                        cardNumber,
-                        expirationMonth:
-                            Number(
-                                expiration.split('/')[0]
-                            ),
-
-                        expirationYear:
-                            2000 +
-                            Number(
-                                expiration.split('/')[1]
-                            ),
-                        billingAddress: {
-                            street: billingStreet,
-                            city: billingCity,
-                            state: billingState,
-                            zipCode:
-                                billingZipCode,
-                        },
-                    }),
-                }
-            )
+            const response = await backendFacade.addPaymentCard(user.id, {
+                cardNumber,
+                expirationMonth: Number(expiration.split('/')[0]),
+                expirationYear: 2000 + Number(expiration.split('/')[1]),
+                billingAddress: {
+                    street: billingStreet,
+                    city: billingCity,
+                    state: billingState,
+                    zipCode: billingZipCode,
+                },
+            })
 
             if (!response.ok) {
                 const data =
@@ -726,12 +663,9 @@ function ProfilePage() {
         if (!user || !cardId) return
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/cards/${cardId}`,
-                {
-                    method: 'DELETE',
-                    headers: authHeaders,
-                }
+            const response = await backendFacade.removePaymentCard(
+                user.id,
+                cardId
             )
 
             if (!response.ok) {
@@ -762,12 +696,9 @@ function ProfilePage() {
         if (!user) return
 
         try {
-            const response = await fetch(
-                `http://localhost:8080/users/${user.id}/favorites/${movieId}`,
-                {
-                    method: 'DELETE',
-                    headers: authHeaders,
-                }
+            const response = await backendFacade.removeFavorite(
+                user.id,
+                movieId
             )
 
             if (!response.ok) {

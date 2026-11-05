@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from './MovieCard'
@@ -76,8 +77,7 @@ function MovieList({
 
     useEffect(() => {
         const fetchMovies = async () => {
-            const response = await fetch('http://localhost:8080/movies'
-            )
+            const response = await backendFacade.getAllMovies()
 
             if (!response.ok) {
                 throw new Error(
@@ -101,9 +101,7 @@ function MovieList({
             const now = new Date()
             const movieClassifications = await Promise.all(
                 movies.map(async (movie) => {
-                    const showsResponse = await fetch(
-                        `http://localhost:8080/shows/by-movie-id/${movie.id}`,
-                    )
+                    const showsResponse = await backendFacade.getShowsByMovieId(movie.id)
 
                     if (!showsResponse.ok) {
                         throw new Error(
@@ -175,14 +173,7 @@ function MovieList({
             }
 
             try {
-                const response = await fetch(
-                    `http://localhost:8080/users/${user.id}/favorites`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-                        },
-                    }
-                )
+                const response = await backendFacade.getFavorites(user.id)
 
                 if (!response.ok) {
                     return

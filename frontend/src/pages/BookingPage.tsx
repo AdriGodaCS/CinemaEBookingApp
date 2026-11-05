@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { Movie } from "@/types/movie";
@@ -43,7 +44,7 @@ function BookingPage() {
 
     const fetchMovie = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/movies/${movie_id}`);
+        const response = await backendFacade.getMovieById(Number(movie_id));
 
         if (!response.ok) {
           throw new Error(`Failed to fetch movie details (Status: ${response.status})`);

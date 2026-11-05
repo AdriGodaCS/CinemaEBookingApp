@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import {
     useSearchParams,
@@ -49,8 +50,9 @@ function ResetPasswordPage() {
 
                 try {
                     const response =
-                        await fetch(
-                            `http://localhost:8080/users/${userId}/checkResetPasswordToken?token=${token}`
+                        await backendFacade.checkResetPasswordToken(
+                            Number(userId),
+                            token
                         )
 
                     if (!response.ok) {
@@ -125,22 +127,11 @@ function ResetPasswordPage() {
 
         try {
             const response =
-                await fetch(
-                    'http://localhost:8080/users/reset-password',
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type':
-                                'application/json',
-                        },
-                        body: JSON.stringify({
-                            userId:
-                                Number(userId),
-                            token,
-                            newPassword,
-                        }),
-                    }
-                )
+                await backendFacade.resetPassword({
+                    userId: Number(userId),
+                    token,
+                    newPassword,
+                })
 
             if (!response.ok) {
                 throw new Error(
