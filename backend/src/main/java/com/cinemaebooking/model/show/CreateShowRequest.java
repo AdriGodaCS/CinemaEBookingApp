@@ -17,8 +17,7 @@ public record CreateShowRequest(
     String showTime,
 
     Integer durationMinutes,
-
-    @NotBlank 
+    
     String status
 ) {
 }

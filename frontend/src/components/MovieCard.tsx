@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './MovieCard.css'
@@ -34,25 +35,10 @@ function MovieCard({
 
       try {
 
-        const url = `http://localhost:8080/users/${user.id}/favorites/${id}`
-
-        const response =
-          await fetch(
-            url,
-            {
-              method:
-                isFavorited
-                  ? 'DELETE'
-                  : 'POST',
-              headers: {
-                Authorization:
-                  `Bearer ${localStorage.getItem('token') ?? ''}`,
-              },
-            }
-          )
-
-        if (!response.ok) {
-          return
+        if (isFavorited) {
+          await backendFacade.removeFavorite(user.id, id)
+        } else {
+          await backendFacade.addFavorite(user.id, id)
         }
 
         if (isFavorited) {

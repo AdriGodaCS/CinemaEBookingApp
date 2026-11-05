@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import {
     useSearchParams,
@@ -48,20 +49,13 @@ function ResetPasswordPage() {
                 }
 
                 try {
-                    const response =
-                        await fetch(
-                            `http://localhost:8080/users/${userId}/checkResetPasswordToken?token=${token}`
+                    const valid =
+                        await backendFacade.checkResetPasswordToken(
+                            Number(userId),
+                            token
                         )
 
-                    if (!response.ok) {
-                        setValidToken(false)
-                        return
-                    }
-
-                    const valid =
-                        await response.json()
-
-                    setValidToken(valid)
+                    setValidToken(valid as boolean)
                 } catch (error) {
                     console.error(error)
 
@@ -124,29 +118,11 @@ function ResetPasswordPage() {
         }
 
         try {
-            const response =
-                await fetch(
-                    'http://localhost:8080/users/reset-password',
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type':
-                                'application/json',
-                        },
-                        body: JSON.stringify({
-                            userId:
-                                Number(userId),
-                            token,
-                            newPassword,
-                        }),
-                    }
-                )
-
-            if (!response.ok) {
-                throw new Error(
-                    'Password reset failed'
-                )
-            }
+            await backendFacade.resetPassword({
+                    userId: Number(userId),
+                    token,
+                    newPassword,
+                })
 
             setMessage(
                 'Password successfully updated. Redirecting to login...'

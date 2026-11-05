@@ -21,10 +21,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/movie/:movie_id/booking/:show_id" element={<BookingPage />} />
-          <Route
+          <Route // Route to ProtectedRoute proxy before going to ProfilePage
             path="/profile"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute> 
                 <ProfilePage />
               </ProtectedRoute>
             }

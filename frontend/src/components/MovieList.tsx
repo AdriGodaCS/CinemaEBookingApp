@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from './MovieCard'
@@ -76,17 +77,8 @@ function MovieList({
 
     useEffect(() => {
         const fetchMovies = async () => {
-            const response = await fetch('http://localhost:8080/movies'
-            )
-
-            if (!response.ok) {
-                throw new Error(
-                    `Failed to fetch movies: ${response.status}`
-                )
-            }
-
-            const movies: Movie[] =
-                await response.json()
+            const movies =
+                await backendFacade.getAllMovies() as Movie[]
 
             const normalizedInput =
                 (input ?? '')
@@ -101,17 +93,8 @@ function MovieList({
             const now = new Date()
             const movieClassifications = await Promise.all(
                 movies.map(async (movie) => {
-                    const showsResponse = await fetch(
-                        `http://localhost:8080/shows/by-movie-id/${movie.id}`,
-                    )
-
-                    if (!showsResponse.ok) {
-                        throw new Error(
-                            `Failed to fetch shows for movie ${movie.id}: ${showsResponse.status}`,
-                        )
-                    }
-
-                    const shows: Show[] = await showsResponse.json()
+                    const shows =
+                        await backendFacade.getShowsByMovieId(movie.id) as Show[]
                     const hasFutureShow = shows.some(
                         (show) => parseShowDateTime(show) >= now,
                     )
@@ -175,21 +158,8 @@ function MovieList({
             }
 
             try {
-                const response = await fetch(
-                    `http://localhost:8080/users/${user.id}/favorites`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
-                        },
-                    }
-                )
-
-                if (!response.ok) {
-                    return
-                }
-
                 const favorites =
-                    await response.json()
+                    await backendFacade.getFavorites(user.id) as Movie[]
 
                 setFavoriteMovieIds(
                     new Set(

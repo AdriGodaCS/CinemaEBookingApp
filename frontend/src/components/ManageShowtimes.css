@@ -1,0 +1,138 @@
+.showtime-container {
+    margin-top: 2rem;
+}
+
+.showtime-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.showtime-movie-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.showtime-movie-card {
+    border: 1px solid var(--line);
+    background: #20252a;
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.showtime-movie-title {
+    margin: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+}
+
+.showtime-movie-button {
+    width: 100%;
+    padding: 12px 18px;
+
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--night);
+
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.showtime-movie-button:hover {
+    filter: brightness(1.08);
+}
+
+.showtime-form-panel {
+    border: 1px solid var(--line);
+    background: #20252a;
+    padding: 24px;
+
+    display: grid;
+    gap: 18px;
+}
+
+.showtime-form-panel h3 {
+    margin: 0;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.showtime-field {
+    display: grid;
+    gap: 6px;
+}
+
+.showtime-field label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.showtime-field input,
+.showtime-field select {
+    width: 100%;
+    padding: 12px 14px;
+
+    border: 1px solid var(--line);
+    background: rgba(32, 37, 42, 0.86);
+    color: var(--ink);
+
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.showtime-field input:focus,
+.showtime-field select:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+.showtime-submit-button {
+    padding: 12px 18px;
+
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--night);
+
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.showtime-submit-button:hover {
+    filter: brightness(1.08);
+}
+
+.showtime-message {
+    margin: 0;
+    padding: 12px 14px;
+
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+
+.showtime-field input[type="date"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+
+    cursor: pointer;
+}
+
+.showtime-field input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1);
+    opacity: 1;
+}
+
+@media (max-width: 900px) {
+
+    .showtime-layout {
+        grid-template-columns: 1fr;
+    }
+
+}

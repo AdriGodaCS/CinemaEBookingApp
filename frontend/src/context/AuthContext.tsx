@@ -1,3 +1,4 @@
+import { backendFacade } from "../services/BackendFacade";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -10,7 +11,7 @@ export interface User {
 }
 
 interface AuthContextType {
-  user: User | null;  
+  user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
   logout: () => void;
@@ -22,47 +23,28 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({
-  children,
-}: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadCurrentUser();
-  }, []);
-
-  const loadCurrentUser = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        "http://localhost:8080/users/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data: User = await response.json();
-        setUser(data);
-      } else if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem("token");
-        setUser(null);
+    const loadCurrentUser = async () => {
+      if (!localStorage.getItem("token")) {
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      try {
+        setUser(await backendFacade.getCurrentUser() as User);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadCurrentUser();
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -70,14 +52,7 @@ export function AuthProvider({
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser,        
-        loading,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -85,16 +60,13 @@ export function AuthProvider({
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
   if (!context) {
-    throw new Error(
-      "useAuth must be used within an AuthProvider"
-    );
+    throw new Error("useAuth must be used within an AuthProvider");
   }
 
   return {
     ...context,
     isLoggedIn: !!context.user,
-    isAdmin: (context.user) ? context.user.role === "ADMIN" : false}
-    ;
+    isAdmin: context.user?.role === "ADMIN",
+  };
 }

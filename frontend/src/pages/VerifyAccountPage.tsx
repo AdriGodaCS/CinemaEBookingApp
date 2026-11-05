@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './VerifyAccountPage.css'
@@ -30,23 +31,8 @@ function VerifyAccountPage() {
       verificationAttempted.current = true
 
       try {
-        const query =
-          new URLSearchParams({ token })
-
-        const response =
-          await fetch(
-            `http://localhost:8080/users/verify?${query.toString()}`
-          )
-
-        const text =
-          await response.text()
-
-        if (!response.ok) {
-          setMessage(text)
-          return
-        }
-
-        setMessage(text)
+        const result = await backendFacade.verifyUser(token)
+        setMessage(typeof result === 'string' ? result : 'Account verified.')
       } catch (error) {
         console.error(error)
 

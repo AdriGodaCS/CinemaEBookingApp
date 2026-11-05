@@ -1,3 +1,4 @@
+import { backendFacade } from '../services/BackendFacade'
 import { useState } from 'react'
 import './AddMovieForm.css'
 
@@ -211,18 +212,7 @@ function AddMovieForm({
             }
 
             try {
-                const response =
-                    await fetch(
-                        'http://localhost:8080/movies',
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type':
-                                    'application/json',
-                                Authorization: `Bearer ${localStorage.getItem('token') ?? ''
-                                    }`,
-                            },
-                            body: JSON.stringify({
+                await backendFacade.createMovie({
                                 title:
                                     formData.title,
                                 rating:
@@ -276,22 +266,7 @@ function AddMovieForm({
                                             review.trim()
                                         )
                                         .filter(Boolean),
-                            }),
-                        }
-                    )
-
-                const data =
-                    await response.json()
-
-                if (
-                    !response.ok
-                ) {
-                    setMessage(
-                        data.message ??
-                        'Failed to create movie.'
-                    )
-                    return
-                }
+                            })
 
                 setMessage(
                     'Movie created successfully.'

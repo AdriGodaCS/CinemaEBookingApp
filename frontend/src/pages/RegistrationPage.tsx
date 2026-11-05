@@ -1,10 +1,11 @@
+import { backendFacade } from '../services/BackendFacade'
+import { BackendError } from '../services/BackendFacade'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import FormField from '../components/FormField'
 import './AuthPages.css'
 
-const API_URL = 'http://localhost:8080'
 const MAX_CARDS = 3
 
 type CardEntry = {
@@ -264,30 +265,32 @@ function RegistrationPage() {
         setSubmitting(true)
         try {
             // Backend route is POST /users (permitted in SecurityConfig)
-            const response = await fetch(`${API_URL}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
-
-            if (!response.ok) {
-                const data = await response.json().catch(() => null)
-                const message: string = data?.message ?? ''
+            await backendFacade.createUser(payload)
+            setRegisteredEmail(payload.email)
+        } catch (error) {
+            if (error instanceof BackendError) {
+                const message = typeof error.data === 'object' &&
+                    error.data !== null && 'message' in error.data &&
+                    typeof error.data.message === 'string'
+                    ? error.data.message
+                    : error.message
                 // Backend throws "A user with that email already exists"; the status code depends on the controller
-                if (response.status === 409 || message.toLowerCase().includes('already exists')) {
+                if (error.status === 409 || message.toLowerCase().includes('already exists')) {
                     // Distinct duplicate-email error: field message, a banner with next steps, and focus on the field
                     setErrors({ email: 'An account with this email already exists.' })
                     setDuplicateEmail(true)
                     setTimeout(() => document.getElementById('email')?.focus(), 0)
+                } else if (error.status === 503) {
+                    setServerError(
+                        message ||
+                        'Your account was created, but the verification email could not be sent. Please contact support.'
+                    )
                 } else {
                     setServerError(message || 'We could not create your account. Please try again.')
                 }
             } else {
-                // Account is created as INACTIVE and the user is NOT logged in
-                setRegisteredEmail(payload.email)
+                setServerError('Unable to reach the server. Check your connection and try again.')
             }
-        } catch {
-            setServerError('Unable to reach the server. Check your connection and try again.')
         } finally {
             setSubmitting(false)
         }

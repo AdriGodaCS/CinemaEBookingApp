@@ -19,7 +19,7 @@ function ProtectedRoute({
     return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>
+  return <>{children}</> // Navigate to desired behavior if checks pass
 }
 
 export default ProtectedRoute
