@@ -13,7 +13,7 @@ function ShowtimesList({showtimes, movieStatus}:ShowtimesListProps) {
     
     return (
         <div>
-            {(showtimes.length === 0) || movieStatus != 'Currently Running' ? (
+            {(showtimes.length === 0) ? (
                 <div>
                     <p className={styles['coming-soon-message']}>No showtimes yet.</p>
                 </div>
