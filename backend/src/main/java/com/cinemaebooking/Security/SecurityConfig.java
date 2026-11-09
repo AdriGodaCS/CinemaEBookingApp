@@ -35,6 +35,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/users/verify").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/seatlocks/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/seatlocks/**").permitAll()
+                                                .requestMatchers(HttpMethod.DELETE, "/seatlocks/**").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/users/*/checkResetPasswordToken")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.PUT, "/users/reset-password").permitAll()
