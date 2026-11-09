@@ -1,20 +1,18 @@
 package com.cinemaebooking.Security;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.cinemaebooking.Security.JwtUtil;
-
-import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -36,6 +34,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/users/verify").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/seatlocks/**").permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/users/*/checkResetPasswordToken")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.PUT, "/users/reset-password").permitAll()
