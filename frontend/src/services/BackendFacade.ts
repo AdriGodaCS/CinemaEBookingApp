@@ -165,14 +165,13 @@ export class BackendFacade {
   }
 
   getSeatLocksByShowId(showId: number) {
-    return this.request(`/seatlocks/show/${showId}`, { requiresAuth: true });
+    return this.request(`/seatlocks/show/${showId}`);
   }
 
   createSeatLock(showId: number, seatLock: JsonValue) {
     return this.request(`/seatlocks/show/${showId}`, {
       method: "POST",
       body: seatLock,
-      requiresAuth: true,
     });
   }
 
@@ -180,7 +179,6 @@ export class BackendFacade {
     return this.request(`/seatlocks/${seatLockId}`, {
       method: "DELETE",
       body: request,
-      requiresAuth: true,
     });
   }
 
