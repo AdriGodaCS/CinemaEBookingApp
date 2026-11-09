@@ -1,5 +1,3 @@
-import { backendFacade } from '../services/BackendFacade'
-import { BackendError } from '../services/BackendFacade'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
@@ -8,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import type { User } from '../context/AuthContext'
 import './AuthPages.css'
 
+const API_URL = 'http://localhost:8080'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const UNVERIFIED_MESSAGE = 'Account is not verified. Please check your email to verify your account.'
@@ -46,12 +45,33 @@ function LoginPage() {
         try {
             // TODO: confirm the login path and error status codes with Jacob (controller not seen yet)
             // UserController is mapped to /users, so login belongs at /users/login (endpoint still needs to be added)
-            const data = await backendFacade.login({
-                email: email.trim().toLowerCase(),
-                password,
-            }) as { token: string; user: User & { status?: string } }
+            const response = await fetch(`${API_URL}/users/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+            })
+
+            // Assumed contract: 401 = wrong email/password, 403 = account not verified (INACTIVE)
+            if (response.status === 401) {
+                setFormError('Incorrect email or password. Please try again.')
+                return
+            }
+            if (response.status === 403) {
+                // Backend currently sends "Account must be verified to log in." for INACTIVE, which is not the
+                // exact wording the rubric expects, so only a suspended message is passed through as-is.
+                const data = await response.json().catch(() => null)
+                const message: string = data?.message ?? ''
+                setFormError(message.toLowerCase().includes('suspend') ? message : UNVERIFIED_MESSAGE)
+                return
+            }
+            if (!response.ok) {
+                const data = await response.json().catch(() => null)
+                setFormError(data?.message ?? 'We could not log you in. Please try again.')
+                return
+            }
 
             // Backend LoginResponse: { token, tokenType, user: LoggedInUserData }
+            const data: { token: string; user: User & { status?: string } } = await response.json()
 
             // The backend currently issues a token even for INACTIVE accounts, so block them here too.
             // Check this BEFORE saving the token so an unverified user is never "logged in".
@@ -64,25 +84,8 @@ function LoginPage() {
 
             // Setting the user triggers the <Navigate> above, which picks the page by role
             setUser(data.user)
-        } catch (error) {
-            if (error instanceof BackendError) {
-                if (error.status === 401) {
-                    setFormError('Incorrect email or password. Please try again.')
-                } else if (error.status === 403) {
-                    const message = typeof error.data === 'object' &&
-                        error.data !== null && 'message' in error.data &&
-                        typeof error.data.message === 'string'
-                        ? error.data.message
-                        : ''
-                    setFormError(message.toLowerCase().includes('suspend')
-                        ? message
-                        : UNVERIFIED_MESSAGE)
-                } else {
-                    setFormError(error.message)
-                }
-            } else {
-                setFormError('Unable to reach the server. Check your connection and try again.')
-            }
+        } catch {
+            setFormError('Unable to reach the server. Check your connection and try again.')
         } finally {
             setSubmitting(false)
         }

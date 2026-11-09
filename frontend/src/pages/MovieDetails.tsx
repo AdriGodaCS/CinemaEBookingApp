@@ -1,9 +1,9 @@
-import { backendFacade } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import type { Movie } from '@/types/movie'
 import type { Show } from '@/types/show'
-import { mockShowtimes } from '@/types/show'
+import { backendFacade } from '@/services/BackendFacade'
+import { fetchShowsForMovie } from '@/services/BookingApi'
 import ShowtimesList from '@/components/ShowtimesList'
 import { CastAndCrew } from '@/components/CastAndCrew'
 import styles from './MovieDetails.module.css'
@@ -21,7 +21,8 @@ export const MovieDetails = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [showtimes, setShowtimes] = useState<Show[]>(mockShowtimes);
+    const [showtimes, setShowtimes] = useState<Show[]>([]);
+    const [showtimesError, setShowtimesError] = useState<string | null>(null);
     
     // Load Movie info dynamically from the DB
     useEffect(() => {
@@ -39,15 +40,42 @@ export const MovieDetails = () => {
             setError(null);
             
             try {
-                const movieData = await backendFacade.getMovieById(Number(id)) as Movie;
+                const movieData = (await backendFacade.getMovieById(movieId)) as Movie | null | undefined;
+                // The backend answers 200 with an empty body for an unknown movie id
+                if (!movieData) {
+                    throw new Error('No movie found.');
+                }
                 setMovie(movieData);
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'An error occcured';
+                setError(message);
             } finally {
                 setIsLoading(false);
             }
         }
         fetchMovie();
+    }, [movieId])
+
+    // Load this movie's showtimes dynamically from the DB, earliest first
+    useEffect(() => {
+        if (isNaN(movieId)) return;
+
+        const loadShowtimes = async () => {
+            setShowtimesError(null);
+            try {
+                const shows = await fetchShowsForMovie(movieId);
+                setShowtimes(
+                    [...shows].sort((a, b) =>
+                        (a.showDate + a.showTime).localeCompare(b.showDate + b.showTime)
+                    )
+                );
+            } catch (err) {
+                console.error('Failed to load showtimes:', err);
+                setShowtimes([]);
+                setShowtimesError(err instanceof Error ? err.message : 'Failed to load showtimes.');
+            }
+        }
+        loadShowtimes();
     }, [movieId])
     
     // Guard rendering
@@ -95,10 +123,14 @@ export const MovieDetails = () => {
             <section>
                 <h3>Showtimes</h3>
                     <div>
-                        <ShowtimesList
-                            showtimes={showtimes}
-                            movieStatus={movie.status}
-                        />
+                        {showtimesError ? (
+                            <p role="alert">Showtimes could not be loaded. {showtimesError}</p>
+                        ) : (
+                            <ShowtimesList
+                                showtimes={showtimes}
+                                movieStatus={movie.status}
+                            />
+                        )}
                     </div>
             </section>
         </div>
