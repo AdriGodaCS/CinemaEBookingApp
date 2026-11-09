@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import type { Dispatch, ReactNode, SetStateAction } from 'react'
+import { useAuth } from '@/context/AuthContext'
 import type { TicketType } from '@/types/show'
 
 // The in-progress order. It is saved in sessionStorage, so the chosen seats stay held for this browser
@@ -39,6 +40,25 @@ function loadDraft(): BookingDraft | null {
 
 export function BookingProvider({ children }: { children: ReactNode }) {
     const [booking, setBooking] = useState<BookingDraft | null>(loadDraft)
+    const { user, loading } = useAuth()
+
+    // undefined = not known yet, null = nobody is logged in
+    const previousUserId = useRef<number | null | undefined>(undefined)
+
+    // When someone logs out, or a different person logs in, drop the saved order so it never carries over
+    // (it contains the previous customer's confirmation email). A guest who logs in keeps their order.
+    useEffect(() => {
+        if (loading) return
+
+        const currentUserId = user?.id ?? null
+        const previous = previousUserId.current
+
+        if (previous !== undefined && previous !== null && previous !== currentUserId) {
+            setBooking(null)
+        }
+
+        previousUserId.current = currentUserId
+    }, [user, loading])
 
     useEffect(() => {
         try {
