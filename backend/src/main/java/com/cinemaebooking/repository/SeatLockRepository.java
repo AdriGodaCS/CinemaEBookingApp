@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository 
-public interface SeatLockRepository extends MongoRepository<SeatLock, Integer> {
+public interface SeatLockRepository extends MongoRepository<SeatLock, String> {
     List<SeatLock> findAll();
 
     List<SeatLock> findByShowId(Integer showId);
 
-    Optional<SeatLock> findByShowIdAndSeatId(Integer showId, Integer seatId);
+    Optional<SeatLock> findByShowIdAndSeatId(Integer showId, String seatId);
 
     List<SeatLock> findByLockedAt(String lockedAt);
 
@@ -22,5 +22,5 @@ public interface SeatLockRepository extends MongoRepository<SeatLock, Integer> {
 
     Optional<SeatLock> findTopByOrderByIdDesc();
 
-    Boolean existsByShowIdAndSeatId();
+    Boolean existsByShowIdAndSeatId(Integer showId, String seatId);
 }

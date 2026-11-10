@@ -9,7 +9,7 @@ public record CreateSeatLockRequest(
     Integer showId,
 
     @NotNull
-    Integer seatId,
+    String seatId,
 
     @NotNull
     Integer customerId,

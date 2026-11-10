@@ -58,7 +58,7 @@ public class SeatLockController {
     // Delete a seat lock for a specific showId
     @DeleteMapping("/{seatLockId}")
     public ResponseEntity<Void> deleteSeatLock(
-        @PathVariable Integer seatLockId,
+        @PathVariable String seatLockId,
         @RequestBody DeleteSeatLockRequest request
     ) {
         try {

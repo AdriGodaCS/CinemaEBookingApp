@@ -4,15 +4,16 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+@Document(collection = "seatLocks")
 public class SeatLock {
     @Id 
-    private Integer id;
+    private String id;
 
     @Field("show_id")
     private Integer showId;
 
     @Field("seat_id")
-    private Integer seatId;
+    private String seatId;
 
     @Field("customer_id")
     private Integer customerId;
@@ -28,11 +29,11 @@ public class SeatLock {
     // Getters and setters
 
     // Getter and Setter for id
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -46,11 +47,11 @@ public class SeatLock {
     }
 
     // Getter and Setter for seatId
-    public Integer getSeatId() {
+    public String getSeatId() {
         return seatId;
     }
 
-    public void setSeatId(Integer seatId) {
+    public void setSeatId(String seatId) {
         this.seatId = seatId;
     }
 

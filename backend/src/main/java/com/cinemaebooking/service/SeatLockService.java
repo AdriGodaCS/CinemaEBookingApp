@@ -17,7 +17,7 @@ public class SeatLockService {
         this.seatLockRepository = seatLockRepository;
     }
 
-    public SeatLock getById(Integer id) {
+    public SeatLock getById(String id) {
         SeatLock seatLock = seatLockRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(
                     "SeatLock not found with id" + id));
@@ -30,11 +30,7 @@ public class SeatLockService {
 
     public SeatLock createSeatLock(CreateSeatLockRequest request) {
         SeatLock seatLock = new SeatLock();
-        Integer nextId = seatLockRepository.findTopByOrderByIdDesc()
-                .map(existingSeatLock -> existingSeatLock.getId() + 1)
-                .orElse(1);
-
-        seatLock.setId(nextId);
+                    
         seatLock.setShowId(request.showId());
         seatLock.setSeatId(request.seatId());
         seatLock.setCustomerId(request.customerId());
@@ -43,7 +39,8 @@ public class SeatLockService {
         seatLock.setExpiresAt(request.expiresAt());
 
         // Check for duplicates
-        if (seatLockRepository.existsByShowIdAndSeatId()) {
+        if (seatLockRepository.existsByShowIdAndSeatId(request.showId(),
+            request.seatId())) {
             throw new IllegalArgumentException("Cannot select a seat that is already locked.");
         }
 
