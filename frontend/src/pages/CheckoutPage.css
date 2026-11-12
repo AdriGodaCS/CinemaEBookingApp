@@ -58,3 +58,40 @@ a.auth-button {
 .auth-form fieldset:disabled {
   opacity: 0.7;
 }
+
+/* Saved card choices on the payment page */
+.payment-card-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.payment-card-option input {
+  margin-top: 4px;
+  accent-color: var(--gold);
+}
+
+.payment-card-option.selected {
+  border-color: var(--gold);
+}
+
+.payment-card-option.expired {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.payment-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.payment-card-details strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
