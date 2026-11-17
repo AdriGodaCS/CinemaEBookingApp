@@ -21,6 +21,8 @@ type Show = {
 type MovieListProps = {
     input?: string
     genre?: string
+    fromDate?: string
+    toDate?: string
 }
 
 const parseShowDateTime = (show: Show): Date => {
@@ -60,9 +62,37 @@ const parseShowDateTime = (show: Show): Date => {
     return parsedDate
 }
 
+const isWithinDateRange = (
+    show: Show,
+    fromDate?: string,
+    toDate?: string,
+) => {
+
+    const showDate =
+        show.showDate
+
+    if (
+        fromDate &&
+        showDate < fromDate
+    ) {
+        return false
+    }
+
+    if (
+        toDate &&
+        showDate > toDate
+    ) {
+        return false
+    }
+
+    return true
+}
+
 function MovieList({
     input,
     genre,
+    fromDate,
+    toDate
 }: MovieListProps) {
     const { user, isLoggedIn } = useAuth()
 
@@ -136,15 +166,36 @@ function MovieList({
                 movies.map(async (movie) => {
                     const shows =
                         await backendFacade.getShowsByMovieId(movie.id) as Show[]
-                    const hasFutureShow = shows.some(
-                        (show) => parseShowDateTime(show) >= now,
-                    )
+
+                    const hasFutureShow =
+                        shows.some(
+                            (show) =>
+                                parseShowDateTime(show) >= now &&
+                                isWithinDateRange(
+                                    show,
+                                    fromDate,
+                                    toDate,
+                                ),
+                        )
+
+                    const matchingShows =
+                        shows.filter(
+                            (show) =>
+                                isWithinDateRange(
+                                    show,
+                                    fromDate,
+                                    toDate,
+                                )
+                        )
 
                     return {
                         movie,
                         hasFutureShow,
-                        hasNoShows: shows.length === 0,
+                        hasNoShows:
+                            matchingShows.length === 0,
                     }
+
+
                 }),
             )
 
@@ -189,7 +240,7 @@ function MovieList({
                 setComingSoonMovies([])
             }
         )
-    }, [input, genre])
+    }, [input, genre, fromDate, toDate])
 
     useEffect(() => {
         const fetchFavorites = async () => {

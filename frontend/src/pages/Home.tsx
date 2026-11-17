@@ -9,6 +9,11 @@ type Movie = {
 }
 
 function Home() {
+    const [fromDate, setFromDate] =
+        useState('')
+
+    const [toDate, setToDate] =
+        useState('')
     const [inputTitle, setInputTitle] = useState('')
     const [genre, setGenre] = useState('')
     const [genreOptions, setGenreOptions] = useState<string[]>([])
@@ -40,11 +45,23 @@ function Home() {
                     <div className="movie-date-fields">
                         <div>
                             <label htmlFor="movie-show-date-from">From</label>
-                            <input id="movie-show-date-from" type="date" />
+                            <input
+                                id="movie-show-date-from"
+                                type="date"
+                            />
                         </div>
                         <div>
                             <label htmlFor="movie-show-date-to">To</label>
-                            <input id="movie-show-date-to" type="date" />
+                            <input
+                                id="movie-show-date-to"
+                                type="date"
+                                value={toDate}
+                                onChange={(event) =>
+                                    setToDate(
+                                        event.target.value
+                                    )
+                                }
+                            />
                         </div>
                     </div>
                 </div>
@@ -76,7 +93,12 @@ function Home() {
                     </div>
                 </div>
             </div>
-            <MovieList input={inputTitle} genre={genre} />
+            <MovieList
+                input={inputTitle}
+                genre={genre}
+                fromDate={fromDate}
+                toDate={toDate}
+            />
         </section>
     )
 }
