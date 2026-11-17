@@ -66,6 +66,10 @@ function MovieList({
 }: MovieListProps) {
     const { user, isLoggedIn } = useAuth()
 
+    const [recommendedMovies,
+        setRecommendedMovies] =
+        useState<Movie[]>([])
+
     const [currentlyRunningMovies, setCurrentlyRunningMovies] =
         useState<Movie[]>([])
 
@@ -74,6 +78,43 @@ function MovieList({
 
     const [favoriteMovieIds, setFavoriteMovieIds] =
         useState<Set<number>>(new Set())
+
+    useEffect(() => {
+        const fetchRecommendations =
+            async () => {
+
+                if (
+                    !isLoggedIn ||
+                    !user
+                ) {
+
+                    setRecommendedMovies([])
+                    return
+                }
+
+                try {
+
+                    const recommendations =
+                        await backendFacade.getRecommendations() as Movie[]
+
+                    setRecommendedMovies(
+                        recommendations
+                    )
+
+                } catch (error) {
+
+                    console.error(
+                        'Failed to load recommendations:',
+                        error
+                    )
+
+                    setRecommendedMovies([])
+                }
+            }
+
+        fetchRecommendations()
+
+    }, [isLoggedIn, user])
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -202,6 +243,58 @@ function MovieList({
             data-input={input}
             data-genre={genre}
         >
+            {
+                isLoggedIn && (
+
+                    <section
+                        className="movie-section"
+                        aria-labelledby="recommended-title"
+                    >
+
+                        <div className="movie-section-heading">
+                            <h2 id="recommended-title">
+                                Recommended For You
+                            </h2>
+                        </div>
+
+                        <div className="movie-grid">
+
+                            {recommendedMovies.length ===
+                                0 ? (
+                                <p className="no-matching-movies">
+                                    No recommendations available.
+                                </p>
+                            ) : (
+                                recommendedMovies.map(
+                                    (movie) => (
+                                        <MovieCard
+                                            key={movie.id}
+                                            id={movie.id}
+                                            poster_url={
+                                                movie.posterUrl
+                                            }
+                                            title={movie.title}
+                                            genre={movie.genre}
+                                            rating={movie.rating}
+                                            isFavorited={favoriteMovieIds.has(
+                                                movie.id
+                                            )}
+                                            onFavorite={
+                                                handleFavoriteAdded
+                                            }
+                                            onUnfavorite={
+                                                handleFavoriteRemoved
+                                            }
+                                        />
+                                    )
+                                )
+                            )}
+
+                        </div>
+
+                    </section>
+                )
+            }
             <section
                 className="movie-section"
                 aria-labelledby="currently-running-title"

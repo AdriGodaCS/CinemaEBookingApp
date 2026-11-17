@@ -106,6 +106,10 @@ export class BackendFacade {
     return this.request(`/movies/status/${encodeURIComponent(status)}`);
   }
 
+  getRecommendations() {
+    return this.request(`/movies/recommendations`, { requiresAuth: true });
+  }
+
   createMovie(movie: JsonValue) {
     return this.request("/movies", {
       method: "POST",
