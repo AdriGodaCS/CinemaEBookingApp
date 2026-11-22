@@ -1,19 +1,17 @@
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.booking.Booking;
-import com.cinemaebooking.model.booking.CreateBookingRequest;
+import com.cinemaebooking.model.user.User;
+import com.cinemaebooking.repository.UserRepository;
 import com.cinemaebooking.service.BookingService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bookings")
@@ -21,24 +19,36 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final UserRepository userRepository;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(
+            BookingService bookingService,
+            UserRepository userRepository) {
         this.bookingService = bookingService;
+        this.userRepository = userRepository;
     }
 
-    /****** GET ******/
+    @GetMapping("/history")
+    public ResponseEntity<?> getOrderHistory(
+            Authentication authentication) {
 
-    @GetMapping("/user/{userId}")
-    public List<Booking> getBookingsByUserId(@PathVariable Integer userId) {
-        return bookingService.getByUserId(userId);
-    }
+        String email = authentication.getName();
 
-    /****** POST ******/
+        User user = userRepository
+                .findByEmailIgnoreCase(email)
+                .orElse(null);
 
-    @PostMapping
-    public ResponseEntity<Booking> addBooking(
-            @RequestBody CreateBookingRequest bookingRequest) {
-        Booking createdBooking = bookingService.createBooking(bookingRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
+        if (user == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "message",
+                            "Customer account not found."));
+        }
+
+        List<Booking> bookings =
+                bookingService.getOrderHistory(user.getId());
+
+        return ResponseEntity.ok(bookings);
     }
 }
