@@ -220,8 +220,7 @@ public class UserController {
         public ResponseEntity<Void> resetPassword(
                         @RequestBody ResetPasswordRequest request) {
 
-                userService.resetPassword(
-                                request);
+                userService.resetPassword(request);
 
                 return ResponseEntity.ok().build();
         }

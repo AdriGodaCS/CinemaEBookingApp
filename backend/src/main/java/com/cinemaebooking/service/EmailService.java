@@ -95,4 +95,19 @@ public class EmailService {
                     e);
         }
     }
+    public void sendEmailPromotion(String toEmail, String promoCode) {
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(toEmail);
+            helper.setSubject("Cinema E-Booking Promo Code");
+            helper.setText("<p>Your promo code is: " + promoCode + ".</p>", true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
 }
