@@ -34,6 +34,12 @@
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
 
+		<!-- JSON serialization for Gemini requests and responses -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 		<!-- .env support -->
 		<dependency>
 			<groupId>io.github.cdimascio</groupId>
