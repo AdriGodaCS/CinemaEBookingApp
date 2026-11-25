@@ -1,4 +1,5 @@
 import { backendFacade } from '../services/BackendFacade'
+import type { Recommendation } from '../services/BackendFacade'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import MovieCard from './MovieCard'
@@ -124,11 +125,17 @@ function MovieList({
 
                 try {
 
-                    const recommendations =
-                        await backendFacade.getRecommendations() as Movie[]
+                    const recommendation =
+                        await backendFacade.generateRecommendations(user.id) as Recommendation
+                    const movies =
+                        await backendFacade.getAllMovies() as Movie[]
+                    const moviesById =
+                        new Map(movies.map((movie) => [movie.id, movie]))
 
                     setRecommendedMovies(
-                        recommendations
+                        recommendation.recommendations
+                            .map(({ movieId }) => moviesById.get(movieId))
+                            .filter((movie): movie is Movie => movie !== undefined)
                     )
 
                 } catch (error) {

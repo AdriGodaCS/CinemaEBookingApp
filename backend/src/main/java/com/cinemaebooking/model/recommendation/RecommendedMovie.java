@@ -1,10 +1,12 @@
 package com.cinemaebooking.model.recommendation;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class RecommendedMovie {
 
     @Field("movie_id")
+    @JsonAlias("movie_id")
     private Integer movieId;
 
     private String reason;

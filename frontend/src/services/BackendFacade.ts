@@ -5,6 +5,18 @@ const API_URL = "http://localhost:8080";
 
 type JsonValue = Record<string, unknown> | string | number | boolean | null;
 
+export interface RecommendedMovie {
+  movieId: number;
+  reason: string;
+}
+
+export interface Recommendation {
+  id: number;
+  customerId: number;
+  generatedAt: string;
+  recommendations: RecommendedMovie[];
+}
+
 export class BackendError extends Error {
   constructor(
     message: string,
@@ -106,8 +118,17 @@ export class BackendFacade {
     return this.request(`/movies/status/${encodeURIComponent(status)}`);
   }
 
-  getRecommendations() {
-    return this.request(`/movies/recommendations`, { requiresAuth: true });
+  getRecommendations(customerId: number) {
+    return this.request(`/recommendations/${customerId}`, {
+      requiresAuth: true,
+    });
+  }
+
+  generateRecommendations(customerId: number) {
+    return this.request(`/recommendations/${customerId}/generate`, {
+      method: "POST",
+      requiresAuth: true,
+    });
   }
 
   createMovie(movie: JsonValue) {

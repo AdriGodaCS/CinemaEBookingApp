@@ -130,10 +130,21 @@ public class RecommendationService {
 
             return recommendationRepository.save(recommendation);
         } catch (IOException e) {
-            throw new IllegalStateException("Could not get recommendations from Gemini.", e);
+            String detail = e.getMessage();
+            if (detail == null || detail.isBlank()) {
+                detail = e.getClass().getSimpleName();
+            } else {
+                detail = detail.replace('\n', ' ').replace('\r', ' ').trim();
+                if (detail.length() > 300) {
+                    detail = detail.substring(0, 297) + "...";
+                }
+            }
+            throw new IllegalStateException(
+                    "Could not get recommendations from Gemini: " + detail,
+                    e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Could not get recommendations from Gemini.", e);
+            throw new IllegalStateException("Gemini request was interrupted.", e);
         }
     }
 
@@ -227,8 +238,18 @@ public class RecommendationService {
         if (value != null && !value.isBlank()) {
             return value;
         }
-        return Dotenv.configure()
+
+        value = Dotenv.configure()
                 .directory("./")
+                .ignoreIfMissing()
+                .load()
+                .get(key);
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+
+        return Dotenv.configure()
+                .directory("./backend")
                 .ignoreIfMissing()
                 .load()
                 .get(key);
