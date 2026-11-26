@@ -1,3 +1,4 @@
+
 package com.cinemaebooking.service;
 
 import com.cinemaebooking.model.booking.Booking;
@@ -16,6 +17,18 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
     }
 
+    // Add a booking
+    public Booking addBooking(Booking booking) {
+        return bookingRepository.save(booking);
+    }
+
+    // Get bookings for a specific user
+    public List<Booking> getBookingsByUserID(Integer userId) {
+        return bookingRepository
+                .findByCustomerIdOrderByCreatedAtDesc(userId);
+    }
+
+    // Existing order history method
     public List<Booking> getOrderHistory(Integer customerId) {
         return bookingRepository
                 .findByCustomerIdOrderByCreatedAtDesc(customerId);
