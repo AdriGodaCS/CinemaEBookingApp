@@ -1,3 +1,4 @@
+
 package com.cinemaebooking.controller;
 
 import com.cinemaebooking.model.booking.Booking;
@@ -28,26 +29,62 @@ public class BookingController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/history")
-    public ResponseEntity<?> getOrderHistory(
+    // POST /bookings
+    @PostMapping
+    public ResponseEntity<?> addBooking(
+            @RequestBody Booking booking,
             Authentication authentication) {
 
-        String email = authentication.getName();
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Login required."));
+        }
 
         User user = userRepository
-                .findByEmailIgnoreCase(email)
+                .findByEmailIgnoreCase(authentication.getName())
                 .orElse(null);
 
         if (user == null) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of(
-                            "message",
-                            "Customer account not found."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found."));
+        }
+
+        // Associate the booking with the logged-in user
+        booking.setCustomerId(user.getId());
+
+        Booking savedBooking = bookingService.addBooking(booking);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(savedBooking);
+    }
+
+    // GET /bookings/user/{userId}
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getBookingsByUserID(
+            @PathVariable Integer userId,
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Login required."));
+        }
+
+        User user = userRepository
+                .findByEmailIgnoreCase(authentication.getName())
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found."));
+        }
+
+        if (!user.getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Access denied."));
         }
 
         List<Booking> bookings =
-                bookingService.getOrderHistory(user.getId());
+                bookingService.getBookingsByUserID(userId);
 
         return ResponseEntity.ok(bookings);
     }
