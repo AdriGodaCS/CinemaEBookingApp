@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FormField from '@/components/FormField'
 import OrderSummary from '@/components/OrderSummary'
 import { useAuth } from '@/context/AuthContext'
 import { useBooking } from '@/context/BookingContext'
-import { backendFacade } from '@/services/BackendFacade'
+import { BackendError, backendFacade } from '@/services/BackendFacade'
+import { createBooking } from '@/services/BookingApi'
 import { isBookingComplete } from '@/utils/BookingMath'
 import './AuthPages.css'
 import './CheckoutPage.css'
@@ -69,18 +70,21 @@ function isValidExpiration(value: string): boolean {
     return year > now.getFullYear() || (year === now.getFullYear() && month >= now.getMonth() + 1)
 }
 
-// Payment preview: the customer can choose a saved card or add a new one to their profile, but no payment is
-// processed in this sprint. Payment processing and the final order confirmation are built for the final demo.
+// Final step: the customer chooses a saved card (or adds one to their profile) and confirms. That books the seats
+// through POST /bookings, and the server sends the confirmation email. The card is not charged for real.
 function PaymentPage() {
     const { user } = useAuth()
-    const { booking } = useBooking()
+    const { booking, clearBooking } = useBooking()
+    const navigate = useNavigate()
 
     const [cards, setCards] = useState<SavedCard[]>([])
     const [loadingCards, setLoadingCards] = useState<boolean>(true)
     const [loadError, setLoadError] = useState<string>('')
     const [selectedCardId, setSelectedCardId] = useState<string>('')
     const [selectError, setSelectError] = useState<string>('')
-    const [notice, setNotice] = useState<string>('')
+    const [placing, setPlacing] = useState<boolean>(false)
+    const [orderError, setOrderError] = useState<string>('')
+    const [seatsTaken, setSeatsTaken] = useState<boolean>(false)
 
     // Add-a-card form
     const [showAddForm, setShowAddForm] = useState<boolean>(false)
@@ -242,7 +246,6 @@ function PaymentPage() {
 
             resetAddForm()
             setShowAddForm(false)
-            setNotice('')
             setAddedMessage('Your card was added to your profile and selected for this order.')
         } catch (error) {
             setAddError(error instanceof Error ? error.message : 'We could not add this card. Please try again.')
@@ -251,9 +254,10 @@ function PaymentPage() {
         }
     }
 
-    const handlePay = (event: FormEvent<HTMLFormElement>) => {
+    const handlePay = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        setNotice('')
+        setOrderError('')
+        setSeatsTaken(false)
 
         if (selectedIndex === -1) {
             setSelectError('Choose a payment card to continue.')
@@ -261,9 +265,37 @@ function PaymentPage() {
         }
 
         setSelectError('')
-        setNotice(
-            `Payment processing is not available yet, so ${cardLabel(selectedIndex)} was not charged and no seats were booked.`
-        )
+        setPlacing(true)
+
+        try {
+            const result = await createBooking(booking, selectedCardId)
+
+            // Show the confirmation, then drop the saved order so the same seats cannot be booked twice
+            navigate('/confirmation', {
+                replace: true,
+                state: {
+                    order: {
+                        bookingNumber: result.bookingNumber ?? String(result.id),
+                        booking,
+                        email: booking.email,
+                    },
+                },
+            })
+            clearBooking()
+        } catch (error) {
+            if (error instanceof BackendError && error.status === 409) {
+                setSeatsTaken(true)
+                setOrderError('One or more of your seats were just booked by someone else, so your order was not placed.')
+            } else {
+                setOrderError(
+                    error instanceof Error
+                        ? `We could not book your seats. ${error.message}`
+                        : 'We could not book your seats. Please try again.'
+                )
+            }
+        } finally {
+            setPlacing(false)
+        }
     }
 
     return (
@@ -271,8 +303,8 @@ function PaymentPage() {
             <div className="auth-card checkout-card">
                 <h1 id="payment-title">Payment</h1>
                 <p className="auth-intro">
-                    Choose the card you would like to pay with, or add a new one. Payment processing and order confirmation
-                    will be added in the final demo.
+                    Choose the card you would like to pay with, or add a new one, then confirm your order to book your
+                    seats.
                 </p>
 
                 <OrderSummary booking={booking} email={booking.email} />
@@ -319,7 +351,6 @@ function PaymentPage() {
                                             onChange={() => {
                                                 setSelectedCardId(card.cardId)
                                                 setSelectError('')
-                                                setNotice('')
                                                 setAddedMessage('')
                                             }}
                                         />
@@ -485,15 +516,18 @@ function PaymentPage() {
                         </form>
                     )}
 
-                    {notice && (
-                        <p className="form-message success" role="status">
-                            {notice}
+                    {orderError && (
+                        <p className="form-message error" role="alert">
+                            {orderError}{' '}
+                            {seatsTaken && (
+                                <Link to={`/movie/${booking.movieId}/booking/${booking.showId}`}>Choose different seats</Link>
+                            )}
                         </p>
                     )}
 
                     {/* Belongs to the saved-cards form above, wherever it sits on the page */}
-                    <button type="submit" form="pay-form" className="auth-button">
-                        Pay now
+                    <button type="submit" form="pay-form" className="auth-button" disabled={placing}>
+                        {placing ? 'Booking your seats...' : 'Pay and book seats'}
                     </button>
                 </div>
 

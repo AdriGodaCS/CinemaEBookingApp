@@ -19,7 +19,13 @@ public class BookingService {
 
     // Add a booking
     public Booking addBooking(Booking booking) {
-        return bookingRepository.save(booking);
+         Integer nextId = bookingRepository.findTopByOrderByIdDesc()
+            .map(existing -> existing.getId() + 1)
+            .orElse(1);
+
+        booking.setId(nextId);
+
+        return bookingRepository.insert(booking);
     }
 
     // Get bookings for a specific user

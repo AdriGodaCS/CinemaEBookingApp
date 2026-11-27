@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository
@@ -13,4 +14,6 @@ public interface BookingRepository
 
     List<Booking> findByCustomerIdOrderByCreatedAtDesc(
             Integer customerId);
+
+        Optional<Booking> findTopByOrderByIdDesc();
 }

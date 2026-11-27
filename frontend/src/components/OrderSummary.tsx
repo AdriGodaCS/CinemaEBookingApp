@@ -1,6 +1,6 @@
 import type { BookingDraft } from '@/context/BookingContext'
 import { TICKET_LABELS, TICKET_TYPES } from '@/types/show'
-import { getSubtotal } from '@/utils/BookingMath'
+import { BOOKING_FEE_PER_TICKET, TAX_RATE, getOrderTotals } from '@/utils/BookingMath'
 import { formatShowDate, formatShowTime } from '@/utils/ShowFormat'
 
 type OrderSummaryProps = {
@@ -10,6 +10,8 @@ type OrderSummaryProps = {
 }
 
 function OrderSummary({ booking, email }: OrderSummaryProps) {
+    const totals = getOrderTotals(booking)
+
     return (
         <section className="order-summary" aria-label="Order summary">
             <h2>Order summary</h2>
@@ -39,9 +41,25 @@ function OrderSummary({ booking, email }: OrderSummaryProps) {
                 </div>
             ))}
 
+            <h3>Charges</h3>
+            <div className="order-row">
+                <span>Tickets subtotal</span>
+                <span>${totals.subtotal.toFixed(2)}</span>
+            </div>
+            <div className="order-row">
+                <span>
+                    Online booking fee ({totals.ticketCount} × ${BOOKING_FEE_PER_TICKET.toFixed(2)})
+                </span>
+                <span>${totals.bookingFee.toFixed(2)}</span>
+            </div>
+            <div className="order-row">
+                <span>Tax ({Math.round(TAX_RATE * 100)}%)</span>
+                <span>${totals.tax.toFixed(2)}</span>
+            </div>
+
             <div className="order-total">
-                <span>Total before tax</span>
-                <span>${getSubtotal(booking).toFixed(2)}</span>
+                <span>Order total</span>
+                <span>${totals.total.toFixed(2)}</span>
             </div>
 
             {email && (

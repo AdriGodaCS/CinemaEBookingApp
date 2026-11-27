@@ -314,6 +314,14 @@ export class BackendFacade {
       requiresAuth: true,
     });
   }
+
+  createBooking(booking: JsonValue) {
+    return this.request("/bookings", {
+      method: "POST",
+      body: booking,
+      requiresAuth: true,
+    });
+  }
 }
 
 export const backendFacade = new BackendFacade();

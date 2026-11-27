@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import BookingPage from './pages/BookingPage'
 import CheckoutPage from './pages/CheckoutPage'
 import PaymentPage from './pages/PaymentPage'
+import ConfirmationPage from './pages/ConfirmationPage'
 import ProfilePage from './pages/ProfilePage'
 import VerifyAccountPage from './pages/VerifyAccountPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
@@ -27,6 +28,7 @@ function App() {
             <Route path="/movie/:movie_id/booking/:show_id" element={<BookingPage />} />
             <Route path ="/checkout" element={<ProtectedRoute> <CheckoutPage /></ProtectedRoute>} />
             <Route path ="/payment" element={<ProtectedRoute> <PaymentPage /></ProtectedRoute>} />
+            <Route path = "/confirmation" element={<ProtectedRoute> <ConfirmationPage /></ProtectedRoute>} />
             <Route // Route to ProtectedRoute proxy before going to ProfilePage
               path="/profile"
               element={
